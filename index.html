@@ -219,6 +219,16 @@
             color: white;
             border-color: #007bff;
         }
+        
+        input[type="number"] {
+            width: 200px;
+            box-sizing: border-box;
+        }
+        
+        .income-source input[type="number"] {
+            width: 200px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -299,7 +309,7 @@
                             <span class="tooltip-text">Annual income from this source before taxes.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeAmount-1" class="income-amount" min="0" step="1000" value="0" style="width: 100%;">
+                    <input type="number" id="incomeAmount-1" class="income-amount" min="0" step="1000" value="0">
                     
                     <label for="incomeStartAge-1">Start Age:
                         <span class="tooltip">
@@ -307,7 +317,7 @@
                             <span class="tooltip-text">Age when this income begins.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeStartAge-1" class="income-start-age" min="50" max="120" value="65" style="width: 100%;">
+                    <input type="number" id="incomeStartAge-1" class="income-start-age" min="50" max="120" value="65">
                     
                     <label for="incomeEndAge-1">End Age:
                         <span class="tooltip">
@@ -315,26 +325,27 @@
                             <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeEndAge-1" class="income-end-age" min="50" max="120" value="120" style="width: 100%;">
+                    <input type="number" id="incomeEndAge-1" class="income-end-age" min="50" max="120" value="120">
                 </div>
             </div>
         </div>
 
         <button type="button" id="addIncomeSource" style="background-color: #007bff; margin-bottom: 20px;">Add Another Income Source</button>
         
+        <div class="section-info">
+            <h3>Run Your Simulations</h3>
+            <p>Choose how many simulations to run. More simulations provide more accurate results but take longer to process. For quick testing, try 10-100 simulations. For more reliable results, run 1,000 or more. Each simulation represents one possible future scenario based on historical market data.</p>
+        </div>
+
         <label for="numSimulations">Number of Simulations:
             <span class="tooltip">
                 <span class="icon">?</span>
-                <span class="tooltip-text">More simulations provide more accurate results but take longer to calculate. 1000 simulations is recommended for comprehensive analysis, while 10 or 100 can be used for quick estimates.</span>
+                <span class="tooltip-text">How many different scenarios to simulate. More simulations give more reliable results but take longer to process.</span>
             </span>
         </label>
-        <select id="numSimulations">
-            <option value="10">10 (Quick)</option>
-            <option value="100">100 (Detailed)</option>
-            <option value="1000" selected>1000 (Comprehensive)</option>
-        </select>
-        
-        <button id="runSimulation">Run Monte Carlo Simulation</button>
+        <input type="number" id="numSimulations" min="10" max="10000" value="1000">
+
+        <button id="runSimulation">Run Simulation</button>
         
         <div id="loadingIndicator" class="loading">
             <div class="loading-spinner"></div>
@@ -610,7 +621,7 @@
                             <span class="tooltip-text">Annual income from this source before taxes.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeAmount-${incomeSourceCounter}" class="income-amount" min="0" step="1000" value="0" style="width: 100%;">
+                    <input type="number" id="incomeAmount-${incomeSourceCounter}" class="income-amount" min="0" step="1000" value="0">
                     
                     <label for="incomeStartAge-${incomeSourceCounter}">Start Age:
                         <span class="tooltip">
@@ -618,7 +629,7 @@
                             <span class="tooltip-text">Age when this income begins.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeStartAge-${incomeSourceCounter}" class="income-start-age" min="${retirementAge}" max="120" value="${retirementAge}" style="width: 100%;">
+                    <input type="number" id="incomeStartAge-${incomeSourceCounter}" class="income-start-age" min="${retirementAge}" max="120" value="${retirementAge}">
                     
                     <label for="incomeEndAge-${incomeSourceCounter}">End Age:
                         <span class="tooltip">
@@ -626,7 +637,7 @@
                             <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
                         </span>
                     </label>
-                    <input type="number" id="incomeEndAge-${incomeSourceCounter}" class="income-end-age" min="${retirementAge}" max="120" value="120" style="width: 100%;">
+                    <input type="number" id="incomeEndAge-${incomeSourceCounter}" class="income-end-age" min="${retirementAge}" max="120" value="120">
                 </div>
             `;
             
