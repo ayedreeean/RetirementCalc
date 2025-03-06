@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Planning Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .input-section {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .results-section {
+            display: none;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select, button {
+            margin-bottom: 15px;
+            padding: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 10px 15px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .simulation-details {
+            margin-top: 20px;
+            display: none;
+        }
+        .chart-container {
+            margin-top: 30px;
+            height: 400px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-indicator {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .success-percentage {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .simulation-row {
+            cursor: pointer;
+        }
+        
+        .simulation-row:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .simulation-row.selected {
+            background-color: #e7f3ff;
+        }
+        
+        .simulation-chart {
+            display: none;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .simulation-details-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .simulation-details-button:hover {
+            background-color: #5a6268;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .tooltip .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #6c757d;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: #555;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .section-info {
+            background-color: #e9f7fe;
+            border-left: 4px solid #4a9cff;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .section-info h3 {
+            margin-top: 0;
+            color: #2c6faa;
+        }
+        
+        .section-info p {
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        
+        .filter-buttons {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-button {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-button:hover {
+            background-color: #e9ecef;
+        }
+        
+        .filter-button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Retirement Planning Tool</h1>
+    
+    <div class="input-section">
+        <h2>Enter Your Information</h2>
+        
+        <div class="section-info">
+            <h3>About This Tool</h3>
+            <p>This retirement planning tool uses Monte Carlo simulation to model the uncertainty of investment returns and inflation. For each simulation, it randomly selects historical S&P 500 returns and inflation rates from the past 100 years and applies them to each year of your retirement period. By running thousands of these randomized scenarios, it helps you understand the probability of your retirement plan succeeding under different market conditions.</p>
+        </div>
+        
+        <label for="currentAge">Current Age:
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">Your current age. This helps establish your timeline to retirement.</span>
+            </span>
+        </label>
+        <input type="number" id="currentAge" min="0" max="120" value="45">
+        
+        <label for="retirementAge">Retirement Age:
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">The age at which you plan to retire. This is when you'll start withdrawing from your portfolio.</span>
+            </span>
+        </label>
+        <input type="number" id="retirementAge" min="0" max="120" value="65">
+        
+        <label for="lifeExpectancy">Life Expectancy:
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">How long you expect to live. Consider your health, family history, and lifestyle. Many financial planners recommend using at least age 90-95 to be conservative.</span>
+            </span>
+        </label>
+        <input type="number" id="lifeExpectancy" min="0" max="120" value="95">
+        
+        <label for="startingAmount">Starting Investment Amount ($):
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">The total value of your investment portfolio at the beginning of retirement. This includes all retirement accounts, taxable investments, and other assets you plan to use for retirement income.</span>
+            </span>
+        </label>
+        <input type="number" id="startingAmount" min="0" step="1000" value="500000">
+        
+        <label for="annualExpenses">Annual Expenses ($):
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">How much money you plan to withdraw from your portfolio each year during retirement. This should cover all your living expenses minus any income from Social Security, pensions, or other sources.</span>
+            </span>
+        </label>
+        <input type="number" id="annualExpenses" min="0" step="1000" value="40000">
+        
+        <label for="averageTaxRate">Average Tax Rate (%):
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">The average percentage of withdrawals that will go to taxes. For most retirees, this is between 10-25% depending on income level and state of residence. This affects how much you need to withdraw to cover your expenses.</span>
+            </span>
+        </label>
+        <input type="number" id="averageTaxRate" min="0" max="50" step="1" value="15">
+        
+        <div class="section-info">
+            <h3>Extra Income Sources</h3>
+            <p>Add any additional income sources you expect during retirement, such as rental income, part-time work, or other passive income.</p>
+        </div>
+
+        <div id="incomeSourcesContainer">
+            <div class="income-source" data-id="1">
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <h4 style="margin: 0; flex-grow: 1;">Income Source #1</h4>
+                    <button type="button" class="remove-income-btn" style="display: none;">Remove</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 2;">
+                        <label for="incomeAmount-1">Amount ($):
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Annual income from this source before taxes.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeAmount-1" class="income-amount" min="0" step="1000" value="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="incomeStartAge-1">Start Age:
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Age when this income begins.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeStartAge-1" class="income-start-age" min="50" max="120" value="65">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="incomeEndAge-1">End Age:
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeEndAge-1" class="income-end-age" min="50" max="120" value="120">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="addIncomeSource" style="background-color: #007bff; margin-bottom: 20px;">Add Another Income Source</button>
+        
+        <label for="numSimulations">Number of Simulations:
+            <span class="tooltip">
+                <span class="icon">?</span>
+                <span class="tooltip-text">More simulations provide more accurate results but take longer to calculate. 1000 simulations is recommended for comprehensive analysis, while 10 or 100 can be used for quick estimates.</span>
+            </span>
+        </label>
+        <select id="numSimulations">
+            <option value="10">10 (Quick)</option>
+            <option value="100">100 (Detailed)</option>
+            <option value="1000" selected>1000 (Comprehensive)</option>
+        </select>
+        
+        <button id="runSimulation">Run Monte Carlo Simulation</button>
+        
+        <div id="loadingIndicator" class="loading">
+            <div class="loading-spinner"></div>
+            <span id="loadingText">Running simulations...</span>
+        </div>
+    </div>
+    
+    <div id="resultsSection" class="results-section">
+        <h2>Simulation Results</h2>
+        
+        <div class="success-indicator">
+            <p>Based on <span id="numSimulationsRun"></span> simulations:</p>
+            <div class="success-percentage" id="successPercentage">0%</div>
+            <p>chance of not running out of money during retirement</p>
+            
+            <div class="section-info">
+                <h3>Understanding Success Rate</h3>
+                <p>The success rate shows the percentage of simulations where your portfolio lasted throughout your entire retirement period. A higher percentage indicates a more robust retirement plan. Financial experts often recommend aiming for at least a 75-80% success rate.</p>
+            </div>
+            
+            <!-- Success rate over time chart -->
+            <div class="chart-container">
+                <canvas id="successRateChart"></canvas>
+            </div>
+            
+            <div class="section-info">
+                <h3>About This Chart</h3>
+                <p>This chart shows how the probability of success changes over time. The declining curve is normal - the further into the future you look, the more uncertainty exists. The reference lines indicate different risk levels: 90% (very safe), 75% (safe), and 50% (risky).</p>
+            </div>
+        </div>
+        
+        <div id="summaryResults">
+            <h3>Simulation Summary</h3>
+            <div class="section-info">
+                <h3>Exploring Individual Simulations</h3>
+                <p>Each row represents one possible future scenario based on randomly selected historical market returns and inflation rates. Click on a row to view its chart, or use the "View Details" button to see year-by-year data for that simulation.</p>
+            </div>
+            
+            <div id="simulationFilters" class="filter-buttons">
+                <button id="filterAll" class="filter-button active">All Simulations (<span id="countAll">0</span>)</button>
+                <button id="filterSuccess" class="filter-button">Success (<span id="countSuccess">0</span> - <span id="percentSuccess">0%</span>)</button>
+                <button id="filterFail" class="filter-button">Failure (<span id="countFail">0</span> - <span id="percentFail">0%</span>)</button>
+            </div>
+            
+            <p>Click on a simulation row to view its chart. Each simulation represents a possible future scenario based on historical market data.</p>
+            <table id="summaryTable">
+                <thead>
+                    <tr>
+                        <th>Simulation</th>
+                        <th>Outcome</th>
+                        <th>Final Balance</th>
+                        <th>Average Return</th>
+                        <th>Average Inflation</th>
+                        <th>Years Lasted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                    <!-- Summary data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="simulationChartContainer" class="simulation-chart">
+            <h3 id="selectedSimulationTitle">Simulation Chart</h3>
+            <div class="section-info">
+                <h3>About This Simulation</h3>
+                <p>This chart shows the portfolio balance over time for a single simulation. The shape of this curve is influenced by the specific sequence of market returns and inflation rates that were randomly selected for this scenario.</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="simulationChart"></canvas>
+            </div>
+            <button id="closeChartButton" class="simulation-details-button">Close Chart</button>
+        </div>
+        
+        <div id="simulationDetails" class="simulation-details">
+            <h3>Simulation Details: <span id="simulationNumber"></span></h3>
+            <button id="backToSummaryButton" class="simulation-details-button">Back to Summary</button>
+            
+            <div class="section-info">
+                <h3>Detailed Analysis</h3>
+                <p>This view shows all the factors affecting your portfolio in this simulation. You can see how market returns, inflation, and expenses interact year by year. The chart visualizes these relationships, with dollar amounts on the left axis and percentages on the right.</p>
+            </div>
+            
+            <!-- Chart container for simulation details -->
+            <div class="chart-container">
+                <canvas id="detailsChart"></canvas>
+            </div>
+            
+            <table id="detailsTable">
+                <thead>
+                    <tr>
+                        <th>Simulation</th>
+                        <th>Outcome</th>
+                        <th>Final Balance</th>
+                        <th>Average Return</th>
+                        <th>Average Inflation</th>
+                        <th>Years Lasted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="detailsTableBody">
+                    <!-- Detailed data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Historical S&P 500 returns and inflation data (approximate values for the last 100 years)
+        // These are simplified annual returns - in a real application, you would use more accurate data
+        const historicalData = [
+            // Year, S&P500 Return (%), Inflation Rate (%)
+            { year: 1928, return: 43.81, inflation: -1.2 },
+            { year: 1929, return: -8.30, inflation: 0.0 },
+            { year: 1930, return: -25.12, inflation: -2.3 },
+            { year: 1931, return: -43.84, inflation: -9.0 },
+            { year: 1932, return: -8.64, inflation: -9.9 },
+            { year: 1933, return: 49.98, inflation: -5.1 },
+            { year: 1934, return: -1.19, inflation: 3.1 },
+            { year: 1935, return: 46.74, inflation: 2.3 },
+            { year: 1936, return: 31.94, inflation: 1.4 },
+            { year: 1937, return: -35.34, inflation: 2.9 },
+            { year: 1938, return: 29.28, inflation: -2.8 },
+            { year: 1939, return: -1.10, inflation: 0.0 },
+            { year: 1940, return: -10.67, inflation: 0.7 },
+            { year: 1941, return: -12.77, inflation: 9.9 },
+            { year: 1942, return: 19.17, inflation: 9.0 },
+            { year: 1943, return: 25.06, inflation: 3.0 },
+            { year: 1944, return: 19.03, inflation: 2.3 },
+            { year: 1945, return: 35.82, inflation: 2.2 },
+            { year: 1946, return: -8.43, inflation: 18.1 },
+            { year: 1947, return: 5.20, inflation: 8.8 },
+            { year: 1948, return: 5.70, inflation: 3.0 },
+            { year: 1949, return: 18.30, inflation: -2.1 },
+            { year: 1950, return: 30.81, inflation: 5.9 },
+            { year: 1951, return: 23.68, inflation: 6.0 },
+            { year: 1952, return: 18.15, inflation: 0.8 },
+            { year: 1953, return: -1.21, inflation: 0.7 },
+            { year: 1954, return: 52.56, inflation: -0.7 },
+            { year: 1955, return: 32.60, inflation: 0.4 },
+            { year: 1956, return: 7.44, inflation: 3.0 },
+            { year: 1957, return: -10.46, inflation: 2.9 },
+            { year: 1958, return: 43.72, inflation: 1.8 },
+            { year: 1959, return: 12.06, inflation: 1.7 },
+            { year: 1960, return: 0.34, inflation: 1.4 },
+            { year: 1961, return: 26.64, inflation: 0.7 },
+            { year: 1962, return: -8.81, inflation: 1.3 },
+            { year: 1963, return: 22.61, inflation: 1.6 },
+            { year: 1964, return: 16.42, inflation: 1.0 },
+            { year: 1965, return: 12.40, inflation: 1.9 },
+            { year: 1966, return: -9.97, inflation: 3.5 },
+            { year: 1967, return: 23.80, inflation: 3.0 },
+            { year: 1968, return: 10.81, inflation: 4.7 },
+            { year: 1969, return: -8.24, inflation: 6.2 },
+            { year: 1970, return: 3.56, inflation: 5.6 },
+            { year: 1971, return: 14.22, inflation: 3.3 },
+            { year: 1972, return: 18.76, inflation: 3.4 },
+            { year: 1973, return: -14.31, inflation: 8.7 },
+            { year: 1974, return: -25.90, inflation: 12.3 },
+            { year: 1975, return: 37.00, inflation: 6.9 },
+            { year: 1976, return: 23.83, inflation: 4.9 },
+            { year: 1977, return: -6.98, inflation: 6.7 },
+            { year: 1978, return: 6.51, inflation: 9.0 },
+            { year: 1979, return: 18.52, inflation: 13.3 },
+            { year: 1980, return: 31.74, inflation: 12.5 },
+            { year: 1981, return: -4.70, inflation: 8.9 },
+            { year: 1982, return: 20.42, inflation: 3.8 },
+            { year: 1983, return: 22.34, inflation: 3.8 },
+            { year: 1984, return: 6.15, inflation: 3.9 },
+            { year: 1985, return: 31.24, inflation: 3.8 },
+            { year: 1986, return: 18.49, inflation: 1.1 },
+            { year: 1987, return: 5.81, inflation: 4.4 },
+            { year: 1988, return: 16.54, inflation: 4.4 },
+            { year: 1989, return: 31.48, inflation: 4.6 },
+            { year: 1990, return: -3.06, inflation: 6.1 },
+            { year: 1991, return: 30.23, inflation: 3.1 },
+            { year: 1992, return: 7.49, inflation: 2.9 },
+            { year: 1993, return: 9.97, inflation: 2.7 },
+            { year: 1994, return: 1.33, inflation: 2.7 },
+            { year: 1995, return: 37.20, inflation: 2.5 },
+            { year: 1996, return: 22.68, inflation: 3.3 },
+            { year: 1997, return: 33.10, inflation: 1.7 },
+            { year: 1998, return: 28.34, inflation: 1.6 },
+            { year: 1999, return: 20.89, inflation: 2.7 },
+            { year: 2000, return: -9.03, inflation: 3.4 },
+            { year: 2001, return: -11.85, inflation: 1.6 },
+            { year: 2002, return: -21.97, inflation: 2.4 },
+            { year: 2003, return: 28.36, inflation: 1.9 },
+            { year: 2004, return: 10.74, inflation: 3.3 },
+            { year: 2005, return: 4.83, inflation: 3.4 },
+            { year: 2006, return: 15.61, inflation: 2.5 },
+            { year: 2007, return: 5.48, inflation: 4.1 },
+            { year: 2008, return: -36.55, inflation: 0.1 },
+            { year: 2009, return: 25.94, inflation: 2.7 },
+            { year: 2010, return: 14.82, inflation: 1.5 },
+            { year: 2011, return: 2.10, inflation: 3.0 },
+            { year: 2012, return: 15.89, inflation: 1.7 },
+            { year: 2013, return: 32.15, inflation: 1.5 },
+            { year: 2014, return: 13.52, inflation: 0.8 },
+            { year: 2015, return: 1.38, inflation: 0.7 },
+            { year: 2016, return: 11.77, inflation: 2.1 },
+            { year: 2017, return: 21.61, inflation: 2.1 },
+            { year: 2018, return: -4.23, inflation: 1.9 },
+            { year: 2019, return: 31.21, inflation: 2.3 },
+            { year: 2020, return: 18.02, inflation: 1.4 },
+            { year: 2021, return: 28.47, inflation: 7.0 },
+            { year: 2022, return: -18.01, inflation: 6.5 },
+            { year: 2023, return: 24.23, inflation: 3.4 }
+        ];
+
+        // Global variables to store simulation results
+        let simulationResults = [];
+        
+        // Chart instance variable
+        let simulationChart;
+        
+        // Add a new chart variable
+        let successRateChart;
+        
+        // Add a new chart variable for details view
+        let detailsChart;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default extra income start age to match retirement age
+            document.querySelectorAll('.income-start-age').forEach(input => {
+                input.value = document.getElementById('retirementAge').value;
+            });
+            
+            // Update extra income start age when retirement age changes
+            document.getElementById('retirementAge').addEventListener('change', function() {
+                const retirementAge = parseInt(this.value);
+                document.querySelectorAll('.income-start-age').forEach(input => {
+                    if (parseInt(input.value) < retirementAge) {
+                        input.value = retirementAge;
+                    }
+                    input.min = retirementAge;
+                });
+            });
+            
+            // Add income source button
+            document.getElementById('addIncomeSource').addEventListener('click', addIncomeSource);
+            
+            // Remove income source button event delegation
+            document.getElementById('incomeSourcesContainer').addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-income-btn')) {
+                    removeIncomeSource(e.target.closest('.income-source'));
+                }
+            });
+        });
+        
+        let incomeSourceCounter = 1;
+        
+        function addIncomeSource() {
+            incomeSourceCounter++;
+            
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            
+            const incomeSourceDiv = document.createElement('div');
+            incomeSourceDiv.className = 'income-source';
+            incomeSourceDiv.dataset.id = incomeSourceCounter;
+            
+            incomeSourceDiv.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <h4 style="margin: 0; flex-grow: 1;">Income Source #${incomeSourceCounter}</h4>
+                    <button type="button" class="remove-income-btn">Remove</button>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 2;">
+                        <label for="incomeAmount-${incomeSourceCounter}">Amount ($):
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Annual income from this source before taxes.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeAmount-${incomeSourceCounter}" class="income-amount" min="0" step="1000" value="0">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="incomeStartAge-${incomeSourceCounter}">Start Age:
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Age when this income begins.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeStartAge-${incomeSourceCounter}" class="income-start-age" min="${retirementAge}" max="120" value="${retirementAge}">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="incomeEndAge-${incomeSourceCounter}">End Age:
+                            <span class="tooltip">
+                                <span class="icon">?</span>
+                                <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="incomeEndAge-${incomeSourceCounter}" class="income-end-age" min="${retirementAge}" max="120" value="120">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('incomeSourcesContainer').appendChild(incomeSourceDiv);
+            
+            // Show remove button on first income source if we now have multiple sources
+            if (incomeSourceCounter === 2) {
+                document.querySelector('.income-source[data-id="1"] .remove-income-btn').style.display = 'block';
+            }
+        }
+        
+        function removeIncomeSource(sourceElement) {
+            sourceElement.remove();
+            
+            // Hide remove button on first income source if it's the only one left
+            const remainingSources = document.querySelectorAll('.income-source');
+            if (remainingSources.length === 1) {
+                remainingSources[0].querySelector('.remove-income-btn').style.display = 'none';
+            }
+            
+            // Renumber the remaining sources
+            remainingSources.forEach((source, index) => {
+                const sourceNumber = index + 1;
+                source.querySelector('h4').textContent = `Income Source #${sourceNumber}`;
+            });
+        }
+        
+        document.getElementById('runSimulation').addEventListener('click', function() {
+            const startingAmount = parseFloat(document.getElementById('startingAmount').value);
+            const annualExpenses = parseFloat(document.getElementById('annualExpenses').value);
+            
+            // Collect all income sources
+            const incomeSources = [];
+            document.querySelectorAll('.income-source').forEach(sourceElement => {
+                const sourceId = sourceElement.dataset.id;
+                const amount = parseFloat(document.getElementById(`incomeAmount-${sourceId}`).value) || 0;
+                const startAge = parseInt(document.getElementById(`incomeStartAge-${sourceId}`).value);
+                const endAge = parseInt(document.getElementById(`incomeEndAge-${sourceId}`).value);
+                
+                if (amount > 0) {
+                    incomeSources.push({
+                        amount: amount,
+                        startAge: startAge,
+                        endAge: endAge
+                    });
+                }
+            });
+            
+            // Get age-based inputs
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const lifeExpectancy = parseInt(document.getElementById('lifeExpectancy').value);
+            
+            // Calculate retirement years
+            const retirementYears = lifeExpectancy - retirementAge;
+            
+            const numSimulations = parseInt(document.getElementById('numSimulations').value);
+            
+            if (isNaN(startingAmount) || isNaN(annualExpenses) || isNaN(currentAge) || 
+                isNaN(retirementAge) || isNaN(lifeExpectancy)) {
+                alert('Please enter valid numbers for all fields.');
+                return;
+            }
+            
+            // Validate inputs
+            if (retirementAge <= currentAge) {
+                alert('Retirement age must be greater than your current age.');
+                return;
+            }
+            
+            if (lifeExpectancy <= retirementAge) {
+                alert('Life expectancy must be greater than your retirement age.');
+                return;
+            }
+            
+            // Additional validation for income sources
+            for (const source of incomeSources) {
+                if (source.startAge < retirementAge) {
+                    alert('Income start age cannot be before retirement age.');
+                    return;
+                }
+                
+                if (source.endAge < source.startAge) {
+                    alert('Income end age must be greater than or equal to start age.');
+                    return;
+                }
+            }
+            
+            // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // Use setTimeout to allow the UI to update before starting the simulations
+            setTimeout(function() {
+                // Run the Monte Carlo simulations with income sources
+                const successPercentage = runMonteCarloSimulations(
+                    startingAmount, 
+                    annualExpenses, 
+                    incomeSources,
+                    retirementYears, 
+                    numSimulations
+                );
+                
+                // Update success indicator
+                document.getElementById('numSimulationsRun').textContent = numSimulations;
+                document.getElementById('successPercentage').textContent = successPercentage.toFixed(1) + '%';
+                
+                // Set color based on success rate
+                const successElement = document.getElementById('successPercentage');
+                if (successPercentage >= 80) {
+                    successElement.style.color = '#4CAF50'; // Green
+                } else if (successPercentage >= 50) {
+                    successElement.style.color = '#FF9800'; // Orange
+                } else {
+                    successElement.style.color = '#F44336'; // Red
+                }
+                
+                // Create success rate over time chart
+                createSuccessRateChart(retirementYears);
+                
+                // Display the results
+                displayResults();
+                
+                // Hide loading indicator and show results
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('resultsSection').style.display = 'block';
+            }, 50);
+        });
+        
+        function runMonteCarloSimulations(startingAmount, annualExpenses, incomeSources, retirementYears, numSimulations) {
+            simulationResults = [];
+            
+            for (let i = 0; i < numSimulations; i++) {
+                const simulationData = runSingleSimulation(startingAmount, annualExpenses, incomeSources, retirementYears);
+                simulationResults.push(simulationData);
+            }
+            
+            // Calculate success percentage
+            const successfulSimulations = simulationResults.filter(sim => sim.success).length;
+            const successPercentage = (successfulSimulations / numSimulations) * 100;
+            
+            return successPercentage;
+        }
+        
+        function runSingleSimulation(startingAmount, annualExpenses, incomeSources, retirementYears) {
+            // Get tax rate
+            const averageTaxRate = parseFloat(document.getElementById('averageTaxRate').value) / 100 || 0;
+            
+            const yearlyData = [];
+            let balance = startingAmount;
+            let totalReturn = 0;
+            let totalInflation = 0;
+            let hasFailedAlready = false;
+            
+            // Get the retirement age to calculate actual age for each year
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            
+            for (let year = 1; year <= retirementYears; year++) {
+                // Randomly select a year from historical data
+                const randomIndex = Math.floor(Math.random() * historicalData.length);
+                const yearData = historicalData[randomIndex];
+                
+                const marketReturn = yearData.return / 100;
+                const inflation = yearData.inflation / 100;
+                
+                // Calculate current age for this year
+                const currentAge = retirementAge + year - 1;
+                
+                // Adjust annual expenses for inflation
+                const inflationAdjustedExpenses = year === 1 ? 
+                    annualExpenses : 
+                    yearlyData[year - 2].inflationAdjustedExpenses * (1 + yearlyData[year - 2].inflation);
+                
+                // Calculate total income from all sources for this year
+                let totalIncomeForYear = 0;
+                const incomeDetails = [];
+                
+                for (const source of incomeSources) {
+                    if (currentAge >= source.startAge && currentAge <= source.endAge) {
+                        // Calculate inflation-adjusted income for this source
+                        let adjustedIncome;
+                        if (year === 1) {
+                            adjustedIncome = source.amount;
+                        } else {
+                            // Find if this source was active in the previous year
+                            const prevAge = currentAge - 1;
+                            const wasActiveLastYear = prevAge >= source.startAge && prevAge <= source.endAge;
+                            
+                            if (wasActiveLastYear) {
+                                // If active last year, adjust for inflation
+                                const prevYearSourceIndex = yearlyData[year - 2].incomeDetails.findIndex(
+                                    detail => detail.startAge === source.startAge && detail.endAge === source.endAge
+                                );
+                                
+                                if (prevYearSourceIndex !== -1) {
+                                    adjustedIncome = yearlyData[year - 2].incomeDetails[prevYearSourceIndex].amount * 
+                                        (1 + yearlyData[year - 2].inflation);
+                                } else {
+                                    adjustedIncome = source.amount; // Fallback
+                                }
+                            } else {
+                                // If just starting this year, use base amount
+                                adjustedIncome = source.amount;
+                            }
+                        }
+                        
+                        totalIncomeForYear += adjustedIncome;
+                        incomeDetails.push({
+                            startAge: source.startAge,
+                            endAge: source.endAge,
+                            amount: adjustedIncome
+                        });
+                    }
+                }
+                
+                // Calculate net withdrawal needed (expenses minus extra income)
+                const netWithdrawal = Math.max(0, inflationAdjustedExpenses - totalIncomeForYear);
+                
+                // Calculate gross withdrawal needed (accounting for taxes)
+                const grossWithdrawal = netWithdrawal / (1 - averageTaxRate);
+                const taxesPaid = grossWithdrawal - netWithdrawal;
+                
+                // Calculate new balance with market returns and gross withdrawals
+                const marketGrowth = balance > 0 ? balance * marketReturn : 0;
+                balance = balance + marketGrowth - grossWithdrawal;
+                
+                // Track for averages
+                totalReturn += marketReturn;
+                totalInflation += inflation;
+                
+                // Mark if we've failed (for tracking purposes)
+                if (balance <= 0 && !hasFailedAlready) {
+                    hasFailedAlready = true;
+                }
+                
+                yearlyData.push({
+                    year: year,
+                    age: currentAge,
+                    marketReturn: marketReturn,
+                    inflation: inflation,
+                    inflationAdjustedExpenses: inflationAdjustedExpenses,
+                    inflationAdjustedIncome: totalIncomeForYear,
+                    incomeDetails: incomeDetails,
+                    netWithdrawal: netWithdrawal,
+                    grossWithdrawal: grossWithdrawal,
+                    taxesPaid: taxesPaid,
+                    balance: balance
+                });
+            }
+            
+            const avgReturn = totalReturn / (yearlyData.length || 1); // Avoid division by zero
+            const avgInflation = totalInflation / (yearlyData.length || 1);
+            const success = yearlyData[yearlyData.length - 1].balance > 0; // Portfolio not depleted at end
+            
+            return {
+                yearlyData: yearlyData,
+                finalBalance: yearlyData[yearlyData.length - 1].balance,
+                avgReturn: avgReturn,
+                avgInflation: avgInflation,
+                success: success,
+                yearsLasted: hasFailedAlready ? yearlyData.findIndex(data => data.balance <= 0) + 1 : yearlyData.length
+            };
+        }
+        
+        // Add a utility function for formatting dollar amounts
+        function formatDollarAmount(amount) {
+            return '$' + amount.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Update the displayResults function to use the formatter
+        function displayResults() {
+            // Clear previous results
+            const summaryTableBody = document.getElementById('summaryTableBody');
+            summaryTableBody.innerHTML = '';
+            
+            // Calculate success and failure counts
+            const totalSimulations = simulationResults.length;
+            const successCount = simulationResults.filter(sim => sim.success).length;
+            const failCount = totalSimulations - successCount;
+            const successPercent = (successCount / totalSimulations * 100).toFixed(1);
+            const failPercent = (failCount / totalSimulations * 100).toFixed(1);
+            
+            // Update filter button counts
+            document.getElementById('countAll').textContent = totalSimulations;
+            document.getElementById('countSuccess').textContent = successCount;
+            document.getElementById('countFail').textContent = failCount;
+            document.getElementById('percentSuccess').textContent = successPercent + '%';
+            document.getElementById('percentFail').textContent = failPercent + '%';
+            
+            // Add event listeners to filter buttons
+            document.getElementById('filterAll').addEventListener('click', function() {
+                filterSimulations('all');
+            });
+            
+            document.getElementById('filterSuccess').addEventListener('click', function() {
+                filterSimulations('success');
+            });
+            
+            document.getElementById('filterFail').addEventListener('click', function() {
+                filterSimulations('fail');
+            });
+            
+            // Initially show all simulations
+            filterSimulations('all');
+            
+            // Display summary table with clickable rows
+            simulationResults.forEach((result, index) => {
+                const row = document.createElement('tr');
+                row.className = 'simulation-row';
+                row.dataset.index = index;
+                
+                const indexCell = document.createElement('td');
+                indexCell.textContent = index + 1;
+                
+                const successCell = document.createElement('td');
+                successCell.textContent = result.success ? 'Yes' : 'No';
+                successCell.style.color = result.success ? '#4CAF50' : '#F44336';
+                
+                const finalBalanceCell = document.createElement('td');
+                finalBalanceCell.textContent = formatDollarAmount(result.finalBalance);
+                
+                const avgReturnCell = document.createElement('td');
+                avgReturnCell.textContent = (result.avgReturn * 100).toFixed(2) + '%';
+                
+                const avgInflationCell = document.createElement('td');
+                avgInflationCell.textContent = (result.avgInflation * 100).toFixed(2) + '%';
+                
+                const yearsLastedCell = document.createElement('td');
+                yearsLastedCell.textContent = result.yearsLasted;
+                
+                const detailsCell = document.createElement('td');
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = 'View Details';
+                detailsButton.className = 'simulation-details-button';
+                detailsButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showSimulationDetails(index);
+                });
+                detailsCell.appendChild(detailsButton);
+                
+                row.appendChild(indexCell);
+                row.appendChild(successCell);
+                row.appendChild(finalBalanceCell);
+                row.appendChild(avgReturnCell);
+                row.appendChild(avgInflationCell);
+                row.appendChild(yearsLastedCell);
+                row.appendChild(detailsCell);
+                
+                summaryTableBody.appendChild(row);
+            });
+            
+            // Add event listener to close chart button
+            document.getElementById('closeChartButton').addEventListener('click', function() {
+                document.getElementById('simulationChartContainer').style.display = 'none';
+                document.querySelectorAll('.simulation-row').forEach(r => {
+                    r.classList.remove('selected');
+                });
+            });
+            
+            // Add event listener to back button
+            document.getElementById('backToSummaryButton').addEventListener('click', function() {
+                document.getElementById('simulationDetails').style.display = 'none';
+                document.getElementById('summaryResults').style.display = 'block';
+            });
+        }
+        
+        // Add this new function to handle filtering
+        function filterSimulations(filterType) {
+            // Update active button
+            document.querySelectorAll('.filter-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('filter' + filterType.charAt(0).toUpperCase() + filterType.slice(1)).classList.add('active');
+            
+            // Get all rows
+            const rows = document.querySelectorAll('#summaryTable tbody tr');
+            
+            // Show/hide based on filter
+            rows.forEach(row => {
+                const successCell = row.querySelector('td:nth-child(2)');
+                const isSuccess = successCell.textContent === 'Yes';
+                
+                if (filterType === 'all' || 
+                    (filterType === 'success' && isSuccess) || 
+                    (filterType === 'fail' && !isSuccess)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function showSimulationChart(simulationIndex) {
+            const simulation = simulationResults[simulationIndex];
+            
+            // Update chart title
+            document.getElementById('selectedSimulationTitle').textContent = 
+                `Simulation ${simulationIndex + 1} - ${simulation.success ? 'Success' : 'Failure'}`;
+            
+            // Create chart for this simulation
+            createSingleSimulationChart(simulationIndex);
+            
+            // Show chart container
+            document.getElementById('simulationChartContainer').style.display = 'block';
+        }
+        
+        function showSimulationDetails(simulationIndex) {
+            // Hide summary and show details
+            document.getElementById('summaryResults').style.display = 'none';
+            document.getElementById('simulationChartContainer').style.display = 'none';
+            
+            // Display details for this simulation
+            displaySimulationDetails(simulationIndex);
+            
+            // Create the details chart
+            createDetailsChart(simulationIndex);
+            
+            // Show details section
+            document.getElementById('simulationDetails').style.display = 'block';
+        }
+        
+        function createSingleSimulationChart(simulationIndex) {
+            const simulation = simulationResults[simulationIndex];
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (simulationChart) {
+                simulationChart.destroy();
+            }
+            
+            // Create color based on success/failure
+            const color = simulation.success ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
+            
+            // Find the index where balance first goes negative (if it does)
+            const negativeIndex = simulation.yearlyData.findIndex(data => data.balance <= 0);
+            
+            // Create datasets - one for positive balances, one for negative if needed
+            const datasets = [{
+                label: `Portfolio Balance`,
+                data: simulation.yearlyData.map(data => data.balance),
+                borderColor: color,
+                backgroundColor: color.replace('1)', '0.2)'),
+                borderWidth: 2,
+                fill: true,
+                tension: 0.1
+            }];
+            
+            // Add a zero line if we have negative values
+            if (negativeIndex !== -1) {
+                datasets.push({
+                    label: 'Zero Balance',
+                    data: simulation.yearlyData.map(() => 0),
+                    borderColor: 'rgba(0, 0, 0, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                });
+            }
+            
+            // Create the chart
+            simulationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: simulation.yearlyData.map(data => `Year ${data.year}`),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Portfolio Balance ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Retirement Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataset.label === 'Zero Balance') {
+                                        return 'Zero Balance Line';
+                                    }
+                                    return `Balance: $${context.raw.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    })}`;
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: negativeIndex !== -1 ? {
+                                line1: {
+                                    type: 'line',
+                                    xMin: negativeIndex,
+                                    xMax: negativeIndex,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    label: {
+                                        content: 'Ran out of money',
+                                        enabled: true,
+                                        position: 'top'
+                                    }
+                                }
+                            } : {}
+                        }
+                    }
+                }
+            });
+            
+            // Add additional information about when money ran out
+            if (negativeIndex !== -1) {
+                const failureYear = simulation.yearlyData[negativeIndex].year;
+                const failureAge = simulation.yearlyData[negativeIndex].age;
+                
+                const chartTitle = document.getElementById('selectedSimulationTitle');
+                chartTitle.textContent = `Simulation ${simulationIndex + 1} - Failed (Ran out of money in year ${failureYear}, age ${failureAge})`;
+            }
+        }
+        
+        function displaySimulationDetails(simulationIndex) {
+            const simulation = simulationResults[simulationIndex];
+            document.getElementById('simulationNumber').textContent = `Simulation ${simulationIndex + 1}`;
+            
+            const detailsTableBody = document.getElementById('detailsTableBody');
+            detailsTableBody.innerHTML = '';
+            
+            // Update table headers to include taxes
+            const detailsTable = document.getElementById('detailsTable');
+            const headerRow = detailsTable.querySelector('thead tr');
+            
+            // Reset headers first
+            headerRow.innerHTML = `
+                <th>Simulation</th>
+                <th>Outcome</th>
+                <th>Final Balance</th>
+                <th>Average Return</th>
+                <th>Average Inflation</th>
+                <th>Years Lasted</th>
+                <th>Actions</th>
+            `;
+            
+            simulation.yearlyData.forEach(yearData => {
+                const row = document.createElement('tr');
+                
+                const indexCell = document.createElement('td');
+                indexCell.textContent = yearData.year;
+                
+                const successCell = document.createElement('td');
+                successCell.textContent = yearData.balance > 0 ? 'Success' : 'Failure';
+                successCell.style.color = yearData.balance > 0 ? '#4CAF50' : '#F44336';
+                
+                const finalBalanceCell = document.createElement('td');
+                finalBalanceCell.textContent = formatDollarAmount(yearData.balance);
+                
+                const avgReturnCell = document.createElement('td');
+                avgReturnCell.textContent = `${(yearData.marketReturn * 100).toFixed(2)}%`;
+                
+                const avgInflationCell = document.createElement('td');
+                avgInflationCell.textContent = `${(yearData.inflation * 100).toFixed(2)}%`;
+                
+                const yearsLastedCell = document.createElement('td');
+                yearsLastedCell.textContent = yearData.yearsLasted;
+                
+                const detailsCell = document.createElement('td');
+                const detailsButton = document.createElement('button');
+                detailsButton.textContent = 'View Details';
+                detailsButton.className = 'simulation-details-button';
+                detailsButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    showSimulationDetails(simulationIndex);
+                });
+                detailsCell.appendChild(detailsButton);
+                
+                row.appendChild(indexCell);
+                row.appendChild(successCell);
+                row.appendChild(finalBalanceCell);
+                row.appendChild(avgReturnCell);
+                row.appendChild(avgInflationCell);
+                row.appendChild(yearsLastedCell);
+                row.appendChild(detailsCell);
+                
+                detailsTableBody.appendChild(row);
+            });
+        }
+        
+        function createSuccessRateChart(retirementYears) {
+            const ctx = document.getElementById('successRateChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (successRateChart) {
+                successRateChart.destroy();
+            }
+            
+            // Get retirement age for labeling
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            
+            // Calculate success rate for each year
+            const successRates = [];
+            const labels = [];
+            
+            for (let year = 1; year <= retirementYears; year++) {
+                let successCount = 0;
+                
+                // Count simulations with positive balance at this year
+                simulationResults.forEach(simulation => {
+                    if (year <= simulation.yearlyData.length && simulation.yearlyData[year - 1].balance > 0) {
+                        successCount++;
+                    }
+                });
+                
+                // Calculate percentage
+                const successRate = (successCount / simulationResults.length) * 100;
+                successRates.push(successRate);
+                
+                // Label with age instead of just year
+                const age = retirementAge + year - 1;
+                labels.push(`Age ${age}`);
+            }
+            
+            // Create the chart
+            successRateChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Success Rate',
+                        data: successRates,
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Success Rate (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Probability of Success Over Time',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Success Rate: ${context.raw.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add reference lines for common thresholds
+            addReferenceLines(successRateChart);
+        }
+        
+        function addReferenceLines(chart) {
+            // Add reference lines at 90%, 75%, and 50% success rates
+            const thresholds = [
+                { value: 90, label: '90% - Very Safe', color: 'rgba(75, 192, 75, 0.8)' },
+                { value: 75, label: '75% - Safe', color: 'rgba(255, 205, 86, 0.8)' },
+                { value: 50, label: '50% - Risky', color: 'rgba(255, 99, 132, 0.8)' }
+            ];
+            
+            // Add each threshold line as a dataset
+            thresholds.forEach(threshold => {
+                chart.data.datasets.push({
+                    label: threshold.label,
+                    data: Array(chart.data.labels.length).fill(threshold.value),
+                    borderColor: threshold.color,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                });
+            });
+            
+            chart.update();
+        }
+        
+        function createDetailsChart(simulationIndex) {
+            const simulation = simulationResults[simulationIndex];
+            const ctx = document.getElementById('detailsChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (detailsChart) {
+                detailsChart.destroy();
+            }
+            
+            // Create datasets for balance, market returns, inflation, expenses, and income
+            const balanceData = simulation.yearlyData.map(data => data.balance);
+            const returnData = simulation.yearlyData.map(data => data.marketReturn * 100);
+            const inflationData = simulation.yearlyData.map(data => data.inflation * 100);
+            const expensesData = simulation.yearlyData.map(data => data.inflationAdjustedExpenses);
+            const incomeData = simulation.yearlyData.map(data => data.inflationAdjustedIncome);
+            const netWithdrawalData = simulation.yearlyData.map(data => data.netWithdrawal);
+            
+            // Find the index where balance first goes negative (if it does)
+            const negativeIndex = simulation.yearlyData.findIndex(data => data.balance <= 0);
+            
+            // Create the chart
+            detailsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: simulation.yearlyData.map(data => `Year ${data.year}`),
+                    datasets: [
+                        {
+                            label: 'Portfolio Balance ($)',
+                            data: balanceData,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Annual Expenses ($)',
+                            data: expensesData,
+                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Extra Income ($)',
+                            data: incomeData,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Net Withdrawal ($)',
+                            data: netWithdrawalData,
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Market Return (%)',
+                            data: returnData,
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Inflation (%)',
+                            data: inflationData,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Dollar Amount ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        y1: {
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Percentage (%)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Retirement Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Detailed View - Simulation ${simulationIndex + 1}`,
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    const value = context.raw;
+                                    
+                                    if (label.includes('$')) {
+                                        return `${label}: ${formatDollarAmount(value)}`;
+                                    } else {
+                                        return `${label}: ${value.toFixed(2)}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add a zero line if we have negative balances
+            if (negativeIndex !== -1) {
+                detailsChart.data.datasets.push({
+                    label: 'Zero Balance',
+                    data: simulation.yearlyData.map(() => 0),
+                    borderColor: 'rgba(0, 0, 0, 0.5)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0,
+                    yAxisID: 'y'
+                });
+                detailsChart.update();
+            }
+        }
+    </script>
+</body>
+</html>
