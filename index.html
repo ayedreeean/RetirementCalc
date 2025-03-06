@@ -7,10 +7,48 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Make headings cleaner */
+        h1, h2, h3, h4 {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* Make the success percentage more prominent */
+        .success-percentage {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* Add color based on success rate */
+        .success-percentage.high {
+            color: #27ae60;
+            background-color: #eafaf1;
+        }
+        
+        .success-percentage.medium {
+            color: #f39c12;
+            background-color: #fef9e7;
+        }
+        
+        .success-percentage.low {
+            color: #e74c3c;
+            background-color: #fdedec;
         }
         .input-section {
             background-color: #f5f5f5;
@@ -88,12 +126,6 @@
             padding: 15px;
             margin-bottom: 20px;
             text-align: center;
-        }
-        
-        .success-percentage {
-            font-size: 24px;
-            font-weight: bold;
-            color: #4CAF50;
         }
         
         .simulation-row {
@@ -676,6 +708,21 @@
         }
         
         document.getElementById('runSimulation').addEventListener('click', function() {
+            // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'block';
+            
+            // Hide any previously shown simulation details or charts
+            document.getElementById('simulationDetails').style.display = 'none';
+            document.getElementById('simulationChartContainer').style.display = 'none';
+            
+            // Make sure the summary view will be shown
+            document.getElementById('summaryResults').style.display = 'block';
+            
+            // Clear any selected rows
+            document.querySelectorAll('.simulation-row').forEach(row => {
+                row.classList.remove('selected');
+            });
+            
             const startingAmount = parseFloat(document.getElementById('startingAmount').value);
             const annualExpenses = parseFloat(document.getElementById('annualExpenses').value);
             
@@ -736,11 +783,7 @@
                 }
             }
             
-            // Show loading indicator
-            document.getElementById('loadingIndicator').style.display = 'block';
-            document.getElementById('resultsSection').style.display = 'none';
-            
-            // Use setTimeout to allow the UI to update before starting the simulations
+            // Run the simulations after a short delay to allow the UI to update
             setTimeout(function() {
                 // Run the Monte Carlo simulations with income sources
                 const successPercentage = runMonteCarloSimulations(
@@ -753,16 +796,16 @@
                 
                 // Update success indicator
                 document.getElementById('numSimulationsRun').textContent = numSimulations;
-                document.getElementById('successPercentage').textContent = successPercentage.toFixed(1) + '%';
+                const successPercentageElement = document.getElementById('successPercentage');
+                successPercentageElement.textContent = successPercentage + '%';
                 
-                // Set color based on success rate
-                const successElement = document.getElementById('successPercentage');
+                // Add color class based on success rate
                 if (successPercentage >= 80) {
-                    successElement.style.color = '#4CAF50'; // Green
-                } else if (successPercentage >= 50) {
-                    successElement.style.color = '#FF9800'; // Orange
+                    successPercentageElement.className = 'success-percentage high';
+                } else if (successPercentage >= 60) {
+                    successPercentageElement.className = 'success-percentage medium';
                 } else {
-                    successElement.style.color = '#F44336'; // Red
+                    successPercentageElement.className = 'success-percentage low';
                 }
                 
                 // Create success rate over time chart
@@ -771,9 +814,17 @@
                 // Display the results
                 displayResults();
                 
-                // Hide loading indicator and show results
-                document.getElementById('loadingIndicator').style.display = 'none';
+                // Show results section and hide loading indicator
                 document.getElementById('resultsSection').style.display = 'block';
+                document.getElementById('loadingIndicator').style.display = 'none';
+                
+                // Ensure we're showing the summary view
+                document.getElementById('summaryResults').style.display = 'block';
+                document.getElementById('simulationDetails').style.display = 'none';
+                document.getElementById('simulationChartContainer').style.display = 'none';
+                
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
             }, 50);
         });
         
