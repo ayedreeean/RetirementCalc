@@ -1205,9 +1205,6 @@
             
             // Celebrate if the success rate is good
             celebrateSuccess(successPercent);
-            
-            // Add the most likely outcomes filter
-            addMostLikelyOutcomesFilter();
         }
         
         // Add this new function to handle filtering
@@ -1244,47 +1241,6 @@
                         showSimulationChart(originalIndex);
                     }
                 });
-            } else if (filterType === 'mostLikely') {
-                // Calculate mean and standard deviation of final balances
-                const balances = simulationResults.map(sim => sim.finalBalance);
-                const mean = balances.reduce((sum, val) => sum + val, 0) / balances.length;
-                const variance = balances.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / balances.length;
-                const stdDev = Math.sqrt(variance);
-                
-                // Define the range for "most likely" (within 1 standard deviation of the mean)
-                const lowerBound = mean - stdDev;
-                const upperBound = mean + stdDev;
-                
-                // Show only simulations within this range
-                rows.forEach(row => {
-                    const rowIndex = parseInt(row.dataset.index);
-                    const simulation = simulationResults[rowIndex];
-                    const isWithinRange = simulation.finalBalance >= lowerBound && 
-                                          simulation.finalBalance <= upperBound;
-                    
-                    row.style.display = isWithinRange ? '' : 'none';
-                    row.classList.remove('selected');
-                });
-                
-                // Add a note explaining the filter
-                let noteElement = document.getElementById('mostLikelyNote');
-                if (!noteElement) {
-                    noteElement = document.createElement('p');
-                    noteElement.id = 'mostLikelyNote';
-                    noteElement.style.fontStyle = 'italic';
-                    noteElement.style.marginTop = '10px';
-                    document.getElementById('simulationFilters').after(noteElement);
-                }
-                
-                // Calculate percentage of simulations shown
-                const shownCount = [...rows].filter(row => row.style.display !== 'none').length;
-                const percentage = Math.round((shownCount / rows.length) * 100);
-                
-                noteElement.textContent = `Showing the most statistically likely outcomes (within 1 standard deviation of the mean final balance). This represents approximately ${percentage}% of all simulations.`;
-                noteElement.style.display = 'block';
-                
-                // Hide any open simulation chart
-                document.getElementById('simulationChartContainer').style.display = 'none';
             } else {
                 // Existing filter logic for all/success/fail
                 rows.forEach(row => {
@@ -1958,86 +1914,6 @@
             
             // Start the animation
             requestAnimationFrame(updateCount);
-        }
-
-        // Add this function to identify the most likely outcomes
-        function addMostLikelyOutcomesFilter() {
-            // Add a new filter button
-            const filtersContainer = document.getElementById('simulationFilters');
-            const mostLikelyButton = document.createElement('button');
-            mostLikelyButton.id = 'filterMostLikely';
-            mostLikelyButton.className = 'filter-button';
-            mostLikelyButton.textContent = 'Most Likely Outcomes';
-            filtersContainer.appendChild(mostLikelyButton);
-            
-            // Add event listener
-            mostLikelyButton.addEventListener('click', function() {
-                filterSimulations('mostLikely');
-            });
-        }
-
-        // Update the filterSimulations function to handle the most likely case
-        function filterSimulations(filterType) {
-            // Update active button
-            document.querySelectorAll('.filter-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById('filter' + filterType.charAt(0).toUpperCase() + filterType.slice(1)).classList.add('active');
-            
-            // Get all rows
-            const rows = document.querySelectorAll('#summaryTable tbody tr');
-            
-            if (filterType === 'mostLikely') {
-                // Calculate mean and standard deviation of final balances
-                const balances = simulationResults.map(sim => sim.finalBalance);
-                const mean = balances.reduce((sum, val) => sum + val, 0) / balances.length;
-                const variance = balances.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / balances.length;
-                const stdDev = Math.sqrt(variance);
-                
-                // Define the range for "most likely" (within 1 standard deviation of the mean)
-                const lowerBound = mean - stdDev;
-                const upperBound = mean + stdDev;
-                
-                // Show only simulations within this range
-                rows.forEach(row => {
-                    const rowIndex = parseInt(row.dataset.index);
-                    const simulation = simulationResults[rowIndex];
-                    const isWithinRange = simulation.finalBalance >= lowerBound && 
-                                          simulation.finalBalance <= upperBound;
-                    
-                    row.style.display = isWithinRange ? '' : 'none';
-                    row.classList.remove('selected');
-                });
-                
-                // Add a note explaining the filter
-                let noteElement = document.getElementById('mostLikelyNote');
-                if (!noteElement) {
-                    noteElement = document.createElement('p');
-                    noteElement.id = 'mostLikelyNote';
-                    noteElement.style.fontStyle = 'italic';
-                    noteElement.style.marginTop = '10px';
-                    document.getElementById('simulationFilters').after(noteElement);
-                }
-                
-                // Calculate percentage of simulations shown
-                const shownCount = [...rows].filter(row => row.style.display !== 'none').length;
-                const percentage = Math.round((shownCount / rows.length) * 100);
-                
-                noteElement.textContent = `Showing the most statistically likely outcomes (within 1 standard deviation of the mean final balance). This represents approximately ${percentage}% of all simulations.`;
-                noteElement.style.display = 'block';
-                
-                // Hide any open simulation chart
-                document.getElementById('simulationChartContainer').style.display = 'none';
-            } else {
-                // Hide the note for other filters
-                const noteElement = document.getElementById('mostLikelyNote');
-                if (noteElement) {
-                    noteElement.style.display = 'none';
-                }
-                
-                // Existing filter logic for all/success/fail/median
-                // ... existing code ...
-            }
         }
     </script>
 </body>
