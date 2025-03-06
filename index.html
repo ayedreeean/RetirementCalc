@@ -23,11 +23,7 @@
         }
         
         /* Make the success percentage more prominent */
-        .success-percentage {
-            font-size: 48px;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: center;
+        .success-percentage-container {
             margin: 20px 0;
             padding: 15px;
             background-color: #f8f9fa;
@@ -36,21 +32,43 @@
             transition: all 0.3s ease;
         }
         
+        .success-percentage {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        
+        .success-description {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-top: 5px;
+        }
+        
         /* Add color based on success rate */
-        .success-percentage.high {
-            color: #27ae60;
+        .success-percentage-container.high {
             background-color: #eafaf1;
         }
+        .success-percentage-container.high .success-percentage {
+            color: #27ae60;
+        }
         
-        .success-percentage.medium {
-            color: #f39c12;
+        .success-percentage-container.medium {
             background-color: #fef9e7;
         }
+        .success-percentage-container.medium .success-percentage {
+            color: #f39c12;
+        }
         
-        .success-percentage.low {
-            color: #e74c3c;
+        .success-percentage-container.low {
             background-color: #fdedec;
         }
+        .success-percentage-container.low .success-percentage {
+            color: #e74c3c;
+        }
+        
         .input-section {
             background-color: #f5f5f5;
             padding: 20px;
@@ -590,24 +608,26 @@
         <h2>Simulation Results</h2>
         
         <div class="success-indicator">
-            <p>Based on <span id="numSimulationsRun"></span> simulations:</p>
-            <div class="success-percentage" id="successPercentage">0%</div>
-            <p>chance of not running out of money during retirement</p>
-            
-            <div class="section-info">
-                <h3>Understanding Success Rate</h3>
-                <p>The success rate shows the percentage of simulations where your portfolio lasted throughout your entire retirement period. A higher percentage indicates a more robust retirement plan. Financial experts often recommend aiming for at least a 75-80% success rate.</p>
+            <div id="successPercentageContainer" class="success-percentage-container">
+                <div id="successPercentage" class="success-percentage">0%</div>
+                <div class="success-description">Chance of not running out of money during retirement</div>
             </div>
-            
-            <!-- Success rate over time chart -->
-            <div class="chart-container">
-                <canvas id="successRateChart"></canvas>
-            </div>
-            
-            <div class="section-info">
-                <h3>About This Chart</h3>
-                <p>This chart shows how the probability of success changes over time. The declining curve is normal - the further into the future you look, the more uncertainty exists. The reference lines indicate different risk levels: 90% (very safe), 75% (safe), and 50% (risky).</p>
-            </div>
+            <div class="simulation-count">Based on <span id="numSimulationsRun">0</span> simulations</div>
+        </div>
+        
+        <div class="section-info">
+            <h3>Understanding Success Rate</h3>
+            <p>The success rate shows the percentage of simulations where your portfolio lasted throughout your entire retirement period. A higher percentage indicates a more robust retirement plan. Financial experts often recommend aiming for at least a 75-80% success rate.</p>
+        </div>
+        
+        <!-- Success rate over time chart -->
+        <div class="chart-container">
+            <canvas id="successRateChart"></canvas>
+        </div>
+        
+        <div class="section-info">
+            <h3>About This Chart</h3>
+            <p>This chart shows how the probability of success changes over time. The declining curve is normal - the further into the future you look, the more uncertainty exists. The reference lines indicate different risk levels: 90% (very safe), 75% (safe), and 50% (risky).</p>
         </div>
         
         <div id="summaryResults">
@@ -1001,16 +1021,18 @@
                 // Update success indicator
                 document.getElementById('numSimulationsRun').textContent = numSimulations;
                 const successPercentageElement = document.getElementById('successPercentage');
+                const successPercentageContainer = document.getElementById('successPercentageContainer');
+                
                 // Set initial value to 0%
                 successPercentageElement.textContent = '0%';
                 
                 // Add color class based on success rate
                 if (successPercentage >= 80) {
-                    successPercentageElement.className = 'success-percentage high';
+                    successPercentageContainer.className = 'success-percentage-container high';
                 } else if (successPercentage >= 60) {
-                    successPercentageElement.className = 'success-percentage medium';
+                    successPercentageContainer.className = 'success-percentage-container medium';
                 } else {
-                    successPercentageElement.className = 'success-percentage low';
+                    successPercentageContainer.className = 'success-percentage-container low';
                 }
                 
                 // Animate the percentage counting up
@@ -2195,3 +2217,4 @@
         </div>
     </div>
 </div>
+
