@@ -326,6 +326,142 @@
                 font-size: 11px;
             }
         }
+        
+        /* Add these styles for the help modal and FAQ */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: black;
+        }
+        
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .help-button:hover {
+            background-color: #0056b3;
+        }
+        
+        .faq-container {
+            margin-top: 20px;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .faq-item h3 {
+            cursor: pointer;
+            color: #007bff;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-item h3:after {
+            content: '+';
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active h3:after {
+            content: '−';
+        }
+        
+        .faq-answer {
+            display: none;
+            padding: 10px 0;
+        }
+        
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+        
+        .data-table-container {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .data-table th {
+            background-color: #f2f2f2;
+        }
+        
+        /* Mobile adjustments for help modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+            
+            .help-button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+                bottom: 10px;
+                right: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -702,6 +838,9 @@
             
             // Add this function to generate a shareable URL
             addShareButton();
+            
+            // Add help button
+            addHelpButton();
         });
         
         let incomeSourceCounter = 1;
@@ -1915,6 +2054,144 @@
             // Start the animation
             requestAnimationFrame(updateCount);
         }
+        
+        // Add this code to create the help button and handle the modal
+        function addHelpButton() {
+            // Create the help button
+            const helpButton = document.createElement('button');
+            helpButton.className = 'help-button';
+            helpButton.innerHTML = '?';
+            helpButton.title = 'Help & FAQ';
+            document.body.appendChild(helpButton);
+            
+            // Show modal when help button is clicked
+            helpButton.addEventListener('click', function() {
+                document.getElementById('helpModal').style.display = 'block';
+            });
+            
+            // Close modal when X is clicked
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('helpModal').style.display = 'none';
+            });
+            
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('helpModal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Toggle FAQ answers when clicking on questions
+            document.querySelectorAll('.faq-item h3').forEach(question => {
+                question.addEventListener('click', function() {
+                    const faqItem = this.parentElement;
+                    faqItem.classList.toggle('active');
+                });
+            });
+            
+            // Open the first FAQ item by default
+            document.querySelector('.faq-item').classList.add('active');
+        }
     </script>
 </body>
 </html>
+
+<!-- Add this HTML for the help modal right before the closing </body> tag -->
+<div id="helpModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Retirement Planning Tool Help</h2>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <h3>How does this tool work?</h3>
+                <div class="faq-answer">
+                    <p>This tool uses Monte Carlo simulation to model thousands of possible retirement scenarios based on historical market data. Each simulation randomly samples from historical S&P 500 returns and inflation rates to create a unique sequence of returns for your retirement period.</p>
+                    <p>The tool then calculates how your portfolio would perform under each scenario, accounting for:</p>
+                    <ul>
+                        <li>Your initial portfolio balance</li>
+                        <li>Annual withdrawals adjusted for inflation</li>
+                        <li>Additional income sources during retirement</li>
+                        <li>Taxes on withdrawals</li>
+                        <li>Market volatility and sequence of returns risk</li>
+                    </ul>
+                    <p>The success rate represents the percentage of simulations where your money lasted throughout your entire retirement period.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What assumptions does the tool make?</h3>
+                <div class="faq-answer">
+                    <ul>
+                        <li><strong>Investment Mix:</strong> The tool assumes your portfolio is invested in a mix similar to the S&P 500 index.</li>
+                        <li><strong>Historical Data:</strong> Future returns and inflation are modeled based on historical patterns from 1928 to present.</li>
+                        <li><strong>Withdrawal Strategy:</strong> The tool assumes you withdraw the same inflation-adjusted amount each year.</li>
+                        <li><strong>Taxes:</strong> Taxes are simplified as a flat percentage of withdrawals.</li>
+                        <li><strong>Rebalancing:</strong> The tool assumes your portfolio is regularly rebalanced to maintain your target asset allocation.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Where does the historical data come from?</h3>
+                <div class="faq-answer">
+                    <p>The tool uses historical S&P 500 returns and US inflation data from 1928 to present. Here's a sample of the data:</p>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>S&P 500 Return</th>
+                                    <th>Inflation Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>2022</td><td>-18.11%</td><td>6.45%</td></tr>
+                                <tr><td>2021</td><td>28.71%</td><td>4.70%</td></tr>
+                                <tr><td>2020</td><td>18.40%</td><td>1.36%</td></tr>
+                                <tr><td>2019</td><td>31.49%</td><td>1.81%</td></tr>
+                                <tr><td>2018</td><td>-4.38%</td><td>2.44%</td></tr>
+                                <tr><td>2008</td><td>-36.55%</td><td>3.84%</td></tr>
+                                <tr><td>2000</td><td>-9.10%</td><td>3.38%</td></tr>
+                                <tr><td>1987</td><td>5.25%</td><td>3.65%</td></tr>
+                                <tr><td>1974</td><td>-26.47%</td><td>11.04%</td></tr>
+                                <tr><td>1929</td><td>-8.42%</td><td>0.00%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>Data sources: S&P 500 returns from Robert Shiller's dataset and Standard & Poor's; inflation data from the US Bureau of Labor Statistics.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>How should I interpret the results?</h3>
+                <div class="faq-answer">
+                    <p>The success rate is the key metric to focus on:</p>
+                    <ul>
+                        <li><strong>90%+ success rate:</strong> Your plan is very robust and can likely withstand significant market downturns.</li>
+                        <li><strong>75-90% success rate:</strong> Your plan is reasonably secure but could benefit from some adjustments.</li>
+                        <li><strong>50-75% success rate:</strong> Your plan has significant risk and should be revised.</li>
+                        <li><strong>Below 50% success rate:</strong> Your plan needs major revisions to be viable.</li>
+                    </ul>
+                    <p>Remember that even a high success rate doesn't guarantee success, and a low rate doesn't guarantee failure. The tool helps you understand the range of possible outcomes based on historical patterns.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>How can I improve my success rate?</h3>
+                <div class="faq-answer">
+                    <p>Several strategies can improve your retirement plan's success rate:</p>
+                    <ul>
+                        <li><strong>Reduce annual expenses</strong> to lower your withdrawal rate</li>
+                        <li><strong>Work longer</strong> to increase savings and reduce the retirement period</li>
+                        <li><strong>Add income sources</strong> like part-time work or rental income</li>
+                        <li><strong>Consider a dynamic withdrawal strategy</strong> that adjusts based on market performance</li>
+                        <li><strong>Optimize your investment mix</strong> for your specific situation</li>
+                        <li><strong>Plan for lower expenses in later retirement</strong> as spending often decreases with age</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
