@@ -599,6 +599,12 @@
                     removeIncomeSource(e.target.closest('.income-source'));
                 }
             });
+            
+            // Add this function to parse URL parameters when the page loads
+            loadParametersFromURL();
+            
+            // Add this function to generate a shareable URL
+            addShareButton();
         });
         
         let incomeSourceCounter = 1;
@@ -1584,6 +1590,108 @@
                 });
                 detailsChart.update();
             }
+        }
+        
+        // Add this function to parse URL parameters when the page loads
+        function loadParametersFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Map of parameter names to input field IDs
+            const paramMap = {
+                'currentAge': 'currentAge',
+                'retirementAge': 'retirementAge',
+                'lifeExpectancy': 'lifeExpectancy',
+                'startingAmount': 'startingAmount',
+                'annualExpenses': 'annualExpenses',
+                'taxRate': 'averageTaxRate',
+                'simulations': 'numSimulations'
+            };
+            
+            // Set input values from URL parameters
+            for (const [param, fieldId] of Object.entries(paramMap)) {
+                if (urlParams.has(param)) {
+                    document.getElementById(fieldId).value = urlParams.get(param);
+                }
+            }
+            
+            // Handle income sources (more complex)
+            if (urlParams.has('incomeSources')) {
+                try {
+                    const incomeSources = JSON.parse(decodeURIComponent(urlParams.get('incomeSources')));
+                    
+                    // Remove default income source
+                    const container = document.getElementById('incomeSourcesContainer');
+                    container.innerHTML = '';
+                    incomeSourceCounter = 0;
+                    
+                    // Add each income source from the URL
+                    incomeSources.forEach(source => {
+                        addIncomeSource();
+                        const id = incomeSourceCounter;
+                        document.getElementById(`incomeAmount-${id}`).value = source.amount;
+                        document.getElementById(`incomeStartAge-${id}`).value = source.startAge;
+                        document.getElementById(`incomeEndAge-${id}`).value = source.endAge;
+                    });
+                } catch (e) {
+                    console.error('Error parsing income sources from URL', e);
+                }
+            }
+        }
+        
+        // Add this function to generate a shareable URL
+        function generateShareableURL() {
+            const baseURL = window.location.href.split('?')[0];
+            const params = new URLSearchParams();
+            
+            // Add basic parameters
+            params.append('currentAge', document.getElementById('currentAge').value);
+            params.append('retirementAge', document.getElementById('retirementAge').value);
+            params.append('lifeExpectancy', document.getElementById('lifeExpectancy').value);
+            params.append('startingAmount', document.getElementById('startingAmount').value);
+            params.append('annualExpenses', document.getElementById('annualExpenses').value);
+            params.append('taxRate', document.getElementById('averageTaxRate').value);
+            params.append('simulations', document.getElementById('numSimulations').value);
+            
+            // Add income sources
+            const incomeSources = [];
+            document.querySelectorAll('.income-source').forEach(source => {
+                const id = source.dataset.id;
+                incomeSources.push({
+                    amount: document.getElementById(`incomeAmount-${id}`).value,
+                    startAge: document.getElementById(`incomeStartAge-${id}`).value,
+                    endAge: document.getElementById(`incomeEndAge-${id}`).value
+                });
+            });
+            
+            params.append('incomeSources', encodeURIComponent(JSON.stringify(incomeSources)));
+            
+            return `${baseURL}?${params.toString()}`;
+        }
+        
+        // Add a share button to the form
+        function addShareButton() {
+            const shareButton = document.createElement('button');
+            shareButton.textContent = '🔗 Share This Scenario';
+            shareButton.style.backgroundColor = '#6c757d';
+            shareButton.style.marginLeft = '10px';
+            
+            shareButton.addEventListener('click', function() {
+                const url = generateShareableURL();
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(url).then(() => {
+                    // Show success message
+                    const originalText = shareButton.textContent;
+                    shareButton.textContent = '✓ URL Copied!';
+                    setTimeout(() => {
+                        shareButton.textContent = originalText;
+                    }, 2000);
+                });
+            });
+            
+            // Add button next to the Run Simulation button
+            const runButton = document.getElementById('runSimulation');
+            runButton.parentNode.insertBefore(shareButton, runButton.nextSibling);
         }
     </script>
 </body>
