@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Planning Tool</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -797,7 +798,8 @@
                 // Update success indicator
                 document.getElementById('numSimulationsRun').textContent = numSimulations;
                 const successPercentageElement = document.getElementById('successPercentage');
-                successPercentageElement.textContent = successPercentage + '%';
+                // Set initial value to 0%
+                successPercentageElement.textContent = '0%';
                 
                 // Add color class based on success rate
                 if (successPercentage >= 80) {
@@ -807,6 +809,9 @@
                 } else {
                     successPercentageElement.className = 'success-percentage low';
                 }
+                
+                // Animate the percentage counting up
+                animateCountUp(successPercentageElement, successPercentage.toFixed(1));
                 
                 // Create success rate over time chart
                 createSuccessRateChart(retirementYears);
@@ -971,7 +976,58 @@
             });
         }
         
-        // Update the displayResults function to use the formatter
+        // Update the confetti celebration function to make pieces larger
+        function celebrateSuccess(successRate) {
+            // Only celebrate if success rate is 80% or higher
+            if (successRate >= 80) {
+                // Configure the confetti
+                const duration = 3000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { 
+                    startVelocity: 30, 
+                    spread: 360, 
+                    ticks: 60, 
+                    zIndex: 0,
+                    disableForReducedMotion: true,
+                    scalar: 1.5,  // Make confetti pieces 50% larger
+                    gravity: 0.8  // Slightly reduce gravity for slower fall
+                };
+                
+                // Create a confetti interval
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+                    
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+                    
+                    const particleCount = 50 * (timeLeft / duration);
+                    
+                    // Launch confetti from the center of the page
+                    confetti({
+                        ...defaults,
+                        particleCount,
+                        origin: { x: 0.5, y: 0.3 }  // Center horizontally, slightly above center vertically
+                    });
+                    
+                    // Add some smaller bursts around the center for a fuller effect
+                    confetti({
+                        ...defaults,
+                        particleCount: particleCount * 0.5,
+                        origin: { x: 0.4, y: 0.4 }
+                    });
+                    
+                    confetti({
+                        ...defaults,
+                        particleCount: particleCount * 0.5,
+                        origin: { x: 0.6, y: 0.4 }
+                    });
+                    
+                }, 250);
+            }
+        }
+        
+        // Update the displayResults function to call the celebration
         function displayResults() {
             // Clear previous results
             const summaryTableBody = document.getElementById('summaryTableBody');
@@ -1073,6 +1129,9 @@
                 document.getElementById('simulationDetails').style.display = 'none';
                 document.getElementById('summaryResults').style.display = 'block';
             });
+            
+            // Celebrate if the success rate is good
+            celebrateSuccess(successPercent);
         }
         
         // Add this new function to handle filtering
@@ -1743,6 +1802,45 @@
             // Add button next to the Run Simulation button
             const runButton = document.getElementById('runSimulation');
             runButton.parentNode.insertBefore(shareButton, runButton.nextSibling);
+        }
+        
+        // Add this function to animate counting up to a number
+        function animateCountUp(element, target, duration = 1500) {
+            // Parse the target value (remove % sign if present)
+            target = parseFloat(target.toString().replace('%', ''));
+            
+            // Start from 0
+            let start = 0;
+            const startTime = performance.now();
+            
+            // Use requestAnimationFrame for smooth animation
+            function updateCount(currentTime) {
+                // Calculate elapsed time
+                const elapsedTime = currentTime - startTime;
+                
+                // Calculate progress (0 to 1)
+                const progress = Math.min(elapsedTime / duration, 1);
+                
+                // Use easeOutQuad for smoother animation
+                const easeProgress = 1 - (1 - progress) * (1 - progress);
+                
+                // Calculate current count
+                const currentCount = Math.floor(easeProgress * target);
+                
+                // Update the element
+                element.textContent = currentCount + '%';
+                
+                // Continue animation if not complete
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    // Ensure we end exactly at the target value
+                    element.textContent = target.toFixed(1) + '%';
+                }
+            }
+            
+            // Start the animation
+            requestAnimationFrame(updateCount);
         }
     </script>
 </body>
