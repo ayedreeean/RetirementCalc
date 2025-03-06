@@ -262,6 +262,70 @@
             width: 200px;
             display: block;
         }
+        
+        /* Mobile-friendly improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            input[type="number"], 
+            select, 
+            button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .income-source input[type="number"] {
+                width: 100%;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .filter-button {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .success-percentage {
+                font-size: 36px;
+                padding: 10px;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            /* Make the share button display properly on mobile */
+            #runSimulation, 
+            button[style*="margin-left: 10px"] {
+                display: block;
+                width: 100%;
+                margin: 10px 0 !important;
+            }
+        }
+        
+        /* Improve table responsiveness */
+        @media (max-width: 480px) {
+            th, td {
+                padding: 5px;
+                font-size: 14px;
+            }
+            
+            .simulation-details-button {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -976,21 +1040,25 @@
             });
         }
         
-        // Update the confetti celebration function to make pieces larger
+        // Update the confetti celebration function to work better on mobile
         function celebrateSuccess(successRate) {
             // Only celebrate if success rate is 80% or higher
             if (successRate >= 80) {
                 // Configure the confetti
                 const duration = 3000;
                 const animationEnd = Date.now() + duration;
+                
+                // Check if we're on mobile
+                const isMobile = window.innerWidth <= 768;
+                
                 const defaults = { 
-                    startVelocity: 30, 
-                    spread: 360, 
+                    startVelocity: isMobile ? 20 : 30, 
+                    spread: isMobile ? 50 : 360, 
                     ticks: 60, 
                     zIndex: 0,
                     disableForReducedMotion: true,
-                    scalar: 1.5,  // Make confetti pieces 50% larger
-                    gravity: 0.8  // Slightly reduce gravity for slower fall
+                    scalar: 1.5,
+                    gravity: 0.8
                 };
                 
                 // Create a confetti interval
@@ -1001,29 +1069,34 @@
                         return clearInterval(interval);
                     }
                     
-                    const particleCount = 50 * (timeLeft / duration);
+                    // Reduce particle count on mobile
+                    const particleCount = isMobile ? 
+                        30 * (timeLeft / duration) : 
+                        50 * (timeLeft / duration);
                     
                     // Launch confetti from the center of the page
                     confetti({
                         ...defaults,
                         particleCount,
-                        origin: { x: 0.5, y: 0.3 }  // Center horizontally, slightly above center vertically
+                        origin: { x: 0.5, y: isMobile ? 0.2 : 0.3 }
                     });
                     
-                    // Add some smaller bursts around the center for a fuller effect
-                    confetti({
-                        ...defaults,
-                        particleCount: particleCount * 0.5,
-                        origin: { x: 0.4, y: 0.4 }
-                    });
+                    // Add smaller bursts only on desktop
+                    if (!isMobile) {
+                        confetti({
+                            ...defaults,
+                            particleCount: particleCount * 0.5,
+                            origin: { x: 0.4, y: 0.4 }
+                        });
+                        
+                        confetti({
+                            ...defaults,
+                            particleCount: particleCount * 0.5,
+                            origin: { x: 0.6, y: 0.4 }
+                        });
+                    }
                     
-                    confetti({
-                        ...defaults,
-                        particleCount: particleCount * 0.5,
-                        origin: { x: 0.6, y: 0.4 }
-                    });
-                    
-                }, 250);
+                }, isMobile ? 300 : 250); // Slightly slower interval on mobile
             }
         }
         
