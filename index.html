@@ -956,9 +956,11 @@
                 indexCell.textContent = index + 1;
                 
                 const successCell = document.createElement('td');
-                successCell.textContent = simulation.success ? 'SUCCESS!' : 'FAIL!';
+                successCell.textContent = simulation.success ? '✅' : '❌';
                 successCell.style.color = simulation.success ? '#4CAF50' : '#F44336';
                 successCell.style.fontWeight = 'bold';
+                successCell.style.fontSize = '20px'; // Make emojis larger
+                successCell.style.textAlign = 'center'; // Center the emoji
                 
                 const finalBalanceCell = document.createElement('td');
                 finalBalanceCell.textContent = formatDollarAmount(simulation.finalBalance);
@@ -1022,7 +1024,7 @@
             // Show/hide based on filter
             rows.forEach(row => {
                 const successCell = row.querySelector('td:nth-child(2)');
-                const isSuccess = successCell.textContent === 'SUCCESS!';
+                const isSuccess = successCell.textContent === '✅';
                 
                 if (filterType === 'all' || 
                     (filterType === 'success' && isSuccess) || 
@@ -1207,9 +1209,11 @@
                 indexCell.textContent = yearData.year;
                 
                 const successCell = document.createElement('td');
-                successCell.textContent = yearData.balance > 0 ? 'SUCCESS!' : 'FAIL!';
+                successCell.textContent = yearData.balance > 0 ? '✅' : '❌';
                 successCell.style.color = yearData.balance > 0 ? '#4CAF50' : '#F44336';
                 successCell.style.fontWeight = 'bold';
+                successCell.style.fontSize = '20px'; // Make emojis larger
+                successCell.style.textAlign = 'center'; // Center the emoji
                 
                 const finalBalanceCell = document.createElement('td');
                 finalBalanceCell.textContent = formatDollarAmount(yearData.balance);
