@@ -291,34 +291,31 @@
                     <h4 style="margin: 0; flex-grow: 1;">Income Source #1</h4>
                     <button type="button" class="remove-income-btn" style="display: none;">Remove</button>
                 </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div style="flex: 2;">
-                        <label for="incomeAmount-1">Amount ($):
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Annual income from this source before taxes.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeAmount-1" class="income-amount" min="0" step="1000" value="0">
-                    </div>
-                    <div style="flex: 1;">
-                        <label for="incomeStartAge-1">Start Age:
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Age when this income begins.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeStartAge-1" class="income-start-age" min="50" max="120" value="65">
-                    </div>
-                    <div style="flex: 1;">
-                        <label for="incomeEndAge-1">End Age:
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeEndAge-1" class="income-end-age" min="50" max="120" value="120">
-                    </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="incomeAmount-1">Amount ($):
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Annual income from this source before taxes.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeAmount-1" class="income-amount" min="0" step="1000" value="0" style="width: 100%;">
+                    
+                    <label for="incomeStartAge-1">Start Age:
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Age when this income begins.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeStartAge-1" class="income-start-age" min="50" max="120" value="65" style="width: 100%;">
+                    
+                    <label for="incomeEndAge-1">End Age:
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeEndAge-1" class="income-end-age" min="50" max="120" value="120" style="width: 100%;">
                 </div>
             </div>
         </div>
@@ -605,34 +602,31 @@
                     <h4 style="margin: 0; flex-grow: 1;">Income Source #${incomeSourceCounter}</h4>
                     <button type="button" class="remove-income-btn">Remove</button>
                 </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <div style="flex: 2;">
-                        <label for="incomeAmount-${incomeSourceCounter}">Amount ($):
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Annual income from this source before taxes.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeAmount-${incomeSourceCounter}" class="income-amount" min="0" step="1000" value="0">
-                    </div>
-                    <div style="flex: 1;">
-                        <label for="incomeStartAge-${incomeSourceCounter}">Start Age:
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Age when this income begins.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeStartAge-${incomeSourceCounter}" class="income-start-age" min="${retirementAge}" max="120" value="${retirementAge}">
-                    </div>
-                    <div style="flex: 1;">
-                        <label for="incomeEndAge-${incomeSourceCounter}">End Age:
-                            <span class="tooltip">
-                                <span class="icon">?</span>
-                                <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
-                            </span>
-                        </label>
-                        <input type="number" id="incomeEndAge-${incomeSourceCounter}" class="income-end-age" min="${retirementAge}" max="120" value="120">
-                    </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="incomeAmount-${incomeSourceCounter}">Amount ($):
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Annual income from this source before taxes.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeAmount-${incomeSourceCounter}" class="income-amount" min="0" step="1000" value="0" style="width: 100%;">
+                    
+                    <label for="incomeStartAge-${incomeSourceCounter}">Start Age:
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Age when this income begins.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeStartAge-${incomeSourceCounter}" class="income-start-age" min="${retirementAge}" max="120" value="${retirementAge}" style="width: 100%;">
+                    
+                    <label for="incomeEndAge-${incomeSourceCounter}">End Age:
+                        <span class="tooltip">
+                            <span class="icon">?</span>
+                            <span class="tooltip-text">Age when this income ends. Use 120 for lifetime income.</span>
+                        </span>
+                    </label>
+                    <input type="number" id="incomeEndAge-${incomeSourceCounter}" class="income-end-age" min="${retirementAge}" max="120" value="120" style="width: 100%;">
                 </div>
             `;
             
@@ -941,8 +935,8 @@
             // Initially show all simulations
             filterSimulations('all');
             
-            // Display summary table with clickable rows
-            simulationResults.forEach((result, index) => {
+            // Create table rows for each simulation
+            simulationResults.forEach((simulation, index) => {
                 const row = document.createElement('tr');
                 row.className = 'simulation-row';
                 row.dataset.index = index;
@@ -951,20 +945,21 @@
                 indexCell.textContent = index + 1;
                 
                 const successCell = document.createElement('td');
-                successCell.textContent = result.success ? 'Yes' : 'No';
-                successCell.style.color = result.success ? '#4CAF50' : '#F44336';
+                successCell.textContent = simulation.success ? 'SUCCESS!' : 'FAIL!';
+                successCell.style.color = simulation.success ? '#4CAF50' : '#F44336';
+                successCell.style.fontWeight = 'bold';
                 
                 const finalBalanceCell = document.createElement('td');
-                finalBalanceCell.textContent = formatDollarAmount(result.finalBalance);
+                finalBalanceCell.textContent = formatDollarAmount(simulation.finalBalance);
                 
                 const avgReturnCell = document.createElement('td');
-                avgReturnCell.textContent = (result.avgReturn * 100).toFixed(2) + '%';
+                avgReturnCell.textContent = (simulation.avgReturn * 100).toFixed(2) + '%';
                 
                 const avgInflationCell = document.createElement('td');
-                avgInflationCell.textContent = (result.avgInflation * 100).toFixed(2) + '%';
+                avgInflationCell.textContent = (simulation.avgInflation * 100).toFixed(2) + '%';
                 
                 const yearsLastedCell = document.createElement('td');
-                yearsLastedCell.textContent = result.yearsLasted;
+                yearsLastedCell.textContent = simulation.yearsLasted;
                 
                 const detailsCell = document.createElement('td');
                 const detailsButton = document.createElement('button');
@@ -1016,7 +1011,7 @@
             // Show/hide based on filter
             rows.forEach(row => {
                 const successCell = row.querySelector('td:nth-child(2)');
-                const isSuccess = successCell.textContent === 'Yes';
+                const isSuccess = successCell.textContent === 'SUCCESS!';
                 
                 if (filterType === 'all' || 
                     (filterType === 'success' && isSuccess) || 
@@ -1201,8 +1196,9 @@
                 indexCell.textContent = yearData.year;
                 
                 const successCell = document.createElement('td');
-                successCell.textContent = yearData.balance > 0 ? 'Success' : 'Failure';
+                successCell.textContent = yearData.balance > 0 ? 'SUCCESS!' : 'FAIL!';
                 successCell.style.color = yearData.balance > 0 ? '#4CAF50' : '#F44336';
+                successCell.style.fontWeight = 'bold';
                 
                 const finalBalanceCell = document.createElement('td');
                 finalBalanceCell.textContent = formatDollarAmount(yearData.balance);
