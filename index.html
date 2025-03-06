@@ -388,6 +388,7 @@
                 <button id="filterAll" class="filter-button active">All Simulations (<span id="countAll">0</span>)</button>
                 <button id="filterSuccess" class="filter-button">Success (<span id="countSuccess">0</span> - <span id="percentSuccess">0%</span>)</button>
                 <button id="filterFail" class="filter-button">Failure (<span id="countFail">0</span> - <span id="percentFail">0%</span>)</button>
+                <button id="filterMedian" class="filter-button">Median Simulation</button>
             </div>
             
             <p>Click on a simulation row to view its chart. Each simulation represents a possible future scenario based on historical market data.</p>
@@ -438,13 +439,16 @@
             <table id="detailsTable">
                 <thead>
                     <tr>
-                        <th>Simulation</th>
-                        <th>Outcome</th>
-                        <th>Final Balance</th>
-                        <th>Average Return</th>
-                        <th>Average Inflation</th>
-                        <th>Years Lasted</th>
-                        <th>Actions</th>
+                        <th>Year</th>
+                        <th>Age</th>
+                        <th>Market Return</th>
+                        <th>Inflation</th>
+                        <th>Annual Expenses</th>
+                        <th>Extra Income</th>
+                        <th>Net Withdrawal</th>
+                        <th>Taxes Paid</th>
+                        <th>Gross Withdrawal</th>
+                        <th>Balance</th>
                     </tr>
                 </thead>
                 <tbody id="detailsTableBody">
@@ -943,6 +947,10 @@
                 filterSimulations('fail');
             });
             
+            document.getElementById('filterMedian').addEventListener('click', function() {
+                filterSimulations('median');
+            });
+            
             // Initially show all simulations
             filterSimulations('all');
             
@@ -1021,19 +1029,48 @@
             // Get all rows
             const rows = document.querySelectorAll('#summaryTable tbody tr');
             
-            // Show/hide based on filter
-            rows.forEach(row => {
-                const successCell = row.querySelector('td:nth-child(2)');
-                const isSuccess = successCell.textContent === '✅';
+            if (filterType === 'median') {
+                // Find the median simulation
+                const sortedSimulations = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
+                const medianIndex = Math.floor(sortedSimulations.length / 2);
+                const medianSimulation = sortedSimulations[medianIndex];
                 
-                if (filterType === 'all' || 
-                    (filterType === 'success' && isSuccess) || 
-                    (filterType === 'fail' && !isSuccess)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+                // Find the original index of the median simulation
+                const originalIndex = simulationResults.findIndex(sim => 
+                    sim.finalBalance === medianSimulation.finalBalance && 
+                    sim.avgReturn === medianSimulation.avgReturn);
+                
+                // Show only the median simulation
+                rows.forEach(row => {
+                    const rowIndex = parseInt(row.dataset.index);
+                    row.style.display = (rowIndex === originalIndex) ? '' : 'none';
+                    
+                    // Highlight the median row
+                    if (rowIndex === originalIndex) {
+                        row.classList.add('selected');
+                        // Optionally, automatically show the chart for this simulation
+                        showSimulationChart(originalIndex);
+                    }
+                });
+            } else {
+                // Existing filter logic for all/success/fail
+                rows.forEach(row => {
+                    const successCell = row.querySelector('td:nth-child(2)');
+                    const isSuccess = successCell.textContent === '✅';
+                    
+                    if (filterType === 'all' || 
+                        (filterType === 'success' && isSuccess) || 
+                        (filterType === 'fail' && !isSuccess)) {
+                        row.style.display = '';
+                        row.classList.remove('selected');
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Hide any open simulation chart when switching to a different filter
+                document.getElementById('simulationChartContainer').style.display = 'none';
+            }
         }
         
         function showSimulationChart(simulationIndex) {
@@ -1191,59 +1228,69 @@
             const detailsTable = document.getElementById('detailsTable');
             const headerRow = detailsTable.querySelector('thead tr');
             
-            // Reset headers first
+            // Reset headers first with the correct column headers for year-by-year data
             headerRow.innerHTML = `
-                <th>Simulation</th>
-                <th>Outcome</th>
-                <th>Final Balance</th>
-                <th>Average Return</th>
-                <th>Average Inflation</th>
-                <th>Years Lasted</th>
-                <th>Actions</th>
+                <th>Year</th>
+                <th>Age</th>
+                <th>Market Return</th>
+                <th>Inflation</th>
+                <th>Annual Expenses</th>
+                <th>Extra Income</th>
+                <th>Net Withdrawal</th>
+                <th>Taxes Paid</th>
+                <th>Gross Withdrawal</th>
+                <th>Balance</th>
             `;
             
             simulation.yearlyData.forEach(yearData => {
                 const row = document.createElement('tr');
                 
-                const indexCell = document.createElement('td');
-                indexCell.textContent = yearData.year;
+                const yearCell = document.createElement('td');
+                yearCell.textContent = yearData.year;
                 
-                const successCell = document.createElement('td');
-                successCell.textContent = yearData.balance > 0 ? '✅' : '❌';
-                successCell.style.color = yearData.balance > 0 ? '#4CAF50' : '#F44336';
-                successCell.style.fontWeight = 'bold';
-                successCell.style.fontSize = '20px'; // Make emojis larger
-                successCell.style.textAlign = 'center'; // Center the emoji
+                const ageCell = document.createElement('td');
+                ageCell.textContent = yearData.age;
                 
-                const finalBalanceCell = document.createElement('td');
-                finalBalanceCell.textContent = formatDollarAmount(yearData.balance);
+                const returnCell = document.createElement('td');
+                returnCell.textContent = `${(yearData.marketReturn * 100).toFixed(2)}%`;
                 
-                const avgReturnCell = document.createElement('td');
-                avgReturnCell.textContent = `${(yearData.marketReturn * 100).toFixed(2)}%`;
+                const inflationCell = document.createElement('td');
+                inflationCell.textContent = `${(yearData.inflation * 100).toFixed(2)}%`;
                 
-                const avgInflationCell = document.createElement('td');
-                avgInflationCell.textContent = `${(yearData.inflation * 100).toFixed(2)}%`;
+                const expensesCell = document.createElement('td');
+                expensesCell.textContent = formatDollarAmount(yearData.inflationAdjustedExpenses);
                 
-                const yearsLastedCell = document.createElement('td');
-                yearsLastedCell.textContent = yearData.yearsLasted;
+                const incomeCell = document.createElement('td');
+                incomeCell.textContent = formatDollarAmount(yearData.inflationAdjustedIncome);
                 
-                const detailsCell = document.createElement('td');
-                const detailsButton = document.createElement('button');
-                detailsButton.textContent = 'View Details';
-                detailsButton.className = 'simulation-details-button';
-                detailsButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    showSimulationDetails(simulationIndex);
-                });
-                detailsCell.appendChild(detailsButton);
+                const withdrawalCell = document.createElement('td');
+                withdrawalCell.textContent = formatDollarAmount(yearData.netWithdrawal);
                 
-                row.appendChild(indexCell);
-                row.appendChild(successCell);
-                row.appendChild(finalBalanceCell);
-                row.appendChild(avgReturnCell);
-                row.appendChild(avgInflationCell);
-                row.appendChild(yearsLastedCell);
-                row.appendChild(detailsCell);
+                const taxesCell = document.createElement('td');
+                taxesCell.textContent = formatDollarAmount(yearData.taxesPaid);
+                
+                const grossWithdrawalCell = document.createElement('td');
+                grossWithdrawalCell.textContent = formatDollarAmount(yearData.grossWithdrawal);
+                
+                const balanceCell = document.createElement('td');
+                balanceCell.textContent = formatDollarAmount(yearData.balance);
+                
+                // Highlight negative balances in red
+                if (yearData.balance <= 0) {
+                    balanceCell.style.color = 'red';
+                    balanceCell.style.fontWeight = 'bold';
+                }
+                
+                row.appendChild(yearCell);
+                row.appendChild(ageCell);
+                row.appendChild(returnCell);
+                row.appendChild(inflationCell);
+                row.appendChild(expensesCell);
+                row.appendChild(incomeCell);
+                row.appendChild(withdrawalCell);
+                row.appendChild(taxesCell);
+                row.appendChild(grossWithdrawalCell);
+                row.appendChild(balanceCell);
                 
                 detailsTableBody.appendChild(row);
             });
