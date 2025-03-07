@@ -883,6 +883,31 @@
         th:hover {
             background-color: var(--primary-dark); /* Slightly darker on hover */
         }
+
+        /* Improve AI analysis content formatting */
+        .ai-content h2 {
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: var(--neutral-dark);
+        }
+
+        .ai-content ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .ai-content li {
+            margin-bottom: 8px;
+        }
+
+        .ai-content strong {
+            color: var(--primary-dark);
+        }
+
+        .ai-content p {
+            margin: 12px 0;
+        }
     </style>
 </head>
 <body>
@@ -2610,18 +2635,30 @@ MEDIAN SIMULATION PROGRESSION:
 - Middle Year: Balance $${medianMiddleYear.balance.toLocaleString()}, Withdrawal $${medianMiddleYear.grossWithdrawal.toLocaleString()}
 - Final Year: Balance $${medianLastYear.balance.toLocaleString()}, Withdrawal $${medianLastYear.grossWithdrawal.toLocaleString()}
 
-Provide a comprehensive analysis including:
-1. Overall assessment of the retirement plan's viability
-2. Key risks and concerns specific to this plan
-3. Detailed recommendations for improving the success rate
-4. Analysis of the median simulation and what it reveals
-5. Assessment of the withdrawal rate sustainability
-6. How inflation and market volatility impact this specific plan
-7. Potential adjustments to expenses or retirement timing
+Provide a comprehensive analysis including the following sections, each with its own emoji and bold heading (not numbered):
 
-Format your response with clear sections, bullet points where appropriate, and actionable advice.
+**🔍 Overall Plan Assessment**
+Evaluate the overall viability of the retirement plan.
 
-IMPORTANT: Include appropriate emojis in your analysis to make it more engaging. Use emojis sparingly and professionally - typically one emoji per section heading and occasionally within key points. For example, use 📊 for data analysis, 💰 for financial topics, ⚠️ for warnings, ✅ for positive points, etc.`;
+**⚠️ Key Risks and Concerns**
+Identify specific risks and concerns for this particular plan.
+
+**💡 Recommendations for Improvement**
+Provide detailed recommendations to improve the success rate.
+
+**📊 Median Simulation Analysis**
+Analyze what the median simulation reveals about the retirement journey.
+
+**💰 Withdrawal Rate Sustainability**
+Assess whether the withdrawal rate is sustainable over the retirement period.
+
+**📈 Impact of Market Conditions**
+Explain how inflation and market volatility specifically impact this plan.
+
+**⚖️ Potential Adjustments**
+Suggest potential adjustments to expenses or retirement timing.
+
+Format your response with these bold section headings, bullet points where appropriate, and actionable advice. Use emojis sparingly and professionally within the content as well to highlight key points.`;
 
                 // Call OpenAI API
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
