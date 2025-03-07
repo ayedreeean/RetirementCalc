@@ -7,14 +7,307 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Updated color scheme for a more cohesive experience */
+        :root {
+            /* Primary palette - purple/blue gradient theme */
+            --primary: #6366f1;         /* Indigo */
+            --primary-light: #818cf8;   /* Light indigo */
+            --primary-dark: #4f46e5;    /* Dark indigo */
+            
+            /* Secondary colors */
+            --success: #10b981;         /* Emerald green */
+            --warning: #f59e0b;         /* Amber */
+            --danger: #ef4444;          /* Red */
+            
+            /* Neutral colors */
+            --neutral-dark: #1e293b;    /* Slate 800 */
+            --neutral: #64748b;         /* Slate 500 */
+            --neutral-light: #f1f5f9;   /* Slate 100 */
+            --background: #f8fafc;      /* Slate 50 */
+            
+            /* UI elements */
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s ease;
+            
+            /* AI gradient - keeping this as you liked it */
+            --ai-gradient: linear-gradient(135deg, #7209b7 0%, #4361ee 100%);
+            --ai-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 30px 20px;
             line-height: 1.6;
-            color: #333;
+            color: var(--neutral-dark);
+            background-color: var(--background);
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            color: var(--neutral-dark);
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #7209b7 0%, #4361ee 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--neutral-dark);
+        }
+
+        input, select {
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 16px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Success percentage container */
+        .success-percentage-container {
+            margin: 30px 0;
+            padding: 25px;
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .success-percentage {
+            font-size: 64px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .success-description {
+            font-size: 18px;
+            color: var(--neutral-dark);
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Color variations */
+        .success-percentage-container.high {
+            background-color: #ecfdf5;
+            border-left: 5px solid var(--success);
+        }
+        .success-percentage-container.high .success-percentage {
+            color: var(--success);
+        }
+
+        .success-percentage-container.medium {
+            background-color: #fffbeb;
+            border-left: 5px solid var(--warning);
+        }
+        .success-percentage-container.medium .success-percentage {
+            color: var(--warning);
+        }
+
+        .success-percentage-container.low {
+            background-color: #fef2f2;
+            border-left: 5px solid var(--danger);
+        }
+        .success-percentage-container.low .success-percentage {
+            color: var(--danger);
+        }
+
+        /* AI Button */
+        .ai-button {
+            background: var(--ai-gradient);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--ai-shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(114, 9, 183, 0.4);
+        }
+
+        .ai-analysis-container {
+            margin: 25px 0;
+            padding: 30px;
+            background-color: white;
+            border-radius: var(--radius);
+            border: none;
+            box-shadow: var(--shadow);
+            text-align: left;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .ai-icon {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+
+        .ai-header h3 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--neutral-dark);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 25px 0;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            border: none;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 700;
+            padding: 14px 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+            font-size: 1.05rem;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .simulation-row.selected {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Help button */
+        .help-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--ai-gradient);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: var(--ai-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        .help-button:hover {
+            transform: translateY(-3px) rotate(15deg);
+            box-shadow: 0 8px 20px rgba(114, 9, 183, 0.4);
+        }
+
+        /* Modal */
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border: none;
+            width: 80%;
+            max-width: 800px;
+            border-radius: var(--radius);
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
         
         /* Make headings cleaner */
@@ -561,6 +854,35 @@
             color: #666;
             margin-top: 5px;
         }
+
+        /* Add a slightly darker header option if white text is still hard to read */
+        .table-header-alt {
+            background-color: var(--neutral-dark);
+            color: white;
+        }
+
+        /* Update table header styling for better readability */
+        .table-header-alt {
+            background-color: var(--neutral-dark);
+            color: white;
+            font-weight: 600;
+            text-shadow: none;
+        }
+
+        /* Make this the default for all tables */
+        th {
+            background-color: var(--neutral-dark);
+            color: white;
+            font-weight: 600;
+            padding: 14px 15px;
+            letter-spacing: 0.5px;
+            font-size: 1rem;
+        }
+
+        /* Add a subtle header hover effect */
+        th:hover {
+            background-color: var(--primary-dark); /* Slightly darker on hover */
+        }
     </style>
 </head>
 <body>
@@ -702,7 +1024,7 @@
         <!-- Add AI section here -->
         <div class="ai-section">
             <button id="askAIButton" class="ai-button" onclick="generateAIAnalysis()">
-                🤖 Ask AI to Analyze Your Plan
+                <span>🤖</span> Get AI Analysis
             </button>
             <div id="aiAnalysis" style="display: none;"></div>
         </div>
@@ -2209,7 +2531,7 @@
             document.querySelector('.faq-item').classList.add('active');
         }
 
-        // Add this function to generate the AI analysis
+        // Update the function to include emojis in the AI analysis prompt
         async function generateAIAnalysis() {
             // Get API key or prompt for it
             let apiKey = localStorage.getItem('openai_api_key');
@@ -2238,31 +2560,68 @@
                 const sortedSimulations = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
                 const medianSimulation = sortedSimulations[Math.floor(sortedSimulations.length / 2)];
                 
+                // Get detailed information about the median simulation
+                const medianYearlyData = medianSimulation.yearlyData;
+                const medianFirstYear = medianYearlyData[0];
+                const medianMiddleYear = medianYearlyData[Math.floor(medianYearlyData.length / 2)];
+                const medianLastYear = medianYearlyData[medianYearlyData.length - 1];
+                
+                // Calculate average return and inflation for median simulation
+                const avgReturn = medianSimulation.avgReturn * 100;
+                const avgInflation = medianSimulation.avgInflation * 100;
+                
+                // Calculate worst and best years in the median simulation
+                const worstYear = [...medianYearlyData].sort((a, b) => a.marketReturn - b.marketReturn)[0];
+                const bestYear = [...medianYearlyData].sort((a, b) => b.marketReturn - a.marketReturn)[0];
+                
                 // Calculate success rate
                 const successCount = simulationResults.filter(sim => sim.success).length;
                 const successRate = (successCount / simulationResults.length) * 100;
                 
-                // Prepare the prompt for GPT
+                // Calculate withdrawal rate
+                const initialWithdrawalRate = (annualExpenses / startingAmount) * 100;
+                
+                // Prepare the prompt for GPT with enhanced median simulation details and emoji instructions
                 const prompt = `As a retirement planning expert, analyze this retirement plan:
+
+BASIC INFORMATION:
 - Current Age: ${currentAge}
 - Retirement Age: ${retirementAge}
 - Life Expectancy: ${lifeExpectancy}
 - Starting Amount: $${startingAmount.toLocaleString()}
 - Annual Expenses: $${annualExpenses.toLocaleString()}
 - Tax Rate: ${taxRate}%
-- Success Rate: ${successRate.toFixed(1)}%
-- Median Final Balance: $${medianSimulation.finalBalance.toLocaleString()}
 - Years in Retirement: ${lifeExpectancy - retirementAge}
-- Withdrawal Rate: ${((annualExpenses / startingAmount) * 100).toFixed(1)}%
+- Initial Withdrawal Rate: ${initialWithdrawalRate.toFixed(2)}%
 
-Provide a concise analysis including:
-1. Overall assessment of the plan
-2. Key risks and concerns
-3. Specific recommendations for improvement
-4. Notable aspects of the median simulation
-5. Comments on the withdrawal rate sustainability
+SIMULATION RESULTS:
+- Success Rate: ${successRate.toFixed(1)}%
+- Number of Simulations: ${simulationResults.length}
 
-Format the response with appropriate sections and bullet points.`;
+MEDIAN SIMULATION DETAILS:
+- Final Balance: $${medianSimulation.finalBalance.toLocaleString()}
+- Average Annual Return: ${avgReturn.toFixed(2)}%
+- Average Annual Inflation: ${avgInflation.toFixed(2)}%
+- Worst Year Return: ${(worstYear.marketReturn * 100).toFixed(2)}% (Year ${worstYear.year})
+- Best Year Return: ${(bestYear.marketReturn * 100).toFixed(2)}% (Year ${bestYear.year})
+
+MEDIAN SIMULATION PROGRESSION:
+- First Year: Balance $${medianFirstYear.balance.toLocaleString()}, Withdrawal $${medianFirstYear.grossWithdrawal.toLocaleString()}
+- Middle Year: Balance $${medianMiddleYear.balance.toLocaleString()}, Withdrawal $${medianMiddleYear.grossWithdrawal.toLocaleString()}
+- Final Year: Balance $${medianLastYear.balance.toLocaleString()}, Withdrawal $${medianLastYear.grossWithdrawal.toLocaleString()}
+
+Provide a comprehensive analysis including:
+1. Overall assessment of the retirement plan's viability
+2. Key risks and concerns specific to this plan
+3. Detailed recommendations for improving the success rate
+4. Analysis of the median simulation and what it reveals
+5. Assessment of the withdrawal rate sustainability
+6. How inflation and market volatility impact this specific plan
+7. Potential adjustments to expenses or retirement timing
+
+Format your response with clear sections, bullet points where appropriate, and actionable advice.
+
+IMPORTANT: Include appropriate emojis in your analysis to make it more engaging. Use emojis sparingly and professionally - typically one emoji per section heading and occasionally within key points. For example, use 📊 for data analysis, 💰 for financial topics, ⚠️ for warnings, ✅ for positive points, etc.`;
 
                 // Call OpenAI API
                 const response = await fetch('https://api.openai.com/v1/chat/completions', {
