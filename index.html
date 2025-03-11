@@ -434,17 +434,20 @@
         .modal-content {
             background-color: white;
             margin: 5% auto;
-            padding: 30px;
-            border-radius: var(--radius-lg);
-            max-width: 90%;
-            width: 900px;
+            padding: 25px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow-xl);
-            animation: modalShow 0.3s ease-out;
+            width: 80%;
+            max-width: 900px;
+            position: relative;
+            animation: slideIn 0.3s;
+            overflow-y: auto;
+            max-height: 90vh;
         }
 
-        @keyframes modalShow {
-            from {opacity: 0; transform: translateY(-30px);}
-            to {opacity: 1; transform: translateY(0);}
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .close-modal {
@@ -1135,9 +1138,247 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Add these styles for the new table and modal */
+        .simulation-table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+            max-height: 500px; /* Set a max height for vertical scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
+            border: 1px solid var(--neutral-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .simulation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .simulation-table th,
+        .simulation-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral-light);
+        }
+
+        .simulation-table th {
+            position: sticky;
+            top: 0; /* Make headers stick to the top when scrolling */
+            background-color: rgba(99, 102, 241, 0.08);
+            color: var(--primary-dark);
+            font-weight: 600;
+            z-index: 10; /* Ensure headers appear above content when scrolling */
+        }
+
+        .simulation-table tr:hover {
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+
+        .view-details-btn {
+            padding: 5px 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .view-details-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .table-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+            gap: 16px;
+        }
+
+        .table-pagination button {
+            padding: 6px 12px;
+            background-color: white;
+            border: 1px solid var(--neutral-light);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .table-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .simulation-detail-content {
+            max-width: 900px;
+            width: 90%;
+        }
+
+        .sim-detail-summary {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .sim-detail-metric {
+            background-color: white;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            min-width: 150px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--neutral);
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .yearly-data-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 16px 0;
+            border: 1px solid var(--neutral-light);
+            border-radius: var(--radius-sm);
+        }
+
+        .yearly-data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .yearly-data-table th,
+        .yearly-data-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral-light);
+        }
+
+        .yearly-data-table th {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            font-weight: 600;
+        }
+
+        .sim-detail-chart-container {
+            height: 300px;
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        .table-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        /* Add these styles for sortable columns */
+        .simulation-table th {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .simulation-table th:hover {
+            background-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .simulation-table th.sorted-asc,
+        .simulation-table th.sorted-desc {
+            background-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .sort-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
+        /* Optional: Animation for sort indicator */
+        .sort-indicator {
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Add these styles for the modal if they're missing */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl);
+            width: 80%;
+            max-width: 900px;
+            position: relative;
+            animation: slideIn 0.3s;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .close-modal {
+            color: var(--neutral);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
     
     <script>
+        // IMPORTANT: Add these global variables at the very top of your script section
+        var allSimulations = [];
+        var currentPage = 1;
+        var rowsPerPage = 10;
+        var currentSortColumn = null;
+        var currentSortDirection = 'asc';
+        
         // Define historical market data in the global scope
         const historicalData = [
             {year: 1975, marketReturn: 0.371, inflation: 0.070},
@@ -1369,30 +1610,61 @@
                     });
                 }
                 
-                // Calculate metrics
-                const successfulSimulations = simulationResults.filter(sim => sim.reachedGoal);
-                const yearsArray = successfulSimulations.map(sim => sim.yearsToGoal).sort((a, b) => a - b);
+                // Calculate years to target for each simulation
+                simulationResults.forEach(simulation => {
+                    let yearsToTarget = null;
+                    for (let i = 0; i < simulation.yearlyData.length; i++) {
+                        if (simulation.yearlyData[i].balance >= targetAmount) {
+                            yearsToTarget = i; // This is years from start, not the absolute year
+                            break;
+                        }
+                    }
+                    simulation.yearsToTarget = yearsToTarget;
+                });
+                
+                // Sort simulations by time to reach target (properly handling cases where target isn't reached)
+                const sortedSimulations = [...simulationResults].sort((a, b) => {
+                    if (!a.yearsToTarget && !b.yearsToTarget) return 0;
+                    if (!a.yearsToTarget) return 1; // Simulations that don't reach target go last
+                    if (!b.yearsToTarget) return -1;
+                    return a.yearsToTarget - b.yearsToTarget;
+                });
+                
+                // Find the median years to target
+                const medianIndex = Math.floor(sortedSimulations.length * 0.5);
+                const medianSimulation = sortedSimulations[medianIndex];
+                const median = medianSimulation.yearsToTarget !== null ? medianSimulation.yearsToTarget : ">50";
+                
+                // Also update these to use the same sorted array
+                const p10 = sortedSimulations[Math.floor(sortedSimulations.length * 0.1)].yearsToTarget;
+                const p90 = sortedSimulations[Math.floor(sortedSimulations.length * 0.9)].yearsToTarget;
+                
+                // Store the median simulation for other functions to use
+                window.medianSimulation = medianSimulation;
                 
                 // Update UI with results
-                const medianYears = yearsArray.length > 0 ? 
-                    yearsArray[Math.floor(yearsArray.length * 0.5)] : null;
-                
                 document.getElementById('yearsToGoal').textContent = 
-                    typeof medianYears === 'number' ? `${medianYears} years` : "25+ years";
+                    typeof median === 'number' ? `${median} years` : "25+ years";
+                
+                // Safely update resultTargetAmount if it exists
+                const resultTargetElement = document.getElementById('resultTargetAmount');
+                if (resultTargetElement) {
+                    resultTargetElement.textContent = '$' + targetAmount.toLocaleString();
+                }
                 
                 // Create charts
                 createContributionImpactChart(simulationResults);
-                createYearsDistributionChart(yearsArray);
-                createMilestones(simulationResults); // Add this line back
+                createYearsDistributionChart(sortedSimulations.map(sim => sim.yearsToTarget));
+                createMilestones(simulationResults);
                 
-                // Update summary
-                updateSimulationSummary(simulationResults, yearsArray);
+                // Store all simulations for table display
+                allSimulations = [...simulationResults];
+                
+                // Display the first page of simulations
+                displaySimulationTable(1);
                 
                 // Show results
-                document.getElementById('results').style.display = 'block';
-                
-                // Scroll to results
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('results').style.display = 'grid';
                 
                 // Reset button
                 button.disabled = false;
@@ -1400,9 +1672,7 @@
                 
                 // Update this line to use the new ID "yearsToGoal" instead of "medianYearsToGoal"
                 document.getElementById('yearsToGoal').textContent = median;
-                
-                // Fix the target amount display with a direct approach
-                document.getElementById('resultTargetAmount').textContent = '$' + targetAmount.toLocaleString();
+                initializeTableSorting(); // Initialize sorting after table is created
             }, 50);
         }
 
@@ -1551,9 +1821,9 @@
 
         // Make sure all the chart creation functions are also in the global scope
         function createContributionImpactChart(simulationResults) {
-            // Get the median simulation
-            const sortedSimulations = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            const medianSimulation = sortedSimulations[Math.floor(sortedSimulations.length * 0.5)];
+            // Use the stored median simulation
+            const medianSimulation = window.medianSimulation;
+            if (!medianSimulation) return;
             
             // Extract the yearly data
             const yearlyData = medianSimulation.yearlyData;
@@ -1561,28 +1831,36 @@
             // Prepare data for stacked area chart
             const labels = yearlyData.map(d => d.year);
             
+            // Get initial investment amount
+            const initialInvestment = parseFloat(document.getElementById('currentSavings').value) || 0;
+            
             // Calculate cumulative contributions and returns
             let cumulativeContributions = 0;
             let cumulativeReturns = 0;
             
-            // Restore these variable declarations
+            const initialInvestmentData = [];
             const contributionsData = [];
             const returnsData = [];
-            const totalData = []; // Add an array to store total values
+            const totalData = [];
             
             yearlyData.forEach(yearData => {
+                // Initial investment stays constant
+                initialInvestmentData.push(initialInvestment);
+                
+                // Add new contributions for this year
                 cumulativeContributions += yearData.contribution;
                 contributionsData.push(cumulativeContributions);
                 
+                // Calculate total balance and returns
                 const balance = yearData.balance;
-                cumulativeReturns = balance - cumulativeContributions;
-                returnsData.push(cumulativeReturns);
+                cumulativeReturns = balance - cumulativeContributions - initialInvestment;
+                returnsData.push(Math.max(0, cumulativeReturns)); // Ensure returns don't go negative
                 
-                // Calculate total for each point
-                totalData.push(cumulativeContributions + cumulativeReturns);
+                // Calculate total for tooltip
+                totalData.push(initialInvestment + cumulativeContributions + Math.max(0, cumulativeReturns));
             });
             
-            // Create chart using the new canvas ID
+            // Create chart
             const ctx = document.getElementById('growthSourcesChart').getContext('2d');
             
             // Check if chart exists before destroying
@@ -1596,16 +1874,23 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Contributions',
+                            label: 'Initial Investment',
+                            data: initialInvestmentData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)', // Blue
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            fill: true
+                        },
+                        {
+                            label: 'New Contributions',
                             data: contributionsData,
-                            backgroundColor: 'rgba(99, 102, 241, 0.5)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.5)', // Indigo/Purple
                             borderColor: 'rgba(99, 102, 241, 1)',
                             fill: true
                         },
                         {
                             label: 'Investment Returns',
                             data: returnsData,
-                            backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.5)', // Green
                             borderColor: 'rgba(16, 185, 129, 1)',
                             fill: true
                         }
@@ -1626,11 +1911,10 @@
                                 label: function(context) {
                                     return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
                                 },
-                                // Add a footer callback to show the total
                                 footer: function(tooltipItems) {
                                     const dataIndex = tooltipItems[0].dataIndex;
                                     const total = totalData[dataIndex];
-                                    return 'Total: $' + total.toLocaleString();
+                                    return 'Total Portfolio: $' + total.toLocaleString();
                                 }
                             }
                         }
@@ -1735,10 +2019,8 @@
         
         // Fix the age calculation in the createMilestones function
         function createMilestones(simulationResults) {
-            // Get the median simulation
-            const sortedSimulations = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            const medianSimulation = sortedSimulations[Math.floor(sortedSimulations.length * 0.5)];
-            
+            // Use the stored median simulation rather than recalculating it
+            const medianSimulation = window.medianSimulation;
             if (!medianSimulation) return;
             
             // Get target amount
@@ -1804,50 +2086,7 @@
             });
         }
         
-        function updateSimulationSummary(simulationResults, yearsArray) {
-            // Calculate percentiles 
-            const percentile10 = yearsArray.length > 0 ? yearsArray[Math.floor(yearsArray.length * 0.1)] : "N/A";
-            const median = yearsArray.length > 0 ? yearsArray[Math.floor(yearsArray.length * 0.5)] : "N/A";
-            const percentile90 = yearsArray.length > 0 ? 
-                yearsArray[Math.floor(yearsArray.length * 0.9)] : "N/A";
-            
-            // Calculate average return correctly
-            let totalReturn = 0;
-            let returnCount = 0;
-            
-            simulationResults.forEach(sim => {
-                sim.yearlyData.forEach(year => {
-                    totalReturn += year.return;
-                    returnCount++;
-                });
-            });
-            
-            // Fix: multiply by 100 to convert to percentage
-            const avgReturn = returnCount > 0 ? (totalReturn / returnCount) * 100 : 0;
-            
-            // Calculate success rate
-            const successRate = (yearsArray.length / simulationResults.length) * 100;
-            
-            // Calculate total contributions for median simulation
-            const sortedSimulations = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            const medianSimulation = sortedSimulations[Math.floor(sortedSimulations.length * 0.5)];
-            const totalContributed = medianSimulation ? 
-                medianSimulation.yearlyData.reduce((sum, year) => sum + year.contribution, 0) : 0;
-            
-            // Update UI
-            document.getElementById('percentile10').textContent = typeof percentile10 === 'number' ? 
-                `${percentile10}` : percentile10;
-            document.getElementById('medianTime').textContent = typeof median === 'number' ? 
-                `${median}` : median;
-            document.getElementById('percentile90').textContent = typeof percentile90 === 'number' ? 
-                `${percentile90}` : percentile90;
-            document.getElementById('avgReturn').textContent = `${avgReturn.toFixed(1)}%`;
-            document.getElementById('summarySuccessRate').textContent = `${Math.round(successRate)}%`;
-            document.getElementById('summaryContributed').textContent = `$${Math.round(totalContributed).toLocaleString()}`;
-            
-            // Show the summary section
-            document.getElementById('summary').style.display = 'block';
-        }
+        
 
         // Add these chart creation functions
         function createRetirementBalanceChart(simulationResults, startAge, maxYears) {
@@ -2200,160 +2439,195 @@
             });
         }
 
-        function showSimulationDetails(simulation, scenarioNumber) {
-            // Update scenario number and status
-            document.getElementById('scenario-number').textContent = `Scenario #${scenarioNumber}`;
-            const statusSpan = document.querySelector('#scenario-status span');
-            statusSpan.textContent = simulation.ranOutOfMoney ? 'Depleted' : 'Successful';
-            statusSpan.className = simulation.ranOutOfMoney ? 'status-failure' : 'status-success';
+        // Replace the showSimulationDetails function with this simplified version
+        function showSimulationDetails(simIndex) {
+            const sim = allSimulations[simIndex];
             
-            // Create the chart
-            createDetailChart(simulation);
+            // Create a completely new modal each time (to avoid any existing issues)
+            let modalHTML = `
+            <div id="simModal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <div style="
+                    background: white;
+                    width: 90%;
+                    max-width: 900px;
+                    max-height: 90vh;
+                    padding: 30px;
+                    border-radius: 12px;
+                    overflow-y: auto;
+                    position: relative;
+                ">
+                    <span id="closeSimModal" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 20px;
+                        font-size: 24px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">&times;</span>
+                    
+                    <h2>Simulation ${typeof simIndex === 'number' ? simIndex + 1 : ''} Details</h2>
+                    
+                    <div style="
+                        display: flex;
+                        gap: 20px;
+                        margin: 20px 0;
+                        flex-wrap: wrap;
+                    ">
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Years to Goal</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                ${sim.yearsToTarget !== null ? `${sim.yearsToTarget} years` : 'Not reached'}
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Final Balance</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                $${sim.finalBalance.toLocaleString()}
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Average Return</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                ${getAvgReturn(sim)}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Year-by-Year Data</h3>
+                    <div style="
+                        max-height: 300px;
+                        overflow-y: auto;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    ">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="position: sticky; top: 0; background: white;">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Year</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Age</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Return</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">
+                                        ${sim.yearlyData && sim.yearlyData[0] && sim.yearlyData[0].withdrawal !== undefined ? 
+                                            'Withdrawal' : 'Contribution'}
+                                    </th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${generateYearlyDataRows(sim)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            `;
             
-            // Populate the table
-            const tableBody = document.getElementById('detail-table-body');
-            tableBody.innerHTML = '';
-            
-            simulation.yearlyData.forEach(yearData => {
-                const row = document.createElement('tr');
-                
-                // Age
-                const ageCell = document.createElement('td');
-                ageCell.textContent = yearData.age;
-                row.appendChild(ageCell);
-                
-                // Balance
-                const balanceCell = document.createElement('td');
-                balanceCell.textContent = `$${Math.round(yearData.balance).toLocaleString()}`;
-                row.appendChild(balanceCell);
-                
-                // Return
-                const returnCell = document.createElement('td');
-                returnCell.textContent = `${(yearData.return * 100).toFixed(1)}%`;
-                returnCell.style.color = yearData.return >= 0 ? 'var(--success)' : 'var(--danger)';
-                row.appendChild(returnCell);
-                
-                // Withdrawal
-                const withdrawalCell = document.createElement('td');
-                withdrawalCell.textContent = `$${Math.round(yearData.withdrawal).toLocaleString()}`;
-                row.appendChild(withdrawalCell);
-                
-                // Inflation
-                const inflationCell = document.createElement('td');
-                inflationCell.textContent = `${(yearData.inflation * 100).toFixed(1)}%`;
-                row.appendChild(inflationCell);
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Show the modal
-            document.getElementById('simulation-detail-modal').style.display = 'block';
-        }
-
-        function createDetailChart(simulation) {
-            const ages = simulation.yearlyData.map(data => data.age);
-            const balances = simulation.yearlyData.map(data => data.balance);
-            const withdrawals = simulation.yearlyData.map(data => data.withdrawal);
-            
-            const ctx = document.getElementById('simulationDetailChart').getContext('2d');
-            
-            // Check if chart exists before destroying
-            if (window.simulationDetailChart && typeof window.simulationDetailChart.destroy === 'function') {
-                window.simulationDetailChart.destroy();
+            // Remove any existing modal
+            const existingModal = document.getElementById('simModal');
+            if (existingModal) {
+                existingModal.remove();
             }
             
-            window.simulationDetailChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ages,
-                    datasets: [
-                        {
-                            label: 'Portfolio Balance',
-                            data: balances,
-                            borderColor: '#6366f1',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                            fill: false,
-                            yAxisID: 'y',
-                            tension: 0.4,
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'Annual Withdrawal',
-                            data: withdrawals,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            fill: false,
-                            yAxisID: 'y1',
-                            tension: 0.4,
-                            borderWidth: 2,
-                            borderDash: [5, 5]
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += '$' + Math.round(context.parsed.y).toLocaleString();
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            }
-                        },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Portfolio Balance'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Annual Withdrawal'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
-                    }
+            // Add the new modal to the document
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Add close button functionality
+            document.getElementById('closeSimModal').addEventListener('click', function() {
+                document.getElementById('simModal').remove();
+            });
+            
+            // Close when clicking outside content
+            document.getElementById('simModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
                 }
             });
+            
+            // Use a multi-step approach to ensure the DOM is ready
+            console.log("Setting up chart creation process");
+            
+            // First make sure the modal is in the DOM and visible
+            document.body.appendChild(document.createTextNode('')); // Force a reflow
+            
+            // Then try to create the chart after a delay
+            setTimeout(function() {
+                console.log("Modal should be fully rendered now, creating chart");
+                createSimDetailChart(sim);
+                
+                // If that didn't work, try one more time after a longer delay
+                setTimeout(function() {
+                    console.log("Second attempt to create chart");
+                    createSimDetailChart(sim);
+                }, 300);
+            }, 100);
+        }
+
+        // Helper function to calculate average return
+        function getAvgReturn(simulation) {
+            let totalReturn = 0;
+            simulation.yearlyData.forEach(year => totalReturn += year.return);
+            const avgReturn = simulation.yearlyData.length > 0 ? totalReturn / simulation.yearlyData.length : 0;
+            return (avgReturn * 100).toFixed(1);
+        }
+
+        // Helper function to generate yearly data rows
+        function generateYearlyDataRows(simulation) {
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            let rows = '';
+            
+            simulation.yearlyData.forEach((yearData, index) => {
+                // Check which type of simulation we're dealing with (savings vs retirement)
+                const isRetirementSim = yearData.withdrawal !== undefined;
+                
+                rows += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 10px;">${index + 1}</td>
+                        <td style="padding: 10px;">${currentAge + index}</td>
+                        <td style="padding: 10px;">${(yearData.return * 100).toFixed(1)}%</td>
+                        <td style="padding: 10px;">${isRetirementSim ? 
+                            `$${yearData.withdrawal ? yearData.withdrawal.toLocaleString() : '0'} (withdrawal)` : 
+                            `$${yearData.contribution ? yearData.contribution.toLocaleString() : '0'}`}</td>
+                        <td style="padding: 10px;">$${yearData.balance.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            
+            return rows;
         }
 
         // Add this to your DOMContentLoaded event listener
@@ -2562,6 +2836,525 @@
                 updateGlobalTargetAmount();
             }
         });
+
+        // Add the JavaScript to handle the simulation table
+        // Function to display a page of the simulation table
+        function displaySimulationTable(page, sortColumn = null, sortDirection = null) {
+            // Update sorting state if provided
+            if (sortColumn !== null) {
+                if (currentSortColumn === sortColumn) {
+                    // Toggle direction if clicking the same column
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    // New column, default to ascending
+                    currentSortColumn = sortColumn;
+                    currentSortDirection = sortDirection || 'asc';
+                }
+            }
+            
+            const tableBody = document.getElementById('simulationTableBody');
+            tableBody.innerHTML = '';
+            
+            // Create a copy of the simulations for sorting
+            let sortedSimulations = [...allSimulations];
+            
+            // Sort the simulations if a sort column is specified
+            if (currentSortColumn !== null) {
+                sortedSimulations.sort((a, b) => {
+                    let valueA, valueB;
+                    
+                    // Determine values to compare based on column
+                    switch (currentSortColumn) {
+                        case 'simNumber':
+                            // Sim numbers are just array indices
+                            valueA = sortedSimulations.indexOf(a);
+                            valueB = sortedSimulations.indexOf(b);
+                            break;
+                        case 'yearsToGoal':
+                            // Handle null values (not reached)
+                            valueA = a.yearsToTarget !== null ? a.yearsToTarget : Infinity;
+                            valueB = b.yearsToTarget !== null ? b.yearsToTarget : Infinity;
+                            break;
+                        case 'finalBalance':
+                            valueA = a.finalBalance;
+                            valueB = b.finalBalance;
+                            break;
+                        case 'avgReturn':
+                            // Calculate average returns
+                            let totalReturnA = 0, totalReturnB = 0;
+                            a.yearlyData.forEach(year => totalReturnA += year.return);
+                            b.yearlyData.forEach(year => totalReturnB += year.return);
+                            valueA = a.yearlyData.length > 0 ? totalReturnA / a.yearlyData.length : 0;
+                            valueB = b.yearlyData.length > 0 ? totalReturnB / b.yearlyData.length : 0;
+                            break;
+                        default:
+                            valueA = 0;
+                            valueB = 0;
+                    }
+                    
+                    // Compare based on direction
+                    if (currentSortDirection === 'asc') {
+                        return valueA - valueB;
+                    } else {
+                        return valueB - valueA;
+                    }
+                });
+            }
+            
+            // Add all simulations to the table
+            for (let i = 0; i < sortedSimulations.length; i++) {
+                const sim = sortedSimulations[i];
+                const originalIndex = allSimulations.indexOf(sim); // Keep track of original index
+                const row = document.createElement('tr');
+                
+                // Calculate average return for this simulation
+                let totalReturn = 0;
+                sim.yearlyData.forEach(year => totalReturn += year.return);
+                const avgReturn = sim.yearlyData.length > 0 ? totalReturn / sim.yearlyData.length : 0;
+                
+                // Create row
+                row.innerHTML = `
+                    <td>${originalIndex + 1}</td>
+                    <td>${sim.yearsToTarget !== null ? sim.yearsToTarget : 'Not reached'}</td>
+                    <td>$${sim.finalBalance.toLocaleString()}</td>
+                    <td>${(avgReturn * 100).toFixed(1)}%</td>
+                    <td><button class="view-details-btn" onclick="showSimulationDetails(${originalIndex})">View Details</button></td>
+                `;
+                
+                tableBody.appendChild(row);
+            }
+            
+            // Update header to show sort indicators
+            updateSortIndicators();
+            
+            // Add event listeners to the View Details buttons
+            document.querySelectorAll('.view-details-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const simIndex = parseInt(this.getAttribute('data-sim-index'));
+                    showSimulationDetails(simIndex);
+                });
+            });
+        }
+
+        // Function to update sort indicators in the table header
+        function updateSortIndicators() {
+            // Remove any existing indicators
+            document.querySelectorAll('.sort-indicator').forEach(el => el.remove());
+            
+            // Add indicators to the headers
+            const headers = document.querySelectorAll('.simulation-table th');
+            headers.forEach(header => {
+                // Make the header look clickable
+                header.style.cursor = 'pointer';
+                
+                // Remove the existing indicator class
+                header.classList.remove('sorted-asc', 'sorted-desc');
+                
+                // Get the column name from the header
+                const columnName = header.getAttribute('data-sort');
+                
+                // If this is the current sort column, add the indicator
+                if (columnName === currentSortColumn) {
+                    header.classList.add(currentSortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                    
+                    const indicator = document.createElement('span');
+                    indicator.className = 'sort-indicator';
+                    indicator.textContent = currentSortDirection === 'asc' ? ' ↑' : ' ↓';
+                    header.appendChild(indicator);
+                }
+            });
+        }
+
+        // Initialize the column sorting
+        function initializeTableSorting() {
+            const headers = document.querySelectorAll('.simulation-table th');
+            
+            // Add data-sort attributes to headers
+            const sortAttributes = ['simNumber', 'yearsToGoal', 'finalBalance', 'avgReturn'];
+            headers.forEach((header, index) => {
+                if (index < sortAttributes.length) { // Skip the Actions column
+                    header.setAttribute('data-sort', sortAttributes[index]);
+                    
+                    // Add click event for sorting
+                    header.addEventListener('click', function() {
+                        const column = this.getAttribute('data-sort');
+                        displaySimulationTable(1, column);
+                    });
+                }
+            });
+        }
+
+        // Make sure to call this after table is created
+        document.addEventListener('DOMContentLoaded', function() {
+            // Other initialization code...
+            
+            // This will run when DOM is loaded, but we also need to call it after table is created
+            setTimeout(initializeTableSorting, 1000); // Give time for the table to be created
+        });
+
+        // Function to show simulation details in the modal
+        function showSimulationDetails(simIndex) {
+            let sim;
+            
+            // Check if simIndex is actually a simulation object instead of an index
+            if (typeof simIndex === 'object' && simIndex !== null && simIndex.yearlyData) {
+                // We received a simulation object directly
+                sim = simIndex;
+                // Find the index of this simulation in the array (for display purposes)
+                simIndex = allSimulations.findIndex(s => s === sim);
+                if (simIndex === -1) simIndex = 0; // Default to 0 if not found
+            } else {
+                // Add error checking to make sure simIndex is valid
+                if (simIndex === undefined || simIndex < 0 || (Array.isArray(allSimulations) && simIndex >= allSimulations.length)) {
+                    console.error("Invalid simulation index:", simIndex);
+                    // Don't show alert, just log to console
+                    return;
+                }
+                
+                sim = allSimulations[simIndex];
+                
+                // Additional check to ensure the simulation object exists
+                if (!sim) {
+                    console.error("Simulation at index", simIndex, "is undefined");
+                    // Don't show alert, just log to console
+                    return;
+                }
+            }
+            
+            // Final check to ensure we have yearlyData
+            if (!sim.yearlyData || !Array.isArray(sim.yearlyData) || sim.yearlyData.length === 0) {
+                console.error("Simulation doesn't have valid yearlyData", sim);
+                // Create a minimal valid structure if needed
+                sim.yearlyData = sim.yearlyData || [{balance: 0, return: 0}];
+            }
+            
+            // Create a completely new modal each time (to avoid any existing issues)
+            let modalHTML = `
+            <div id="simModal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 9999;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+                <div style="
+                    background: white;
+                    width: 90%;
+                    max-width: 900px;
+                    max-height: 90vh;
+                    padding: 30px;
+                    border-radius: 12px;
+                    overflow-y: auto;
+                    position: relative;
+                ">
+                    <span id="closeSimModal" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 20px;
+                        font-size: 24px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">&times;</span>
+                    
+                    <h2>Simulation ${typeof simIndex === 'number' ? simIndex + 1 : ''} Details</h2>
+                    
+                    <div style="
+                        display: flex;
+                        gap: 20px;
+                        margin: 20px 0;
+                        flex-wrap: wrap;
+                    ">
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">
+                                ${sim.yearsToTarget !== undefined ? 'Years to Goal' : 'Years Lasted'}
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                ${sim.yearsToTarget !== undefined ? 
+                                    (sim.yearsToTarget !== null ? `${sim.yearsToTarget} years` : 'Not reached') : 
+                                    `${sim.yearsLasted} years`}
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Final Balance</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                $${sim.finalBalance.toLocaleString()}
+                            </div>
+                        </div>
+                        
+                        <div style="
+                            flex: 1;
+                            min-width: 150px;
+                            padding: 15px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                            text-align: center;
+                        ">
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Average Return</div>
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
+                                ${getAvgReturn(sim)}%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Year-by-Year Data</h3>
+                    <div style="
+                        max-height: 300px;
+                        overflow-y: auto;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    ">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="position: sticky; top: 0; background: white;">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Year</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Age</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Return</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">
+                                        ${sim.yearlyData && sim.yearlyData[0] && sim.yearlyData[0].withdrawal !== undefined ? 
+                                            'Withdrawal' : 'Contribution'}
+                                    </th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${generateYearlyDataRows(sim)}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            // Remove any existing modal
+            const existingModal = document.getElementById('simModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add the new modal to the document
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Add close button functionality
+            document.getElementById('closeSimModal').addEventListener('click', function() {
+                document.getElementById('simModal').remove();
+            });
+            
+            // Close when clicking outside content
+            document.getElementById('simModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.remove();
+                }
+            });
+            
+            // Use a multi-step approach to ensure the DOM is ready
+            console.log("Setting up chart creation process");
+            
+            // First make sure the modal is in the DOM and visible
+            document.body.appendChild(document.createTextNode('')); // Force a reflow
+            
+            // Then try to create the chart after a delay
+            setTimeout(function() {
+                console.log("Modal should be fully rendered now, creating chart");
+                createSimDetailChart(sim);
+                
+                // If that didn't work, try one more time after a longer delay
+                setTimeout(function() {
+                    console.log("Second attempt to create chart");
+                    createSimDetailChart(sim);
+                }, 300);
+            }, 100);
+        }
+
+        // Make sure this function is defined
+        function createSimDetailChart(simulation) {
+            console.log("Creating chart with direct canvas approach");
+            
+            // Get the canvas element first
+            const canvas = document.getElementById('simDetailChart');
+            if (!canvas) {
+                console.error("Canvas element not found");
+                return;
+            }
+            console.log("Found canvas:", canvas);
+            
+            // Get the context for direct drawing
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                console.error("Could not get canvas context");
+                return;
+            }
+            
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Get data
+            const currentAge = parseInt(document.getElementById('currentAge')?.value || 30);
+            if (!simulation || !simulation.yearlyData || !Array.isArray(simulation.yearlyData)) {
+                console.error("Invalid simulation data");
+                drawErrorMessage(ctx, canvas);
+                return;
+            }
+            
+            const data = simulation.yearlyData.map(d => d.balance || 0);
+            if (data.length === 0) {
+                console.error("No data points to display");
+                drawErrorMessage(ctx, canvas);
+                return;
+            }
+            
+            // Draw a basic line chart
+            const padding = 40;
+            const chartWidth = canvas.width - padding * 2;
+            const chartHeight = canvas.height - padding * 2;
+            
+            // Find min/max for scaling
+            const maxValue = Math.max(...data);
+            
+            // Draw background
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw title
+            ctx.fillStyle = "#1e293b";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Portfolio Balance Over Time", canvas.width / 2, 20);
+            
+            // Draw axes
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.strokeStyle = "#94a3b8";
+            ctx.stroke();
+            
+            // Draw data line
+            if (data.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(
+                    padding,
+                    canvas.height - padding - (data[0] / maxValue) * chartHeight
+                );
+                
+                for (let i = 1; i < data.length; i++) {
+                    const x = padding + (i / (data.length - 1)) * chartWidth;
+                    const y = canvas.height - padding - (data[i] / maxValue) * chartHeight;
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.strokeStyle = "#4f46e5";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Fill area under line
+                ctx.lineTo(padding + chartWidth, canvas.height - padding);
+                ctx.lineTo(padding, canvas.height - padding);
+                ctx.fillStyle = "rgba(79, 70, 229, 0.1)";
+                ctx.fill();
+            }
+            
+            // Draw y-axis labels (dollar amounts)
+            ctx.fillStyle = "#64748b";
+            ctx.font = "12px Arial";
+            ctx.textAlign = "right";
+            
+            const numYLabels = 5;
+            for (let i = 0; i <= numYLabels; i++) {
+                const value = maxValue * (i / numYLabels);
+                const y = canvas.height - padding - (i / numYLabels) * chartHeight;
+                ctx.fillText('$' + Math.round(value).toLocaleString(), padding - 5, y + 4);
+                
+                // Draw horizontal grid line
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.strokeStyle = "#e2e8f0";
+                ctx.stroke();
+            }
+            
+            // Draw x-axis labels (years/age)
+            ctx.textAlign = "center";
+            const numXLabels = Math.min(data.length, 10); // Limit to avoid crowding
+            for (let i = 0; i < numXLabels; i++) {
+                const index = Math.floor(i * (data.length - 1) / (numXLabels - 1));
+                const x = padding + (index / (data.length - 1)) * chartWidth;
+                const age = currentAge + index;
+                ctx.fillText(age.toString(), x, canvas.height - padding + 15);
+            }
+            
+            console.log("Basic chart drawn directly to canvas");
+        }
+
+        // Helper function to display an error message on the canvas
+        function drawErrorMessage(ctx, canvas) {
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#ef4444";
+            ctx.font = "14px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("Error: Could not display chart", canvas.width / 2, canvas.height / 2);
+        }
+
+        // Add event listeners for pagination
+        document.getElementById('prevPageBtn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                displaySimulationTable(currentPage - 1);
+            }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', function() {
+            if (currentPage < Math.ceil(allSimulations.length / rowsPerPage)) {
+                displaySimulationTable(currentPage + 1);
+            }
+        });
+
+        // Add event listener for closing the simulation detail modal
+        document.getElementById('closeSimDetailModal').addEventListener('click', function() {
+            document.getElementById('simulationDetailModal').style.display = 'none';
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('simulationDetailModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Add this helper function near the top of your script
+        function safeSetTextContent(id, text) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = text;
+            } else {
+                console.warn(`Element with ID '${id}' not found when setting text to: ${text}`);
+            }
+        }
+
+        // Then you can use it throughout your code:
+        // safeSetTextContent('resultTargetAmount', '$' + targetAmount.toLocaleString());
     </script>
 </head>
 <body>
@@ -2709,52 +3502,27 @@
                 </div>
             </div>
             <div class="result-card">
-                <div id="summary" class="input-section" style="display: none;">
-                    <h2>Simulation Summary
-                        <span class="tooltip-container">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltip-text">Detailed statistics from your simulations.</span>
-                        </span>
-                    </h2>
-                    
-                    <div class="simulation-summary">
-                        <div class="summary-grid">
-                            <div class="summary-item">
-                                <div class="summary-label">10th Percentile</div>
-                                <div class="summary-value" id="percentile10">-</div>
-                                <div class="summary-description">Optimistic estimate (years)</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Median Time</div>
-                                <div class="summary-value" id="medianTime">-</div>
-                                <div class="summary-description">Typical outcome (years)</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">90th Percentile</div>
-                                <div class="summary-value" id="percentile90">-</div>
-                                <div class="summary-description">Conservative estimate (years)</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Average Return</div>
-                                <div class="summary-value" id="avgReturn">-</div>
-                                <div class="summary-description">Average annual return</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Success Rate</div>
-                                <div class="summary-value" id="summarySuccessRate">-</div>
-                                <div class="summary-description">% reaching goal</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="summary-label">Total Contributed</div>
-                                <div class="summary-value" id="summaryContributed">-</div>
-                                <div class="summary-description">Median scenario</div>
-                            </div>
-                        </div>
-                        
-                        <div class="chart-container distribution-chart-container">
-                            <canvas id="returnsDistributionChart"></canvas>
-                        </div>
-                    </div>
+                <h3>Simulation Details
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Explore individual simulation results and market scenarios.</span>
+                    </span>
+                </h3>
+                <div class="simulation-table-container">
+                    <table class="simulation-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="simNumber">Sim #</th>
+                                <th data-sort="yearsToGoal">Years to Goal</th>
+                                <th data-sort="finalBalance">Final Balance</th>
+                                <th data-sort="avgReturn">Avg. Return</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="simulationTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -2952,40 +3720,45 @@
 
             <!-- Add this modal for displaying simulation details -->
             <div id="simulation-detail-modal" class="modal">
-                <div class="modal-content">
-                    <span class="close-modal" id="close-simulation-modal">&times;</span>
-                    <h2>Simulation Details</h2>
+                <div class="modal-content simulation-detail-content">
+                    <span class="close-modal" id="closeSimDetailModal">&times;</span>
+                    <h2>Simulation <span id="simDetailId"></span> Details</h2>
                     
-                    <div class="scenario-header">
-                        <div id="scenario-number">Scenario #</div>
-                        <div id="scenario-status">Status: <span></span></div>
-                    </div>
-                    
-                    <div class="detail-section">
-                        <h3>Portfolio Performance</h3>
-                        <div class="chart-container">
-                            <canvas id="simulationDetailChart"></canvas>
+                    <div class="sim-detail-summary">
+                        <div class="sim-detail-metric">
+                            <div class="metric-label">Years to Goal</div>
+                            <div class="metric-value" id="simDetailYears"></div>
+                        </div>
+                        <div class="sim-detail-metric">
+                            <div class="metric-label">Final Balance</div>
+                            <div class="metric-value" id="simDetailBalance"></div>
+                        </div>
+                        <div class="sim-detail-metric">
+                            <div class="metric-label">Average Return</div>
+                            <div class="metric-value" id="simDetailReturn"></div>
                         </div>
                     </div>
                     
-                    <div class="detail-section">
-                        <h3>Year-by-Year Breakdown</h3>
-                        <div class="table-container">
-                            <table class="detail-table">
-                                <thead>
-                                    <tr>
-                                        <th>Age</th>
-                                        <th>Balance</th>
-                                        <th>Return</th>
-                                        <th>Withdrawal</th>
-                                        <th>Inflation</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="detail-table-body">
-                                    <!-- Detail rows will be added dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
+                    <h3>Year-by-Year Data</h3>
+                    <div class="yearly-data-container">
+                        <table class="yearly-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Age</th>
+                                    <th>Return</th>
+                                    <th>Withdrawal</th>
+                                    <th>Inflation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yearlyDataTableBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sim-detail-chart-container">
+                        <canvas id="simDetailChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -3104,16 +3877,16 @@
     // Set up event handlers for the simulation detail modal
     document.addEventListener('DOMContentLoaded', function() {
         // Close button in the modal
-        const closeButton = document.getElementById('close-simulation-modal');
+        const closeButton = document.getElementById('closeSimDetailModal');
         if (closeButton) {
             closeButton.addEventListener('click', function() {
-                document.getElementById('simulation-detail-modal').style.display = 'none';
+                document.getElementById('simulationDetailModal').style.display = 'none';
             });
         }
         
         // Close modal when clicking outside of it
         window.addEventListener('click', function(event) {
-            const modal = document.getElementById('simulation-detail-modal');
+            const modal = document.getElementById('simulationDetailModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
@@ -3183,4 +3956,49 @@
         }
     });
 </script>
+
+<!-- Replace the existing simulationDetailModal with this updated version -->
+<div id="simulationDetailModal" class="modal">
+    <div class="modal-content simulation-detail-content">
+        <span class="close-modal" id="closeSimDetailModal">&times;</span>
+        <h2>Simulation <span id="simDetailId">-</span> Details</h2>
+        
+        <div class="sim-detail-summary">
+            <div class="sim-detail-metric">
+                <div class="metric-label">Years to Goal</div>
+                <div class="metric-value" id="simDetailYears">-</div>
+            </div>
+            <div class="sim-detail-metric">
+                <div class="metric-label">Final Balance</div>
+                <div class="metric-value" id="simDetailBalance">-</div>
+            </div>
+            <div class="sim-detail-metric">
+                <div class="metric-label">Average Return</div>
+                <div class="metric-value" id="simDetailReturn">-</div>
+            </div>
+        </div>
+        
+        <h3>Year-by-Year Data</h3>
+        <div class="yearly-data-container">
+            <table class="yearly-data-table">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Age</th>
+                        <th>Return</th>
+                        <th>Contribution</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="yearlyDataTableBody">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="sim-detail-chart-container">
+            <canvas id="simDetailChart"></canvas>
+        </div>
+    </div>
+</div>
 
