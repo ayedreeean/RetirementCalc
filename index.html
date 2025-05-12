@@ -14,24 +14,26 @@
     <style>
         /* Enhanced color scheme and modern design */
         :root {
-            --primary: #4f46e5;
-            --primary-light: #818cf8;
+            --primary: #4f46e5; /* Keep primary, but might use less intensely */
+            --primary-light: #a5b4fc; /* Lighter indigo */
             --primary-dark: #3730a3;
-            --success: #059669;
-            --warning: #d97706;
-            --danger: #dc2626;
-            --neutral-dark: #1e293b;
+            --success: #10b981; /* Slightly brighter green */
+            --warning: #f59e0b; /* Slightly brighter yellow */
+            --danger: #ef4444; /* Slightly brighter red */
+            --neutral-dark: #334155; /* Softer dark gray */
             --neutral: #64748b;
-            --neutral-light: #e2e8f0;
-            --background: #f8fafc;
-            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --radius-lg: 16px;
-            --transition: all 0.3s ease;
-            --ai-gradient: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+            --neutral-light: #e2e8f0; /* Lighter gray */
+            --background: #f8fafc; /* Very light gray background */
+            --card-background: #ffffff; /* White background for cards */
+            --border-color: #e5e7eb; /* Subtle border color */
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06); /* Softer shadow */
+            --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05); /* Softer large shadow */
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.05), 0 8px 10px rgba(0, 0, 0, 0.04); /* Softer XL shadow */
+            --radius: 10px; /* Slightly adjusted radius */
+            --radius-sm: 6px;
+            --radius-lg: 12px;
+            --transition: all 0.2s ease-in-out; /* Slightly faster transition */
+            --ai-gradient: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%); /* Adjusted gradient */
         }
 
         /* Improved body styling */
@@ -39,13 +41,13 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             line-height: 1.6;
             color: var(--neutral-dark);
-            background-color: #f1f5f9;
+            background-color: var(--background); /* Use new background */
             padding: 0;
             margin: 0;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            padding-top: 70px !important; /* Increase space for header with navigation */
+            padding-top: 80px !important; /* Adjust if header height changes */
         }
         
         html {
@@ -56,48 +58,51 @@
 
         /* Modern container styling */
         .container {
-            max-width: 1100px; /* Slightly reduced max-width */
-            margin: 0 auto;
-            padding: 30px 40px; /* Increased horizontal padding from 20px to 40px */
-            background: white;
+            max-width: 1100px; 
+            margin: 30px auto; /* Add top/bottom margin */
+            padding: 40px 50px; /* Increased padding */
+            background: var(--card-background); /* Use card background */
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            margin-top: 30px;
-            margin-bottom: 10px;
+            box-shadow: var(--shadow-lg); /* Use softer shadow */
+            /* margin-top: 30px; */ /* Handled by margin: auto */
+            /* margin-bottom: 10px; */ /* Handled by margin: auto */
+            border: 1px solid var(--border-color); /* Add subtle border */
         }
 
-        /* Enhanced tab styling */
+        /* Enhanced tab styling - Not currently used, but kept for potential future use */
         .tabs {
             display: flex;
-            background: var(--background);
+            background: var(--card-background);
             border-radius: var(--radius-lg);
-            padding: 8px;
+            padding: 6px;
             margin-bottom: 30px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
 
         .tab {
             flex: 1;
             text-align: center;
-            padding: 14px 20px;
+            padding: 12px 18px;
             cursor: pointer;
             border-radius: var(--radius);
             font-weight: 600;
             transition: var(--transition);
             color: var(--neutral);
-            position: relative;
-            overflow: hidden;
+            border: 1px solid transparent;
         }
 
         .tab:hover {
             color: var(--primary);
-            background: rgba(79, 70, 229, 0.05);
+            background: rgba(79, 70, 229, 0.03);
         }
 
         .tab.active {
-            color: white;
-            background: var(--primary);
+            color: var(--primary);
+            background: rgba(79, 70, 229, 0.1);
             box-shadow: var(--shadow);
+            border-color: rgba(79, 70, 229, 0.2);
+            font-weight: 700;
         }
 
         /* Enhanced input section */
@@ -125,11 +130,12 @@
         select {
             width: 100%;
             padding: 14px;
-            border: 1px solid var(--neutral-light);
+            border: 1px solid var(--border-color); /* Use new border color */
             border-radius: var(--radius-sm);
             font-size: 1rem;
             transition: var(--transition);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            background-color: #fff; /* Ensure white background for inputs */
+            /* box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); */ /* Remove default shadow */
             box-sizing: border-box; /* Add consistent box-sizing */
         }
 
@@ -137,7 +143,7 @@
         input[type="number"]:focus,
         select:focus {
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); /* Softer focus ring */
             outline: none;
         }
 
@@ -146,43 +152,44 @@
             font-weight: 500;
             margin-bottom: 8px;
             color: var(--neutral-dark);
+            font-size: 0.9rem; /* Slightly smaller label */
         }
 
 
-        /* Enhanced buttons */
-        button {
+        /* Enhanced buttons (general) - these styles were not present, adding them */
+        button, .button {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 14px 28px;
+            padding: 12px 24px;
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+            transition: var(--transition);
+            box-shadow: var(--shadow);
         }
 
-        button:hover {
+        button:hover, .button:hover {
             background-color: var(--primary-dark);
+            box-shadow: var(--shadow-lg);
             transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.4);
         }
 
-        button:active {
-            transform: translateY(1px);
-            box-shadow: 0 1px 2px rgba(79, 70, 229, 0.4);
+        button:active, .button:active {
+            transform: translateY(0px);
+            box-shadow: var(--shadow);
         }
 
         /* Improved result cards */
         .result-card {
-            background: white;
+            background: var(--card-background);
             border-radius: var(--radius-lg);
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow);
+            padding: 30px; /* Increased padding */
+            margin-bottom: 25px; /* Increased margin */
+            box-shadow: var(--shadow); /* Use softer shadow */
             transition: var(--transition);
-            border: 1px solid var(--neutral-light);
+            border: 1px solid var(--border-color);
         }
 
         .result-card:hover {
@@ -217,11 +224,12 @@
             font-weight: 700;
             display: flex;
             align-items: center;
+            color: var(--neutral-dark); /* Ensure consistent heading color */
         }
 
         .chart-container {
             height: 300px;
-            margin-top: 15px;
+            margin-top: 20px; /* Increased margin */
             position: relative;
         }
 
@@ -680,27 +688,29 @@
 
         /* App Header Styling */
         .app-header {
-            background: var(--ai-gradient);
-            color: white;
+            /* background: var(--ai-gradient); */ /* Remove gradient */
+            background-color: var(--card-background); /* Use card background (white) */
+            color: var(--primary); /* Change text color to primary */
             padding: 0;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow); /* Use softer shadow */
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             width: 100%;
             z-index: 1000;
+            border-bottom: 1px solid var(--border-color); /* Add subtle border */
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 15px 40px; /* Increased from 20px to 40px */
+            padding: 0 40px; /* Adjust padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 64px !important; /* Set fixed height */
-            min-height: 30px;
+            height: 70px !important; /* Adjust height */
+            /* min-height: 30px; */ /* Not needed with fixed height */
         }
 
         .logo {
@@ -710,15 +720,17 @@
         }
 
         .logo svg {
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            /* filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); */ /* Remove shadow */
+            color: var(--primary);
         }
 
         .logo h1 {
-            font-size: 1.6rem;
+            font-size: 1.8rem; /* Slightly larger */
             font-weight: 700;
             margin: 0;
             letter-spacing: -0.5px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */ /* Remove shadow */
+            color: var(--neutral-dark); /* Use darker neutral for title */
         }
 
         .header-actions {
@@ -919,21 +931,21 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            margin: 40px 0;
+            margin: 40px 0 20px; /* Adjust margin */
         }
 
         .simulation-button {
             background: var(--primary);
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.05rem; /* Slightly adjusted */
             font-weight: 600;
-            padding: 16px 36px;
-            border-radius: 50px;
+            padding: 14px 32px; /* Adjusted padding */
+            border-radius: var(--radius); /* Consistent radius */
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            min-width: 240px;
+            box-shadow: var(--shadow); /* Softer shadow */
+            transition: var(--transition);
+            min-width: 220px; /* Adjusted min-width */
             text-align: center;
             letter-spacing: 0.3px;
             position: relative;
@@ -945,12 +957,12 @@
             /* transform: translateY(-2px); */ /* Remove vertical movement */
             /* padding: 8px 20px; */ /* Remove padding change - likely an error */
             /* box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35); */ /* Keep original or adjust slightly */
-            box-shadow: 0 5px 14px rgba(99, 102, 241, 0.30); /* Slightly adjusted shadow */
+            box-shadow: var(--shadow-lg); /* Slightly larger shadow on hover */
         }
 
         .simulation-button:active {
             transform: translateY(1px);
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+            box-shadow: var(--shadow);
         }
 
         .simulation-button::after {
@@ -1493,84 +1505,63 @@
         /* Styles for header navigation */
         .header-nav {
             display: flex;
-            gap: 15px;
+            gap: 10px; /* Reduce gap slightly */
             align-items: center;
         }
         
         .header-nav-link {
             display: flex;
             align-items: center;
-            padding: 8px 16px;
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white;
+            padding: 10px 20px; /* Adjust padding */
+            /* background-color: rgba(255, 255, 255, 0.15); */ /* Remove old background */
+            background-color: transparent;
+            color: var(--neutral); /* Use neutral color for inactive */
             text-decoration: none;
             border-radius: var(--radius);
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 1rem; /* Slightly larger font */
             transition: all 0.2s ease;
             position: relative;
+            border: 1px solid transparent; /* Add transparent border for layout stability */
         }
         
         .header-nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.25);
-            transform: translateY(-1px);
+            /* background-color: rgba(255, 255, 255, 0.25); */ /* Remove old background */
+            background-color: rgba(79, 70, 229, 0.05); /* Very light primary on hover */
+            color: var(--primary);
+            /* transform: translateY(-1px); */ /* Remove transform */
+            border-color: rgba(79, 70, 229, 0.1); /* Subtle border on hover */
         }
         
-            
-            .header-nav {
-                gap: 10px;
-        }
-        
-        @media (max-width: 480px) {
-            .logo h1 {
-                font-size: 1.2rem;
-            }
-            
-            .header-nav-link {
-                padding: 5px 10px;
-                font-size: 0.8rem;
-            }
-            
-            .header-nav-link .nav-icon {
-                margin-right: 4px;
-            }
+        .header-nav-link .nav-icon {
+            margin-right: 8px;
+            opacity: 0.7;
+            font-size: 1.1em;
         }
 
-        /* Add indicator for active link */
-        /* .header-nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70%;
-            height: 3px;
-            background-color: white;
-            border-radius: 3px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        } */ /* Commenting out this rule */
+        /* Remove indicator for active link */
+        /* .header-nav-link.active::after { ... } */ /* Remove underline */
         
         /* Enhanced active state with animation */
         .header-nav-link.active {
-            background-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-            /* transform: translateY(-2px); */ /* Remove transform */
-            /* padding: 8px 20px; */ /* Keep original padding */
-            /* border: 2px solid white; */ /* Remove border */
-            animation: subtle-pulse 2s infinite;
+            /* background-color: rgba(255, 255, 255, 0.5); */ /* Remove old background */
+            background-color: rgba(79, 70, 229, 0.1); /* Light primary background */
+            /* box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); */ /* Remove pulse shadow */
+            /* transform: translateY(-2px); */ 
+            /* padding: 8px 20px; */ 
+            /* border: 2px solid white; */ 
+            border-color: transparent;
+            /* animation: subtle-pulse 2s infinite; */ /* Remove animation */
             font-weight: 700;
+            color: var(--primary); /* Use primary color for active text */
         }
         
         /* Animation for subtle pulsing effect */
-        @keyframes subtle-pulse {
-            0% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.65); }
-            100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
-        }
+        /* @keyframes subtle-pulse { ... } */ /* Remove animation */
         
         /* Make inactive links more subdued for contrast */
         .header-nav-link:not(.active) {
-            opacity: 0.85;
+            /* opacity: 0.85; */ /* Remove opacity setting */
         }
 
         /* Improve form layout for both calculators on small screens */
