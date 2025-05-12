@@ -3916,42 +3916,77 @@
             
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
-                    <label for="currentAge">Current Age</label>
+                    <label for="currentAge">Current Age
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">Your current age in years. This is the starting point for the simulation.</span>
+                        </span>
+                    </label>
                     <input type="number" id="currentAge" value="30" min="18" max="90">
                 </div>
                 
                 <div>
-                    <label for="currentSavings">Current Savings ($)</label>
+                    <label for="currentSavings">Current Savings ($)
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The total amount you have currently saved or invested for this goal.</span>
+                        </span>
+                    </label>
                     <input type="text" id="currentSavings" value="50000" placeholder="e.g., 50000">
                 </div>
             </div>
             
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
-                    <label for="income">Annual Income After Taxes ($)</label>
+                    <label for="income">Annual Income After Taxes ($)
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">Your total yearly income after all taxes have been deducted.</span>
+                        </span>
+                    </label>
                     <input type="text" id="income" value="90000" placeholder="e.g., 90000">
                 </div>
 
                 <div>
-                    <label for="incomeGrowth">Annual Income Growth (%)</label>
+                    <label for="incomeGrowth">Annual Income Growth (%)
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The expected average annual percentage increase in your income. This growth is also adjusted for inflation each year.</span>
+                        </span>
+                    </label>
                     <input type="number" id="incomeGrowth" value="2" min="0" max="10" step="0.1">
                 </div>
             </div>
             
             <div>
-                <label for="expenses">Annual Expenses ($)</label>
+                <label for="expenses">Annual Expenses ($)
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Your total estimated yearly living expenses. These expenses will be adjusted for inflation each year in the simulation, based on historical inflation data.</span>
+                    </span>
+                </label>
                 <input type="text" id="expenses" value="70000" placeholder="e.g., 70000">
             </div>
             
             <h2>Your Goal</h2>
             <div>
-                <label for="targetAmount">Retirement Goal ($)</label>
+                <label for="targetAmount">Retirement Goal ($)
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">The total amount of savings you are aiming to accumulate for this financial goal.</span>
+                    </span>
+                </label>
                 <input type="text" id="targetAmount" value="1000000" placeholder="e.g., 1000000" title="Total savings target needed to fund your retirement">
             </div>
             
             <h2>Investment Strategy</h2>
             <div>
-                <label for="stockAllocation">Stock Allocation: <span id="stockAllocationValue">70</span>%</label>
+                <label for="stockAllocation">Stock Allocation: <span id="stockAllocationValue">70</span>%
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">The percentage of your investment portfolio allocated to stocks. The remainder is assumed to be in lower-risk assets like bonds/cash (simulated with a 3% annual return). Stock returns are simulated based on historical S&amp;P 500 data.</span>
+                    </span>
+                </label>
                 <input type="range" id="stockAllocation" min="0" max="100" value="70" 
                        oninput="document.getElementById('stockAllocationValue').textContent = this.value">
             </div>
@@ -4081,7 +4116,12 @@
             
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
-                    <label for="retirementAge">Retirement Age</label>
+                    <label for="retirementAge">Retirement Age
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The age at which you plan to retire and start withdrawing from your savings.</span>
+                        </span>
+                    </label>
                     <input type="number" id="retirementAge" value="65" min="40" max="90">
                 </div>
                 
@@ -4098,12 +4138,22 @@
 
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
-                    <label for="retirementSavings">Expected Retirement Savings ($)</label>
+                    <label for="retirementSavings">Expected Retirement Savings ($)
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The total amount of savings you anticipate having at the start of your retirement.</span>
+                        </span>
+                    </label>
                     <input type="text" id="retirementSavings" value="1000000" placeholder="e.g., 1000000">
                 </div>
                 
                 <div>
-                    <label for="retirementStockAllocation">Stock Allocation: <span id="retirementStockAllocationValue">60</span>%</label>
+                    <label for="retirementStockAllocation">Stock Allocation: <span id="retirementStockAllocationValue">60</span>%
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The percentage of your investment portfolio allocated to stocks during retirement. The remainder is assumed to be in lower-risk assets like bonds/cash (simulated with a 3% annual return). Stock returns are simulated based on historical S&amp;P 500 data.</span>
+                        </span>
+                    </label>
                     <input type="range" id="retirementStockAllocation" min="0" max="100" value="60" 
                            oninput="document.getElementById('retirementStockAllocationValue').textContent = this.value">
                 </div>
@@ -4111,7 +4161,12 @@
             
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
-                    <label for="annualWithdrawal">Annual Withdrawal ($)</label>
+                    <label for="annualWithdrawal">Annual Withdrawal ($)
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">?</span>
+                            <span class="tooltip-text">The amount of money you plan to withdraw from your savings each year during retirement (after taxes).</span>
+                        </span>
+                    </label>
                     <input type="text" id="annualWithdrawal" value="40000" placeholder="e.g., 40000">
                 </div>
                 
