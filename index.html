@@ -1192,198 +1192,130 @@
             font-size: 0.9rem;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .milestones-grid, .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* Enhanced tooltip */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
         }
 
-        @media (max-width: 480px) {
-            .milestones-grid, .summary-grid {
-                grid-template-columns: 1fr;
-            }
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: var(--neutral-light);
+            color: var(--neutral);
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: help;
+            transition: var(--transition);
         }
 
-        /* Add these styles for the new table and modal */
-        .simulation-table-container {
-            overflow-x: auto;
-            margin-top: 16px;
-            max-height: 500px; /* Set a max height for vertical scrolling */
-            overflow-y: auto; /* Enable vertical scrolling */
-            border: 1px solid var(--neutral-light);
+        .tooltip-container:hover .tooltip-icon {
+            background-color: var(--neutral);
+            color: white;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--neutral-dark);
+            color: white;
+            text-align: center;
             border-radius: var(--radius-sm);
+            padding: 10px 15px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            box-shadow: var(--shadow-lg);
         }
 
-        .simulation-table {
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--neutral-dark) transparent transparent transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Improved table styling */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--neutral-light);
+            box-shadow: var(--shadow);
+        }
+
+        .simulations-table thead th {
+            position: sticky;
+            top: 0;
+            background-color: var(--primary-dark);
+            color: white;
+            z-index: 10;
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        .simulations-table, .detail-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9rem;
         }
 
-        .simulation-table th,
-        .simulation-table td {
-            padding: 10px;
+        .simulations-table th, .simulations-table td,
+        .detail-table th, .detail-table td {
+            padding: 12px 8px; /* Reduced horizontal padding */
             text-align: left;
             border-bottom: 1px solid var(--neutral-light);
         }
 
-        .simulation-table th {
-            position: sticky;
-            top: 0; /* Make headers stick to the top when scrolling */
-            background-color: rgba(99, 102, 241, 0.08);
-            color: var(--primary-dark);
-            font-weight: 600;
-            z-index: 10; /* Ensure headers appear above content when scrolling */
-        }
-
-        .simulation-table tr:hover {
-            background-color: rgba(99, 102, 241, 0.05);
-        }
-
-        .view-details-btn {
-            padding: 5px 10px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .view-details-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .table-pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 16px;
-            gap: 16px;
-        }
-
-        .table-pagination button {
-            padding: 6px 12px;
-            background-color: white;
-            border: 1px solid var(--neutral-light);
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-        }
-
-        .table-pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .simulation-detail-content {
-            max-width: 900px;
-            width: 90%;
-        }
-
-        .sim-detail-summary {
-            display: flex;
-            justify-content: space-between;
-            margin: 24px 0;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .sim-detail-metric {
-            background-color: white;
-            padding: 16px;
-            border-radius: var(--radius-sm);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            min-width: 150px;
-            flex: 1;
+        /* Set specific widths for narrower columns in the retirement table */
+        #retirement-results .simulations-table th:nth-child(1),
+        #retirement-results .simulations-table td:nth-child(1) { /* Sim # */
+            width: 10%;
             text-align: center;
         }
 
-        .metric-label {
-            font-size: 0.9rem;
-            color: var(--neutral);
-            margin-bottom: 8px;
+        #retirement-results .simulations-table th:nth-child(4),
+        #retirement-results .simulations-table td:nth-child(4) { /* Status */
+            width: 10%;
+            text-align: center;
         }
 
-        .metric-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-dark);
+        #retirement-results .simulations-table th:nth-child(5),
+        #retirement-results .simulations-table td:nth-child(5) { /* Action */
+            width: 15%;
+            text-align: center;
         }
 
-        .yearly-data-container {
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 16px 0;
-            border: 1px solid var(--neutral-light);
-            border-radius: var(--radius-sm);
+        .simulations-table tr:nth-child(even) {
+            background-color: rgba(241, 245, 249, 0.5);
         }
 
-        .yearly-data-table {
-            width: 100%;
-            border-collapse: collapse;
+        .simulations-table tr:hover {
+            background-color: rgba(79, 70, 229, 0.05);
         }
 
-        .yearly-data-table th,
-        .yearly-data-table td {
-            padding: 8px 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--neutral-light);
-        }
-
-        .yearly-data-table th {
-            position: sticky;
-            top: 0;
-            background-color: white;
-            font-weight: 600;
-        }
-
-        .sim-detail-chart-container {
-            height: 300px;
-            margin-top: 24px;
-            width: 100%;
-        }
-
-        .table-pagination {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        /* Add these styles for sortable columns */
-        .simulation-table th {
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-
-        .simulation-table th:hover {
-            background-color: rgba(99, 102, 241, 0.15);
-        }
-
-        .simulation-table th.sorted-asc,
-        .simulation-table th.sorted-desc {
-            background-color: rgba(99, 102, 241, 0.2);
-        }
-
-        .sort-indicator {
-            display: inline-block;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-
-        /* Optional: Animation for sort indicator */
-        .sort-indicator {
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Add these styles for the modal if they're missing */
+        /* Enhanced modal */
         .modal {
             display: none;
             position: fixed;
@@ -1393,8 +1325,8 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(3px);
         }
 
         .modal-content {
@@ -1411,39 +1343,535 @@
             max-height: 90vh;
         }
 
-        .close-modal {
-            color: var(--neutral);
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .close-modal:hover {
-            color: var(--primary);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         @keyframes slideIn {
             from { transform: translateY(-50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        
-        /* Ensure no extra space at bottom of page */
-        .tab-content:last-child,
-        .input-section:last-child,
-        .results-container:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
+
+        .close-modal {
+            color: var(--neutral);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: -10px;
         }
-        
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: var(--primary-dark);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Enhanced filter buttons */
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--neutral-light);
+            background-color: white;
+            color: var(--neutral-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-btn:hover {
+            background-color: var(--neutral-light);
+            transform: translateY(-1px);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+            box-shadow: 0 2px 4px rgba(55, 48, 163, 0.3);
+        }
+
+        .filter-btn.success {
+            border-color: var(--success);
+            color: var(--neutral-dark);
+        }
+
+        .filter-btn.success.active {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+        }
+
+        .filter-btn.failure {
+            border-color: var(--danger);
+            color: var(--neutral-dark);
+        }
+
+        .filter-btn.failure.active {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Enhanced range slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: var(--neutral-light);
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: var(--transition);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: var(--transition);
+            border: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Status labels */
+        .status-success {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-failure {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Help button */
+        .round-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--ai-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(79, 70, 229, 0.4);
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .round-button:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.5);
+        }
+
+        /* Responsive layout adjustments */
+        @media (max-width: 768px) {
+            .tab {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .summary-grid,
+            .milestones-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .result-highlight {
+                font-size: 2.5rem;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .container {
+                padding: 25px 25px;
+            }
+            
+            .header-content {
+                padding: 15px 25px;
+            }
+            
+            /* Add styles for better form layout on small screens */
+            .input-section > div {
+                width: 100%;
+            }
+        }
+
+        /* App Header Styling */
+        .app-header {
+            /* background: var(--ai-gradient); */ /* Remove gradient */
+            background-color: var(--card-background); /* Use card background (white) */
+            color: var(--primary); /* Change text color to primary */
+            padding: 0;
+            box-shadow: var(--shadow); /* Use softer shadow */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color); /* Add subtle border */
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px; /* Adjust padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px !important; /* Adjust height */
+            /* min-height: 30px; */ /* Not needed with fixed height */
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo svg {
+            /* filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)); */ /* Remove shadow */
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem; /* Slightly larger */
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+            /* text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */ /* Remove shadow */
+            color: var(--neutral-dark); /* Use darker neutral for title */
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-button:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .header-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Adjust container margin to work with header */
+        .container {
+            margin-top: 20px;
+            /* Bottom margin is now set globally at 10px */
+        }
+
+        /* Make app responsive */
+        @media (max-width: 600px) {
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+            
+            .header-button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .header-button svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Improved button styling for simulation buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .button-container button {
+            min-width: 250px;
+            font-size: 1.1rem;
+            padding: 18px 30px;
+            transition: all 0.3s ease;
+            border-radius: 30px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+            border: none;
+        }
+
+        .button-container button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+            background-color: var(--primary-dark);
+        }
+
+        .button-container button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Make sure the input-section has proper layout for centering */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        /* Enhance the mobile responsive styles */
+        @media (max-width: 768px) {
+            body {
+                /* padding: 0 15px; */ /* Remove horizontal padding */
+            }
+            
+            .container {
+                padding: 25px 20px;
+                /* margin-left: 10px; */ /* Remove explicit margins */
+                /* margin-right: 10px; */ /* Remove explicit margins */
+            }
+            
+            .header-content {
+                padding: 15px 20px;
+            }
+            
+            .app-header {
+                /* margin-left: -15px; */ /* Remove negative margin */
+                /* margin-right: -15px; */ /* Remove negative margin */
+                border-radius: 0;
+            }
+            
+            .input-section, 
+            .result-card {
+                padding: 20px;
+            }
+        }
+
+        /* Add even more padding for very small devices */
+        @media (max-width: 480px) {
+            body {
+                /* padding: 0 15px; */ /* Remove horizontal padding */
+            }
+            
+            .container {
+                padding: 20px 15px;
+                border-radius: var(--radius);
+            }
+            
+            input, select {
+                max-width: 100%;
+            }
+        }
+
+        /* Update navigation styles to create pill buttons */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: var(--neutral);
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            min-width: 130px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            padding: 8px 20px;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+            border-color: var(--primary);
+        }
+
+        .nav-link svg, .nav-link img {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Update specifically for the app-nav container */
+        .app-nav {
+            background: transparent;
+            box-shadow: none;
+            border-bottom: none;
+            margin: 15px 0 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* New Run Simulation button styling - IDENTICAL FOR BOTH PAGES */
+        .simulation-button-wrapper {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 40px 0 20px; /* Adjust margin */
+        }
+
+        .simulation-button {
+            background: var(--primary);
+            color: white;
+            font-size: 1.05rem; /* Slightly adjusted */
+            font-weight: 600;
+            padding: 14px 32px; /* Adjusted padding */
+            border-radius: var(--radius); /* Consistent radius */
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow); /* Softer shadow */
+            transition: var(--transition);
+            min-width: 220px; /* Adjusted min-width */
+            text-align: center;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simulation-button:hover {
+            background: var(--primary-dark);
+            /* transform: translateY(-2px); */ /* Remove vertical movement */
+            /* padding: 8px 20px; */ /* Remove padding change - likely an error */
+            /* box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35); */ /* Keep original or adjust slightly */
+            box-shadow: var(--shadow-lg); /* Slightly larger shadow on hover */
+        }
+
+        .simulation-button:active {
+            transform: translateY(1px);
+            box-shadow: var(--shadow);
+        }
+
+        .simulation-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            pointer-events: none;
+        }
+
+        /* Share button styling */
+        .share-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary-light);
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .share-button:hover {
+            background-color: var(--primary-light);
+            color: white;
+            transform: translateY(-2px);
+            padding: 8px 20px;
+            border: 2px solid white;
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .share-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .share-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+
         /* Toast notification styling */
         .toast {
             position: fixed;
@@ -1467,1347 +1895,243 @@
             opacity: 1;
         }
 
-        /* Add a success message for high retirement success rate */
-        .success-message {
-            position: fixed;
-            bottom: 90px; /* Move it above the help button */
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--ai-gradient);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
-            font-size: 1.2rem;
-            font-weight: 600;
+        /* Add this to your CSS */
+        .result-description {
             text-align: center;
-            z-index: 1001;
-            opacity: 0;
-            animation: slideInBottom 0.5s forwards;
-            max-width: 90%;
-            pointer-events: none; /* Allow clicks to pass through */
+            margin-top: 5px;
         }
 
-        @keyframes slideInBottom {
-            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        /* Add these styles to make the Number of Simulations dropdown consistent with other inputs */
+        select#numSimulations {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--neutral-light);
+            border-radius: var(--radius-sm);
+            background-color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--neutral-dark);
+            appearance: auto; /* Ensures dropdown arrow is visible */
+            box-sizing: border-box;
         }
 
-        @keyframes slideOutBottom {
-            from { transform: translateX(-50%) translateY(0); opacity: 1; }
-            to { transform: translateX(-50%) translateY(100px); opacity: 0; }
+        /* Apply the same styling to all dropdowns for consistency */
+        select {
+            width: 100%;
+            padding: 14px; /* Use consistent padding */
+            border: 1px solid var(--neutral-light);
+            border-radius: var(--radius-sm);
+            background-color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--neutral-dark);
+            box-sizing: border-box;
+            /* margin-bottom: 16px; */ /* Remove redundant margin */
         }
 
-        .success-message.hide {
-            animation: slideOutBottom 0.5s forwards;
+        /* Ensure input groups are consistent */
+        .input-section > div {
+            margin-bottom: 16px;
+            width: 100%;
         }
-        
-        /* Styles for header navigation */
-        .header-nav {
-            display: flex;
-            gap: 10px; /* Reduce gap slightly */
-            align-items: center;
+
+        /* Updated styles for tables and card-based data displays */
+        .result-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
         }
-        
-        .header-nav-link {
-            display: flex;
-            align-items: center;
-            padding: 10px 20px; /* Adjust padding */
-            /* background-color: rgba(255, 255, 255, 0.15); */ /* Remove old background */
-            background-color: transparent;
-            color: var(--neutral); /* Use neutral color for inactive */
-            text-decoration: none;
-            border-radius: var(--radius);
+
+        .result-card table th,
+        .result-card table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--neutral-light);
+        }
+
+        .result-card table th {
+            background-color: rgba(99, 102, 241, 0.08);
+            color: var(--primary-dark);
             font-weight: 600;
-            font-size: 1rem; /* Slightly larger font */
+            font-size: 0.95rem;
+        }
+
+        .result-card table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .result-card table tr:nth-child(even) {
+            background-color: rgba(99, 102, 241, 0.03);
+        }
+
+        /* Styling for the milestones grid to make it more table-like */
+        .milestones-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .milestone {
+            background-color: white;
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--neutral-light);
             transition: all 0.2s ease;
-            position: relative;
-            border: 1px solid transparent; /* Add transparent border for layout stability */
-        }
-        
-        .header-nav-link:hover {
-            /* background-color: rgba(255, 255, 255, 0.25); */ /* Remove old background */
-            background-color: rgba(79, 70, 229, 0.05); /* Very light primary on hover */
-            color: var(--primary);
-            /* transform: translateY(-1px); */ /* Remove transform */
-            border-color: rgba(79, 70, 229, 0.1); /* Subtle border on hover */
-        }
-        
-        .header-nav-link .nav-icon {
-            margin-right: 8px;
-            opacity: 0.7;
-            font-size: 1.1em;
         }
 
-        /* Remove indicator for active link */
-        /* .header-nav-link.active::after { ... } */ /* Remove underline */
-        
-        /* Enhanced active state with animation */
-        .header-nav-link.active {
-            /* background-color: rgba(255, 255, 255, 0.5); */ /* Remove old background */
-            background-color: rgba(79, 70, 229, 0.1); /* Light primary background */
-            /* box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); */ /* Remove pulse shadow */
-            /* transform: translateY(-2px); */ 
-            /* padding: 8px 20px; */ 
-            /* border: 2px solid white; */ 
-            border-color: transparent;
-            /* animation: subtle-pulse 2s infinite; */ /* Remove animation */
+        .milestone:hover {
+            /* transform: translateY(-2px); */ /* Remove hover effect */
+            /* padding: 8px 20px; */ /* Remove hover effect */
+            /* border: 2px solid white; */ /* Remove hover effect */
+            /* box-shadow: 0 4px 8px rgba(99, 102, 241, 0.15); */ /* Remove hover effect */
+            /* border-color: rgba(99, 102, 241, 0.3); */ /* Remove hover effect */
+        }
+
+        .milestone-percent {
             font-weight: 700;
-            color: var(--primary); /* Use primary color for active text */
-        }
-        
-        /* Animation for subtle pulsing effect */
-        /* @keyframes subtle-pulse { ... } */ /* Remove animation */
-        
-        /* Make inactive links more subdued for contrast */
-        .header-nav-link:not(.active) {
-            /* opacity: 0.85; */ /* Remove opacity setting */
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 4px;
         }
 
-        /* Improve form layout for both calculators on small screens */
-        @media (max-width: 768px) {
-            /* Ensure both calculator forms behave the same */
-            #accumulation-tab .input-section,
-            #retirement-tab .input-section {
-                padding: 15px;
-            }
-            
-            /* Give more breathing room to form elements */
-            .input-section h2 {
-                margin-top: 30px;
-                font-size: 1.6rem;
-            }
-            
-            /* First h2 shouldn't have top margin */
-            .input-section h2:first-child {
-                margin-top: 10px;
-            }
-            
-            /* Make inputs more touch-friendly on mobile */
-            input[type="text"],
-            input[type="number"],
-            select {
-                font-size: 16px; /* Prevents iOS zoom on focus */
-                padding: 12px;   /* Slightly smaller padding on mobile */
-            }
-            
-            /* Ensure range sliders are easy to use */
-            input[type="range"] {
-                height: 10px; /* Slightly larger for touch */
-            }
-            
-            /* Make labels more visible on small screens */
-            label {
-                font-size: 1rem;
-                margin-bottom: 6px;
-            }
-            
-            /* Make checkboxes more touch-friendly */
-            input[type="checkbox"] {
-                width: 20px;
-                height: 20px;
-                margin-right: 10px;
-            }
-            
-            /* Fix the checkbox label layout */
-            label[for="withdrawalAdjustment"] {
-                display: flex;
-                align-items: center;
-                margin-top: 10px;
-            }
-            
-            #withdrawalAdjustment {
-                margin-top: 5px;
-                margin-left: 0;
-            }
-            
-            /* Fix tooltip positioning on narrow screens */
-            .tooltip-container .tooltip-text {
-                width: 200px;
-                left: auto;
-                right: 0;
-                transform: none;
-            }
-            
-            .tooltip-container .tooltip-text::after {
-                left: auto;
-                right: 10px;
-            }
+        .milestone-amount {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--neutral-dark);
+            margin-bottom: 8px;
         }
 
-        /* Updated result cards styling */
-    </style>
-    
-    <script>
-        // IMPORTANT: Add these global variables at the very top of your script section
-        var allSimulations = [];
-        var currentPage = 1;
-        var rowsPerPage = 10;
-        var currentSortColumn = null;
-        var currentSortDirection = 'asc';
-        
-        // Define historical market data in the global scope
-        const historicalData = [
-            {year: 1975, marketReturn: 0.371, inflation: 0.070},
-            {year: 1976, marketReturn: 0.238, inflation: 0.048},
-            {year: 1977, marketReturn: -0.071, inflation: 0.067},
-            {year: 1978, marketReturn: 0.064, inflation: 0.090},
-            {year: 1979, marketReturn: 0.184, inflation: 0.113},
-            {year: 1980, marketReturn: 0.323, inflation: 0.135},
-            {year: 1981, marketReturn: -0.049, inflation: 0.103},
-            {year: 1982, marketReturn: 0.215, inflation: 0.062},
-            {year: 1983, marketReturn: 0.224, inflation: 0.032},
-            {year: 1984, marketReturn: 0.063, inflation: 0.043},
-            {year: 1985, marketReturn: 0.318, inflation: 0.036},
-            {year: 1986, marketReturn: 0.186, inflation: 0.019},
-            {year: 1987, marketReturn: 0.056, inflation: 0.036},
-            {year: 1988, marketReturn: 0.167, inflation: 0.041},
-            {year: 1989, marketReturn: 0.315, inflation: 0.047},
-            {year: 1990, marketReturn: -0.032, inflation: 0.054},
-            {year: 1991, marketReturn: 0.304, inflation: 0.042},
-            {year: 1992, marketReturn: 0.076, inflation: 0.030},
-            {year: 1993, marketReturn: 0.100, inflation: 0.030},
-            {year: 1994, marketReturn: 0.013, inflation: 0.026},
-            {year: 1995, marketReturn: 0.373, inflation: 0.028},
-            {year: 1996, marketReturn: 0.229, inflation: 0.030},
-            {year: 1997, marketReturn: 0.333, inflation: 0.023},
-            {year: 1998, marketReturn: 0.286, inflation: 0.016},
-            {year: 1999, marketReturn: 0.211, inflation: 0.022},
-            {year: 2000, marketReturn: -0.091, inflation: 0.034},
-            {year: 2001, marketReturn: -0.119, inflation: 0.028},
-            {year: 2002, marketReturn: -0.220, inflation: 0.016},
-            {year: 2003, marketReturn: 0.287, inflation: 0.023},
-            {year: 2004, marketReturn: 0.109, inflation: 0.027},
-            {year: 2005, marketReturn: 0.049, inflation: 0.034},
-            {year: 2006, marketReturn: 0.156, inflation: 0.032},
-            {year: 2007, marketReturn: 0.055, inflation: 0.028},
-            {year: 2008, marketReturn: -0.370, inflation: 0.038},
-            {year: 2009, marketReturn: 0.266, inflation: -0.004},
-            {year: 2010, marketReturn: 0.153, inflation: 0.016},
-            {year: 2011, marketReturn: 0.021, inflation: 0.032},
-            {year: 2012, marketReturn: 0.160, inflation: 0.021},
-            {year: 2013, marketReturn: 0.323, inflation: 0.015},
-            {year: 2014, marketReturn: 0.136, inflation: 0.016},
-            {year: 2015, marketReturn: 0.015, inflation: 0.001},
-            {year: 2016, marketReturn: 0.119, inflation: 0.013},
-            {year: 2017, marketReturn: 0.218, inflation: 0.021},
-            {year: 2018, marketReturn: -0.043, inflation: 0.024},
-            {year: 2019, marketReturn: 0.315, inflation: 0.018},
-            {year: 2020, marketReturn: 0.184, inflation: 0.012}
-        ];
-        
-        // Add any other global variables/functions needed by both calculators here
-        
-        // Add this global variable at the top of your script
-        var globalTargetAmount = 0;
-
-        // Add this function to update the global variable
-        function updateGlobalTargetAmount() {
-            const targetInput = document.getElementById('targetAmount');
-            if (targetInput) {
-                globalTargetAmount = parseFloat(targetInput.value.replace(/[^\d.-]/g, '')) || 0;
-                console.log("Target amount updated to: " + globalTargetAmount);
-            }
-        }
-        
-        // Tab navigation without page refresh
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show the default tab (accumulation)
-            showTab('accumulation-tab');
-            
-            // Add event listeners to all nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Remove active class from all links
-                    document.querySelectorAll('.nav-link').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked link
-                    this.classList.add('active');
-                    
-                    // Get the tab ID and show that tab
-                    const tabId = this.getAttribute('data-tab');
-                    showTab(tabId);
-                });
-            });
-            
-            // Initialize filter buttons if they exist
-            if (document.querySelector('.filter-btn')) {
-                setupFilterButtons();
-            }
-            
-            // Circular help button
-            const helpButton = document.getElementById('helpButton');
-            if (helpButton) {
-                helpButton.addEventListener('click', function() {
-                    // Show the help modal
-                    const helpModal = document.getElementById('helpModal');
-                    if (helpModal) {
-                        helpModal.style.display = 'block';
-                    }
-                });
-            }
-            
-            // Close help modal when clicking X
-            const closeHelpModal = document.getElementById('closeHelpModal');
-            if (closeHelpModal) {
-                closeHelpModal.addEventListener('click', function() {
-                    document.getElementById('helpModal').style.display = 'none';
-                });
-            }
-            
-            // Close help modal when clicking outside
-            window.addEventListener('click', function(event) {
-                const helpModal = document.getElementById('helpModal');
-                if (helpModal && event.target === helpModal) {
-                    helpModal.style.display = 'none';
-                }
-            });
-        });
-        
-        // Function to show a specific tab and hide others
-        function showTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            
-            // Show the selected tab
-            const selectedTab = document.getElementById(tabId);
-            if (selectedTab) {
-                selectedTab.style.display = 'block';
-            }
+        .milestone-age {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--primary);
         }
 
-        // Function to run the accumulation simulation
-        function runAccumulationSimulation() {
-            // Update global target amount at the start of simulation
-            updateGlobalTargetAmount();
-            
-            // Get the button element
-            const button = document.getElementById('runSimulation');
-            const originalButtonText = button.textContent;
-            
-            // Disable button and show loading state
-            button.disabled = true;
-            button.textContent = 'Running Simulation...';
-            
-            // Get input values
-            const currentAge = parseInt(document.getElementById('currentAge').value);
-            const currentSavings = parseFloat(document.getElementById('currentSavings').value.replace(/[^0-9.]/g, ''));
-            const income = parseFloat(document.getElementById('income').value.replace(/[^0-9.]/g, ''));
-            const expenses = parseFloat(document.getElementById('expenses').value.replace(/[^0-9.]/g, ''));
-            const targetAmount = parseFloat(document.getElementById('targetAmount').value.replace(/[^0-9.]/g, ''));
-            const stockAllocation = parseInt(document.getElementById('stockAllocation').value) / 100;
-            const incomeGrowth = parseFloat(document.getElementById('incomeGrowth').value) / 100;
-            const simulationCount = parseInt(document.getElementById('savingsSimulationCount').value);
-            
-            // Validate inputs
-            if (isNaN(currentAge) || isNaN(currentSavings) || isNaN(income) || 
-                isNaN(expenses) || isNaN(targetAmount) || isNaN(stockAllocation) || isNaN(incomeGrowth) || isNaN(simulationCount)) {
-                alert('Please fill in all fields with valid numbers.');
-                button.disabled = false;
-                button.textContent = originalButtonText;
-                return;
-            }
-            
-            // Run simulation with small delay to allow UI to update
-            setTimeout(() => {
-                const maxYears = 50;
-                const simulationResults = [];
-                
-                for (let i = 0; i < simulationCount; i++) {
-                    let portfolio = currentSavings;
-                    let years = 0;
-                    let reachedGoal = false;
-                    const yearlyData = [];
-                    
-                    let currentIncome = income;
-                    let currentExpenses = expenses;
-                    
-                    while (years < maxYears && !reachedGoal) {
-                        // Get random market return and inflation
-                        const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
-                        
-                        // Calculate portfolio return based on allocation
-                        const portfolioReturn = (yearData.marketReturn * stockAllocation) + 
-                                              (0.03 * (1 - stockAllocation)); // Assuming 3% for cash/bonds
-                        
-                        // Update portfolio value with returns
-                        portfolio = portfolio * (1 + portfolioReturn);
-                        
-                        // Update income and expenses with inflation and growth
-                        currentExpenses = currentExpenses * (1 + yearData.inflation);
-                        currentIncome = currentIncome * (1 + incomeGrowth) * (1 + yearData.inflation);
-                        
-                        // Calculate annual savings (income - expenses)
-                        const annualSavings = Math.max(0, currentIncome - currentExpenses);
-                        
-                        // Add annual savings to portfolio
-                        portfolio += annualSavings;
-                        
-                        // Store data for this year
-                        yearlyData.push({
-                            year: currentAge + years,
-                            balance: portfolio,
-                            return: portfolioReturn,
-                            inflation: yearData.inflation,
-                            income: currentIncome,
-                            expenses: currentExpenses,
-                            contribution: annualSavings
-                        });
-                        
-                        // Check if goal has been reached
-                        if (portfolio >= targetAmount) {
-                            reachedGoal = true;
-                        }
-                        
-                        years++;
-                    }
-                    
-                    // Store simulation results
-                    simulationResults.push({
-                        yearsToGoal: reachedGoal ? years : null,
-                        reachedGoal: reachedGoal,
-                        finalBalance: portfolio,
-                        yearlyData: yearlyData
-                    });
-                }
-                
-                // Calculate years to target for each simulation
-                simulationResults.forEach(simulation => {
-                    let yearsToTarget = null;
-                    for (let i = 0; i < simulation.yearlyData.length; i++) {
-                        if (simulation.yearlyData[i].balance >= targetAmount) {
-                            yearsToTarget = i; // This is years from start, not the absolute year
-                            break;
-                        }
-                    }
-                    simulation.yearsToTarget = yearsToTarget;
-                });
-                
-                // Sort simulations by time to reach target (properly handling cases where target isn't reached)
-                const sortedSimulations = [...simulationResults].sort((a, b) => {
-                    if (!a.yearsToTarget && !b.yearsToTarget) return 0;
-                    if (!a.yearsToTarget) return 1; // Simulations that don't reach target go last
-                    if (!b.yearsToTarget) return -1;
-                    return a.yearsToTarget - b.yearsToTarget;
-                });
-                
-                console.log("Savings simulations completed:", simulationResults.length);
-                
-                // Find the median years to target
-                const medianIndex = Math.floor(sortedSimulations.length * 0.5);
-                const medianSimulation = sortedSimulations[medianIndex];
-                const median = medianSimulation.yearsToTarget !== null ? medianSimulation.yearsToTarget : ">50";
-                
-                // Also update these to use the same sorted array
-                const p10 = sortedSimulations[Math.floor(sortedSimulations.length * 0.1)].yearsToTarget;
-                const p90 = sortedSimulations[Math.floor(sortedSimulations.length * 0.9)].yearsToTarget;
-                
-                // Store the median simulation for other functions to use
-                window.medianSimulation = medianSimulation;
-                
-                // Update UI with results
-                document.getElementById('yearsToGoal').textContent = 
-                    typeof median === 'number' ? `${median} years` : "25+ years";
-                
-                // Safely update resultTargetAmount if it exists
-                const resultTargetElement = document.getElementById('resultTargetAmount');
-                if (resultTargetElement) {
-                    resultTargetElement.textContent = '$' + targetAmount.toLocaleString();
-                }
-                
-                // Create charts
-                createContributionImpactChart(simulationResults);
-                createYearsDistributionChart(sortedSimulations.map(sim => sim.yearsToTarget));
-                createMilestones(simulationResults);
-                
-                // Store all simulations for table display
-                allSimulations = [...simulationResults];
-                
-                // Display the first page of simulations
-                displaySimulationTable(1);
-                
-                // Show results
-                document.getElementById('results').style.display = 'flex'; // Change to flex
-                document.getElementById('results').style.flexDirection = 'column'; // Add flex-direction
-                // document.getElementById('results').style.gridTemplateColumns = '1fr'; // Remove grid style
-                
-                // Reset button
-                button.disabled = false;
-                button.textContent = originalButtonText;
-                
-                // Update this line to use the new ID "yearsToGoal" instead of "medianYearsToGoal"
-                document.getElementById('yearsToGoal').textContent = median;
-                initializeTableSorting(); // Initialize sorting after table is created
-                
-                // Scroll to the results section
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-            }, 50);
+        /* Improved summary grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
         }
 
-        // Function to run the retirement simulation
-        function runRetirementSimulation() {
-            console.log("Running retirement simulation...");
-            
-            // Get the button element
-            const button = document.getElementById('runRetirementSimulation');
-            const originalButtonText = button.textContent;
-            
-            // Disable button and show loading state
-            button.disabled = true;
-            button.textContent = 'Running Simulation...';
-            
-            // Get input values
-            const retirementAge = parseInt(document.getElementById('retirementAge').value);
-            const retirementSavings = parseFloat(document.getElementById('retirementSavings').value.replace(/[^0-9.]/g, ''));
-            const annualWithdrawal = parseFloat(document.getElementById('annualWithdrawal').value.replace(/[^0-9.]/g, ''));
-            const adjustForInflation = document.getElementById('withdrawalAdjustment').checked;
-            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
-            const stockAllocation = parseInt(document.getElementById('retirementStockAllocation').value) / 100;
-            const simulationCount = parseInt(document.getElementById('simulationCount').value);
-            const lifeExpectancy = parseInt(document.getElementById('retirementLifeExpectancy').value);
-            
-            // Validate inputs
-            if (isNaN(retirementAge) || isNaN(retirementSavings) || isNaN(annualWithdrawal) || 
-                isNaN(taxRate) || isNaN(stockAllocation) || isNaN(lifeExpectancy)) {
-                alert('Please fill in all fields with valid numbers.');
-                button.disabled = false;
-                button.textContent = originalButtonText;
-                return;
-            }
-            
-            console.log("Inputs validated, running simulations with:", {
-                retirementAge,
-                retirementSavings,
-                annualWithdrawal,
-                adjustForInflation,
-                taxRate,
-                stockAllocation,
-                simulationCount,
-                lifeExpectancy
-            });
-            
-            // Run simulation with small delay to allow UI to update
-            setTimeout(() => {
-                try {
-                    const simulationResults = [];
-                    
-                    for (let i = 0; i < simulationCount; i++) {
-                        let portfolio = retirementSavings;
-                        let years = 0;
-                        let ranOutOfMoney = false;
-                        const yearlyData = [];
-                        let currentWithdrawal = annualWithdrawal;
-                        let totalWithdrawn = 0;
-                        
-                        while (years < lifeExpectancy && !ranOutOfMoney) {
-                            // Get random market return and inflation
-                            const randomIndex = Math.floor(Math.random() * historicalData.length);
-                            const yearData = historicalData[randomIndex];
-                            
-                            // Calculate portfolio return based on allocation
-                            const portfolioReturn = (yearData.marketReturn * stockAllocation) + 
-                                                  (0.03 * (1 - stockAllocation)); // Assuming 3% for cash/bonds
-                            
-                            // Update portfolio value with returns (at start of year)
-                            portfolio = portfolio * (1 + portfolioReturn);
-                            
-                            // Calculate withdrawal amount (adjusted for inflation if selected)
-                            if (adjustForInflation && years > 0) {
-                                currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
-                            }
-                            
-                            // Calculate pre-tax withdrawal needed
-                            const preTaxWithdrawal = currentWithdrawal / (1 - taxRate);
-                            
-                            // Withdraw from portfolio
-                            portfolio -= preTaxWithdrawal;
-                            totalWithdrawn += currentWithdrawal; // Track after-tax withdrawals
-                            
-                            // Store data for this year
-                            yearlyData.push({
-                                age: retirementAge + years,
-                                balance: Math.max(0, portfolio),
-                                return: portfolioReturn,
-                                inflation: yearData.inflation,
-                                withdrawal: preTaxWithdrawal,
-                                afterTaxWithdrawal: currentWithdrawal
-                            });
-                            
-                            // Check if ran out of money
-                            if (portfolio <= 0) {
-                                ranOutOfMoney = true;
-                                portfolio = 0;
-                            }
-                            
-                            years++;
-                        }
-                        
-                        // Store simulation results
-                        simulationResults.push({
-                            ranOutOfMoney: ranOutOfMoney,
-                            yearsLasted: ranOutOfMoney ? years : lifeExpectancy,
-                            finalBalance: portfolio,
-                            yearlyData: yearlyData,
-                            totalWithdrawn: totalWithdrawn
-                        });
-                    }
-                    
-                    console.log("Simulations completed:", simulationResults.length);
-                    
-                    // Calculate success rate
-                    const successfulSimulations = simulationResults.filter(sim => !sim.ranOutOfMoney);
-                    const successRate = (successfulSimulations.length / simulationResults.length) * 100;
-                    
-                    // Update UI with results
-                    document.getElementById('successRate').textContent = `${Math.round(successRate)}%`;
-                    
-                    // Trigger confetti if success rate is over 80%
-                    if (successRate >= 80) {
-                        // Confetti animation
-                        const duration = 3 * 1000;
-                        const animationEnd = Date.now() + duration;
-                        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 1000 };
-                        
-                        function randomInRange(min, max) {
-                            return Math.random() * (max - min) + min;
-                        }
-                        
-                        const interval = setInterval(function() {
-                            const timeLeft = animationEnd - Date.now();
-                            
-                            if (timeLeft <= 0) {
-                                return clearInterval(interval);
-                            }
-                            
-                            const particleCount = 50 * (timeLeft / duration);
-                            
-                            // Since particles fall down, start from the top
-                            confetti(Object.assign({}, defaults, { 
-                                particleCount, 
-                                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-                                colors: ['#4f46e5', '#818cf8', '#3730a3', '#059669']
-                            }));
-                            confetti(Object.assign({}, defaults, { 
-                                particleCount, 
-                                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-                                colors: ['#4f46e5', '#818cf8', '#3730a3', '#059669']
-                            }));
-                        }, 250);
-                        
-                        // Show success message
-                        const successMessage = document.getElementById('success-message');
-                        successMessage.style.display = 'block';
-                        
-                        // Hide success message after 5 seconds
-                        setTimeout(() => {
-                            successMessage.classList.add('hide');
-                            setTimeout(() => {
-                                successMessage.style.display = 'none';
-                                successMessage.classList.remove('hide');
-                            }, 500); // Wait for slide-out animation to complete
-                        }, 5000);
-                    }
-                    
-                    // Create retirement charts
-                    createRetirementBalanceChart(simulationResults, retirementAge, lifeExpectancy);
-                    createSurvivalChart(simulationResults, retirementAge, lifeExpectancy);
-                    
-                    // Update summary statistics
-                    updateRetirementSummary(simulationResults, retirementAge);
-                    
-                    // Show results
-                    document.getElementById('retirement-results').style.display = 'flex';
-                    document.getElementById('retirement-results').style.flexDirection = 'column';
-                    
-                    // Scroll to results
-                    document.getElementById('retirement-results').scrollIntoView({ behavior: 'smooth' });
-
-                    // Populate the simulations table
-                    populateSimulationsTable(simulationResults);
-                } catch (error) {
-                    console.error("Error in retirement simulation:", error);
-                    alert("An error occurred during the simulation. Please check console for details.");
-                }
-                
-                // Reset button
-                button.disabled = false;
-                button.textContent = originalButtonText;
-            }, 50);
+        .summary-card {
+            background-color: white;
+            border-radius: var(--radius-sm);
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--neutral-light);
         }
 
-        // Make sure all the chart creation functions are also in the global scope
-        function createContributionImpactChart(simulationResults) {
-            // Use the stored median simulation
-            const medianSimulation = window.medianSimulation;
-            if (!medianSimulation) return;
-            
-            // Extract the yearly data
-            const yearlyData = medianSimulation.yearlyData;
-            
-            // Prepare data for stacked area chart
-            const labels = yearlyData.map(d => d.year);
-            
-            // Get initial investment amount
-            const initialInvestment = parseFloat(document.getElementById('currentSavings').value) || 0;
-            
-            // Calculate cumulative contributions and returns
-            let cumulativeContributions = 0;
-            let cumulativeReturns = 0;
-            
-            const initialInvestmentData = [];
-            const contributionsData = [];
-            const returnsData = [];
-            const totalData = [];
-            
-            yearlyData.forEach(yearData => {
-                // Initial investment stays constant
-                initialInvestmentData.push(initialInvestment);
-                
-                // Add new contributions for this year
-                cumulativeContributions += yearData.contribution;
-                contributionsData.push(cumulativeContributions);
-                
-                // Calculate total balance and returns
-                const balance = yearData.balance;
-                cumulativeReturns = balance - cumulativeContributions - initialInvestment;
-                returnsData.push(Math.max(0, cumulativeReturns)); // Ensure returns don't go negative
-                
-                // Calculate total for tooltip
-                totalData.push(initialInvestment + cumulativeContributions + Math.max(0, cumulativeReturns));
-            });
-            
-            // Create chart
-            const ctx = document.getElementById('growthSourcesChart').getContext('2d');
-            
-            // Check if chart exists before destroying
-            if (window.contributionImpactChart && typeof window.contributionImpactChart.destroy === 'function') {
-                window.contributionImpactChart.destroy();
-            }
-            
-            window.contributionImpactChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Initial Investment',
-                            data: initialInvestmentData,
-                            backgroundColor: 'rgba(59, 130, 246, 0.5)', // Blue
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            fill: true
-                        },
-                        {
-                            label: 'New Contributions',
-                            data: contributionsData,
-                            backgroundColor: 'rgba(99, 102, 241, 0.5)', // Indigo/Purple
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            fill: true
-                        },
-                        {
-                            label: 'Investment Returns',
-                            data: returnsData,
-                            backgroundColor: 'rgba(16, 185, 129, 0.5)', // Green
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            fill: true
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Portfolio Growth Components'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
-                                },
-                                footer: function(tooltipItems) {
-                                    const dataIndex = tooltipItems[0].dataIndex;
-                                    const total = totalData[dataIndex];
-                                    return 'Total Portfolio: $' + total.toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Balance ($)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createDistributionChart(yearsArray) {
-            // Group by years
-            const yearCounts = {};
-            yearsArray.forEach(years => {
-                if (!yearCounts[years]) yearCounts[years] = 0;
-                yearCounts[years]++;
-            });
-            
-            // Sort years and get counts
-            const sortedYears = Object.keys(yearCounts).map(Number).sort((a, b) => a - b);
-            const counts = sortedYears.map(year => yearCounts[year]);
-            
-            // Calculate percentages
-            const percentages = counts.map(count => (count / yearsArray.length) * 100);
-            
-            // Create chart
-            const ctx = document.getElementById('distributionChart').getContext('2d');
-            
-            // Clear previous chart if exists
-            if (window.distributionChart && typeof window.distributionChart.destroy === 'function') {
-                window.distributionChart.destroy();
-            }
-            
-            window.distributionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: sortedYears.map(year => year + ' years'),
-                    datasets: [{
-                        label: 'Percentage of Simulations',
-                        data: percentages,
-                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-                        borderColor: 'rgba(99, 102, 241, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Years to Reach Retirement Goal'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw.toFixed(1) + '% of simulations';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Years'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Percentage of Simulations'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        // Fix the age calculation in the createMilestones function
-        function createMilestones(simulationResults) {
-            // Use the stored median simulation rather than recalculating it
-            const medianSimulation = window.medianSimulation;
-            if (!medianSimulation) return;
-            
-            // Get target amount
-            const targetAmount = parseFloat(document.getElementById('targetAmount').value);
-            
-            // Calculate milestone percentages
-            const milestones = [0.25, 0.5, 0.75, 1.0];
-            const milestoneAmounts = milestones.map(percent => targetAmount * percent);
-            
-            // Find years to reach each milestone
-            const milestoneYears = [];
-            const currentAge = parseInt(document.getElementById('currentAge').value);
-            
-            milestoneAmounts.forEach(amount => {
-                let yearReached = null;
-                
-                for (let i = 0; i < medianSimulation.yearlyData.length; i++) {
-                    if (medianSimulation.yearlyData[i].balance >= amount) {
-                        // Store years from start, not the age
-                        yearReached = i; // Use the index as years from start instead of yearlyData[i].year
-                        break;
-                    }
-                }
-                
-                milestoneYears.push(yearReached);
-            });
-            
-            // Update the UI
-            const milestoneElements = [
-                document.getElementById('milestone25'),
-                document.getElementById('milestone50'),
-                document.getElementById('milestone75'),
-                document.getElementById('milestone100')
-            ];
-            
-            milestoneElements.forEach((element, index) => {
-                if (element) {
-                    if (milestoneYears[index] !== null) {
-                        // Add years from start to current age to get the correct age at milestone
-                        const ageAtMilestone = currentAge + milestoneYears[index];
-                        
-                        element.textContent = `Age ${ageAtMilestone}`;
-                        element.parentElement.classList.remove('milestone-unreached');
-                    } else {
-                        element.textContent = 'Not reached';
-                        element.parentElement.classList.add('milestone-unreached');
-                    }
-                }
-            });
-            
-            // Update milestone amounts (unchanged)
-            const amountElements = [
-                document.getElementById('milestone25Amount'),
-                document.getElementById('milestone50Amount'),
-                document.getElementById('milestone75Amount'),
-                document.getElementById('milestone100Amount')
-            ];
-            
-            amountElements.forEach((element, index) => {
-                if (element) {
-                    element.textContent = '$' + Math.round(milestoneAmounts[index]).toLocaleString();
-                }
-            });
-        }
-        
-        
-
-        // Add these chart creation functions
-        function createRetirementBalanceChart(simulationResults, startAge, maxYears) {
-            // Sort simulations by final balance to determine percentile ranks
-            const sortedByFinalBalance = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            
-            // Get the specific simulation runs that represent the percentiles
-            const p10Index = Math.floor(sortedByFinalBalance.length * 0.1);
-            const p50Index = Math.floor(sortedByFinalBalance.length * 0.5);
-            const p90Index = Math.floor(sortedByFinalBalance.length * 0.9);
-            
-            const p10Simulation = sortedByFinalBalance[p10Index];
-            const p50Simulation = sortedByFinalBalance[p50Index];
-            const p90Simulation = sortedByFinalBalance[p90Index];
-            
-            // Extract age labels and balance data from each simulation
-            const ages = Array.from({length: maxYears + 1}, (_, i) => startAge + i);
-            
-            // Prepare data from each percentile simulation
-            const p10Data = [];
-            const p50Data = [];
-            const p90Data = [];
-            
-            // Fill arrays with actual simulation data
-            ages.forEach((age, i) => {
-                // For 10th percentile simulation
-                p10Data.push(i < p10Simulation.yearlyData.length ? 
-                    p10Simulation.yearlyData[i].balance : null);
-                
-                // For 50th percentile (median) simulation
-                p50Data.push(i < p50Simulation.yearlyData.length ? 
-                    p50Simulation.yearlyData[i].balance : null);
-                
-                // For 90th percentile simulation
-                p90Data.push(i < p90Simulation.yearlyData.length ? 
-                    p90Simulation.yearlyData[i].balance : null);
-            });
-            
-            // Create chart
-            const ctx = document.getElementById('retirementBalanceChart').getContext('2d');
-            
-            // Check if chart exists before destroying
-            if (window.retirementBalanceChart && typeof window.retirementBalanceChart.destroy === 'function') {
-                window.retirementBalanceChart.destroy();
-            }
-            
-            window.retirementBalanceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ages,
-                    datasets: [
-                        {
-                            label: '90th Percentile (Optimistic)',
-                            data: p90Data,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: false,
-                            tension: 0.4,
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'Median',
-                            data: p50Data,
-                            borderColor: '#6366f1',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                            fill: false,
-                            tension: 0.4,
-                            borderWidth: 3
-                        },
-                        {
-                            label: '10th Percentile (Conservative)',
-                            data: p10Data,
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                            fill: false,
-                            tension: 0.4,
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' + Math.round(context.raw).toLocaleString();
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Portfolio Value'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value.toLocaleString();
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        
-        function createSurvivalChart(simulationResults, startAge, maxYears) {
-            const endAge = startAge + maxYears;
-            const ages = Array.from({length: maxYears + 1}, (_, i) => startAge + i);
-            
-            // Calculate survival rate at each age
-            const survivalRates = ages.map(age => {
-                const simsThatSurvivedToAge = simulationResults.filter(sim => {
-                    const yearsToThisAge = age - startAge;
-                    return !sim.ranOutOfMoney || sim.yearsLasted > yearsToThisAge;
-                });
-                
-                return (simsThatSurvivedToAge.length / simulationResults.length) * 100;
-            });
-            
-            // Create chart
-            const ctx = document.getElementById('survivalChart').getContext('2d');
-            
-            // Check if chart exists before destroying
-            if (window.survivalChart && typeof window.survivalChart.destroy === 'function') {
-                window.survivalChart.destroy();
-            }
-            
-            window.survivalChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ages,
-                    datasets: [{
-                        label: 'Survival Probability',
-                        data: survivalRates,
-                        borderColor: '#6366f1',
-                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return 'Probability: ' + context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Probability of Having Money Left'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
-                                }
-                            },
-                            min: 0,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-        
-        function updateRetirementSummary(simulationResults, startAge) {
-            // Calculate median ending balance
-            const endingBalances = simulationResults.map(sim => sim.finalBalance).sort((a, b) => a - b);
-            const medianEndingBalance = endingBalances[Math.floor(endingBalances.length * 0.5)];
-            
-            // Calculate average annual return
-            let totalReturn = 0;
-            let returnCount = 0;
-            
-            simulationResults.forEach(sim => {
-                sim.yearlyData.forEach(year => {
-                    totalReturn += year.return;
-                    returnCount++;
-                });
-            });
-            
-            const avgReturn = returnCount > 0 ? totalReturn / returnCount : 0;
-            
-            // Calculate total withdrawals (median scenario)
-            const sortedByWithdrawals = [...simulationResults].sort((a, b) => a.totalWithdrawn - b.totalWithdrawn);
-            const medianWithdrawals = sortedByWithdrawals[Math.floor(sortedByWithdrawals.length * 0.5)].totalWithdrawn;
-            
-            // Calculate worst case ending age (10th percentile of years lasted)
-            const yearsLasted = simulationResults
-                .filter(sim => sim.ranOutOfMoney)
-                .map(sim => sim.yearsLasted)
-                .sort((a, b) => a - b);
-            
-            const worstCaseYears = yearsLasted.length > 0 ? 
-                yearsLasted[Math.floor(yearsLasted.length * 0.1)] : "N/A";
-            
-            const worstCaseAge = worstCaseYears !== "N/A" ? 
-                startAge + worstCaseYears : "Funds not depleted";
-            
-            // Update UI
-            document.getElementById('medianEndingBalance').textContent = 
-                `$${Math.round(medianEndingBalance).toLocaleString()}`;
-            document.getElementById('retirementAvgReturn').textContent = 
-                `${(avgReturn * 100).toFixed(1)}%`;
-            document.getElementById('totalWithdrawals').textContent = 
-                `$${Math.round(medianWithdrawals).toLocaleString()}`;
-            document.getElementById('worstCaseAge').textContent = 
-                worstCaseAge !== "N/A" ? worstCaseAge : "Funds not depleted";
+        .summary-card h4 {
+            color: var(--primary);
+            font-size: 1rem;
+            margin-top: 0;
+            margin-bottom: 8px;
         }
 
-        // Add this to your JavaScript section
-        function populateSimulationsTable(simulationResults) {
-            const tableBody = document.getElementById('simulations-table-body');
-            tableBody.innerHTML = '';
-            
-            // Find median simulation index
-            const sortedByBalance = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            const medianIndex = Math.floor(sortedByBalance.length / 2);
-            const medianSimulation = sortedByBalance[medianIndex];
-            
-            // Add data attribute to identify median simulation
-            let medianSimIndex = -1;
-            for (let i = 0; i < simulationResults.length; i++) {
-                if (simulationResults[i] === medianSimulation) {
-                    medianSimIndex = i;
-                    break;
-                }
-            }
-            
-            // Show all simulations
-            for (let i = 0; i < simulationResults.length; i++) {
-                const sim = simulationResults[i];
-                const row = document.createElement('tr');
-                
-                // Add data attributes for filtering
-                row.setAttribute('data-success', sim.ranOutOfMoney ? 'false' : 'true');
-                row.setAttribute('data-scenario', i + 1);
-                
-                // Mark median simulation
-                if (i === medianSimIndex) {
-                    row.classList.add('median-row');
-                    row.setAttribute('data-median', 'true');
-                } else {
-                    row.setAttribute('data-median', 'false');
-                }
-                
-                // Scenario number
-                const scenarioCell = document.createElement('td');
-                scenarioCell.textContent = `#${i + 1}`;
-                
-                // Add median badge if this is the median simulation
-                if (i === medianSimIndex) {
-                    const medianBadge = document.createElement('span');
-                    medianBadge.className = 'median-badge';
-                    medianBadge.textContent = 'MEDIAN';
-                    scenarioCell.appendChild(medianBadge);
-                }
-                
-                row.appendChild(scenarioCell);
-                
-                // End balance
-                const balanceCell = document.createElement('td');
-                balanceCell.textContent = `$${Math.round(sim.finalBalance).toLocaleString()}`;
-                row.appendChild(balanceCell);
-                
-                // Years lasted
-                const yearsCell = document.createElement('td');
-                yearsCell.textContent = sim.ranOutOfMoney ? 
-                    `${sim.yearsLasted}` : 
-                    `${sim.yearsLasted} (full period)`;
-                row.appendChild(yearsCell);
-                
-                // Status
-                const statusCell = document.createElement('td');
-                statusCell.textContent = sim.ranOutOfMoney ? '❌' : '✅'; // Use emoji
-                statusCell.style.textAlign = 'center'; // Center the emoji
-                row.appendChild(statusCell);
-                
-                // Action
-                const actionCell = document.createElement('td');
-                const viewButton = document.createElement('button');
-                viewButton.className = 'view-details-btn';
-                viewButton.textContent = 'View Details';
-                viewButton.onclick = function() {
-                    showSimulationDetails(sim, i + 1);
-                };
-                actionCell.appendChild(viewButton);
-                row.appendChild(actionCell);
-                
-                tableBody.appendChild(row);
-            }
-            
-            // Set up filter buttons
-            setupFilterButtons();
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--neutral-dark);
+            margin: 8px 0;
         }
 
-        // Function to set up filter buttons
-        function setupFilterButtons() {
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Update active button state
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Get filter type
-                    const filterType = this.getAttribute('data-filter');
-                    
-                    // Apply filter
-                    const rows = document.querySelectorAll('#simulations-table-body tr');
-                    
-                    rows.forEach(row => {
-                        if (filterType === 'all') {
-                            row.style.display = '';
-                        } else if (filterType === 'success') {
-                            row.style.display = row.getAttribute('data-success') === 'true' ? '' : 'none';
-                        } else if (filterType === 'failure') {
-                            row.style.display = row.getAttribute('data-success') === 'false' ? '' : 'none';
-                        } else if (filterType === 'median') {
-                            row.style.display = row.getAttribute('data-median') === 'true' ? '' : 'none';
-                        }
-                    });
-                });
-            });
+        .summary-caption {
+            color: var(--neutral);
+            font-size: 0.9rem;
         }
 
-        // Replace the showSimulationDetails function with this simplified version
-        function showSimulationDetails(simIndex) {
-            const sim = allSimulations[simIndex];
-            
-            // Create a completely new modal each time (to avoid any existing issues)
-            let modalHTML = `
-            <div id="simModal" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.7);
-                z-index: 9999;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            ">
-                <div style="
-                    background: white;
-                    width: 90%;
-                    max-width: 900px;
-                    max-height: 90vh;
-                    padding: 30px;
-                    border-radius: 12px;
-                    overflow-y: auto;
-                    position: relative;
-                ">
-                    <span id="closeSimModal" style="
-                        position: absolute;
-                        top: 15px;
-                        right: 20px;
-                        font-size: 24px;
-                        cursor: pointer;
-                        font-weight: bold;
-                    ">&times;</span>
-                    
-                    <h2>Simulation ${typeof simIndex === 'number' ? simIndex + 1 : ''} Details</h2>
-                    
-                    <div style="
-                        display: flex;
-                        gap: 20px;
-                        margin: 20px 0;
-                        flex-wrap: wrap;
-                    ">
-                        <div style="
-                            flex: 1;
-                            min-width: 150px;
-                            padding: 15px;
+        /* Enhanced tooltip */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background-color: var(--neutral-light);
+            color: var(--neutral);
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: help;
+            transition: var(--transition);
+        }
+
+        .tooltip-container:hover .tooltip-icon {
+            background-color: var(--neutral);
+            color: white;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--neutral-dark);
+            color: white;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            padding: 10px 15px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--neutral-dark) transparent transparent transparent;
+        }
+
+        .tooltip-container:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Improved table styling */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--neutral-light);
+            box-shadow: var(--shadow);
+        }
+
+        .simulations-table thead th {
+            position: sticky;
+            top: 0;
+            background-color: var(--primary-dark);
+            color: white;
+            z-index: 10;
+            font-weight: 600;
+            padding: 15px;
+        }
+
+        .simulations-table, .detail-table {
                             border-radius: 8px;
                             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                             text-align: center;
@@ -3885,6 +3209,579 @@
             });
             console.log("Chart created for canvas:", canvasId);
         }
+
+        // Add AI Assessment functionality
+        function generateAIAssessment(simulationType) {
+            // Show the modal
+            const modal = document.getElementById('aiAssessmentModal');
+            modal.style.display = 'flex';
+            
+            // Get all simulation data as a JSON object and store it for later use
+            const simulationData = captureSimulationData(simulationType);
+            
+            // Store data in the global scope for OpenAI to use
+            window.simulationData = simulationData;
+            
+            // Set up the event handlers for the buttons
+            document.getElementById('downloadScreenshot').onclick = () => {
+                // Using html2canvas library for screenshot
+                if (typeof html2canvas === 'undefined') {
+                    // Load html2canvas if not already loaded
+                    const script = document.createElement('script');
+                    script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+                    script.onload = () => {
+                        takeScreenshot(simulationType);
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    takeScreenshot(simulationType);
+                }
+            };
+            
+            document.getElementById('downloadJSON').onclick = () => {
+                downloadJSON(simulationData, `${simulationType}_simulation_data.json`);
+            };
+            
+            document.getElementById('copyJSON').onclick = () => {
+                copyToClipboard(JSON.stringify(simulationData, null, 2));
+                alert('JSON data copied to clipboard!');
+            };
+            
+            // Add OpenAI assessment handler
+            document.getElementById('generateOpenAIAssessment').onclick = () => {
+                const apiKey = document.getElementById('openai-api-key').value.trim();
+                if (!apiKey) {
+                    alert('Please enter your OpenAI API key');
+                    return;
+                }
+                
+                if (!apiKey.startsWith('sk-')) {
+                    alert('Please enter a valid OpenAI API key (starts with sk-)');
+                    return;
+                }
+                
+                // Show loading indicator
+                document.getElementById('openai-loading').style.display = 'block';
+                document.getElementById('assessmentResult').style.display = 'none';
+                
+                // Get simulation data
+                const data = simulationData;
+                
+                // Generate a comprehensive prompt
+                const prompt = generateOpenAIPrompt(simulationType, data);
+                
+                // Call OpenAI API
+                callOpenAI(apiKey, prompt, simulationType)
+                    .then(assessment => {
+                        // Hide loading and show result
+                        document.getElementById('openai-loading').style.display = 'none';
+                        const resultElement = document.getElementById('assessmentResult');
+                        
+                        // Convert markdown to HTML
+                        resultElement.innerHTML = marked.parse(assessment);
+                        
+                        // Add styling to the rendered HTML
+                        const headings = resultElement.querySelectorAll('h1, h2, h3');
+                        headings.forEach(heading => {
+                            // Remove heading style if it's just "Strengths:" or "Concerns:"
+                            if (heading.textContent.trim().match(/^(Strengths|Concerns):?$/i)) {
+                                heading.style.display = 'none'; // Hide these specific headings
+                            } else {
+                                heading.style.color = 'var(--primary)';
+                                heading.style.marginTop = '1.5em';
+                                heading.style.marginBottom = '0.75em';
+                            }
+                        });
+                        
+                        // General list item styling
+                        const listItems = resultElement.querySelectorAll('li');
+                        listItems.forEach(item => {
+                            item.style.marginBottom = '0.5em';
+                        });
+                        
+                        // Apply icons and specific styling to strengths and concerns
+                        resultElement.querySelectorAll('h3').forEach(h3 => {
+                            if (h3.textContent.toLowerCase().includes('strength')) {
+                                let ul = h3.nextElementSibling;
+                                while(ul && ul.tagName !== 'UL') {
+                                    ul = ul.nextElementSibling;
+                                }
+                                if (ul) {
+                                    ul.querySelectorAll('li').forEach(li => {
+                                        // Keep the text color black (default)
+                                        // li.style.color = '#10b981';
+                                        li.style.listStyleType = 'none';
+                                        li.style.marginLeft = '-1.5em'; // Adjust for removing bullet
+                                        li.innerHTML = `<span style="margin-right: 0.5em;">✅</span> ${li.innerHTML}`;
+                                    });
+                                }
+                            } else if (h3.textContent.toLowerCase().includes('concern')) {
+                                let ul = h3.nextElementSibling;
+                                while(ul && ul.tagName !== 'UL') {
+                                    ul = ul.nextElementSibling;
+                                }
+                                if (ul) {
+                                    ul.querySelectorAll('li').forEach(li => {
+                                        // Keep the text color black (default)
+                                        // li.style.color = '#f59e0b';
+                                        li.style.listStyleType = 'none';
+                                        li.style.marginLeft = '-1.5em'; // Adjust for removing bullet
+                                        li.innerHTML = `<span style="margin-right: 0.5em;">⚠️</span> ${li.innerHTML}`;
+                                    });
+                                }
+                            }
+                        });
+                        
+                        // Style action items (numbered lists)
+                        resultElement.querySelectorAll('ol li').forEach(item => {
+                            item.style.fontWeight = '500';
+                            item.style.color = '#1f2937';
+                        });
+                        
+                        // Display the result
+                        resultElement.style.display = 'block';
+                        
+                        // Scroll to the result
+                        resultElement.scrollIntoView({ behavior: 'smooth' });
+                    })
+                    .catch(error => {
+                        document.getElementById('openai-loading').style.display = 'none';
+                        alert('Error calling OpenAI API: ' + error.message);
+                        console.error('OpenAI API error:', error);
+                    });
+            };
+            
+            // Close button event handler
+            document.getElementById('closeAiAssessment').onclick = () => {
+                modal.style.display = 'none';
+            };
+            
+            // Close when clicking outside the modal
+            window.onclick = (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
+        }
+
+        // Helper function to get the height of the fixed header
+        function getHeaderHeight() {
+            const header = document.querySelector('.app-header');
+            return header ? header.offsetHeight : 0;
+        }
+
+        // Capture all simulation data as a JSON object
+        function captureSimulationData(simulationType) {
+            const data = {
+                simulationType: simulationType,
+                timestamp: new Date().toISOString(),
+                inputs: {},
+                results: {}
+            };
+            
+            // Helper function to safely get element value
+            const safeGetElementValue = (id, defaultValue = 0) => {
+                const element = document.getElementById(id);
+                if (!element) return defaultValue;
+                return element.value ? element.value.replace(/,/g, '') : defaultValue;
+            };
+            
+            // Helper function to safely get element checked state
+            const safeGetElementChecked = (id, defaultValue = false) => {
+                const element = document.getElementById(id);
+                return element ? element.checked : defaultValue;
+            };
+            
+            // Capture inputs based on simulation type
+            if (simulationType === 'savings') {
+                data.inputs = {
+                    currentAge: parseInt(safeGetElementValue('currentAge')) || 0,
+                    targetAmount: parseFloat(safeGetElementValue('targetAmount')) || 0,
+                    currentSavings: parseFloat(safeGetElementValue('currentSavings')) || 0,
+                    income: parseFloat(safeGetElementValue('income')) || 0,
+                    expenses: parseFloat(safeGetElementValue('expenses')) || 0,
+                    stockAllocation: parseInt(safeGetElementValue('stockAllocation')) || 0,
+                    incomeGrowth: parseFloat(safeGetElementValue('incomeGrowth')) || 0,
+                    simulationCount: parseInt(safeGetElementValue('savingsSimulationCount')) || 0
+                };
+                
+                // Capture results
+                if (window.simulationResults) {
+                    const medianSim = window.simulationResults[Math.floor(window.simulationResults.length / 2)];
+                    data.results = {
+                        medianYearsToGoal: document.getElementById('yearsToGoal') ? document.getElementById('yearsToGoal').textContent : 'N/A',
+                        simulationCount: window.simulationResults.length,
+                        medianFinalBalance: medianSim ? formatCurrency(medianSim.finalBalance) : 'N/A',
+                        milestones: {
+                            '25%': document.getElementById('milestone25') ? document.getElementById('milestone25').textContent : 'N/A',
+                            '50%': document.getElementById('milestone50') ? document.getElementById('milestone50').textContent : 'N/A',
+                            '75%': document.getElementById('milestone75') ? document.getElementById('milestone75').textContent : 'N/A',
+                            '100%': document.getElementById('milestone100') ? document.getElementById('milestone100').textContent : 'N/A'
+                        }
+                    };
+                }
+            } else if (simulationType === 'retirement') {
+                data.inputs = {
+                    retirementAge: parseInt(safeGetElementValue('retirementAge')) || 0,
+                    lifeExpectancy: parseInt(safeGetElementValue('retirementLifeExpectancy')) || 0,
+                    retirementSavings: parseFloat(safeGetElementValue('retirementSavings')) || 0,
+                    stockAllocation: parseInt(safeGetElementValue('retirementStockAllocation')) || 0,
+                    annualWithdrawal: parseFloat(safeGetElementValue('annualWithdrawal')) || 0,
+                    adjustForInflation: safeGetElementChecked('withdrawalAdjustment', true),
+                    taxRate: parseFloat(safeGetElementValue('taxRate')) || 0,
+                    simulationCount: parseInt(safeGetElementValue('simulationCount')) || 0
+                };
+                
+                // Capture results
+                data.results = {
+                    successRate: document.getElementById('successRate') ? document.getElementById('successRate').textContent : 'N/A',
+                    medianEndingBalance: document.getElementById('medianEndingBalance') ? document.getElementById('medianEndingBalance').textContent : 'N/A',
+                    averageAnnualReturn: document.getElementById('retirementAvgReturn') ? document.getElementById('retirementAvgReturn').textContent : 'N/A',
+                    totalWithdrawals: document.getElementById('totalWithdrawals') ? document.getElementById('totalWithdrawals').textContent : 'N/A',
+                    worstCaseAge: document.getElementById('worstCaseAge') ? document.getElementById('worstCaseAge').textContent : 'N/A'
+                };
+            }
+            
+            return data;
+        }
+
+        // Take a screenshot of the results section
+        function takeScreenshot(simulationType) {
+            // Create a temporary container to hold both inputs and results
+            const tempContainer = document.createElement('div');
+            tempContainer.style.background = 'white';
+            tempContainer.style.padding = '20px';
+            tempContainer.style.maxWidth = '1100px';
+            tempContainer.style.margin = '20px auto';
+            tempContainer.style.borderRadius = '10px';
+            
+            // Clone the input and results sections based on simulation type
+            if (simulationType === 'savings') {
+                // Get the inputs section from the accumulation tab
+                const inputsSection = document.querySelector('#accumulation-tab .input-section');
+                const resultsSection = document.getElementById('results');
+                
+                if (inputsSection && resultsSection) {
+                    // Create heading
+                    const heading = document.createElement('h1');
+                    heading.textContent = 'Savings Simulation';
+                    heading.style.textAlign = 'center';
+                    heading.style.marginBottom = '20px';
+                    heading.style.color = '#4f46e5';
+                    tempContainer.appendChild(heading);
+                    
+                    // Add inputs section with title
+                    const inputsTitle = document.createElement('h2');
+                    inputsTitle.textContent = 'User Inputs';
+                    inputsTitle.style.marginTop = '30px';
+                    tempContainer.appendChild(inputsTitle);
+                    
+                    // Clone inputs and add to container
+                    const inputsClone = inputsSection.cloneNode(true);
+                    // Hide the run button in the screenshot
+                    const runButton = inputsClone.querySelector('.simulation-button-wrapper');
+                    if (runButton) runButton.style.display = 'none';
+                    tempContainer.appendChild(inputsClone);
+                    
+                    // Add results section with title
+                    const resultsTitle = document.createElement('h2');
+                    resultsTitle.textContent = 'Simulation Results';
+                    resultsTitle.style.marginTop = '30px';
+                    tempContainer.appendChild(resultsTitle);
+                    
+                    // Clone results and add to container
+                    const resultsClone = resultsSection.cloneNode(true);
+                    // Hide the AI Assessment button in the screenshot
+                    const aiButton = resultsClone.querySelector('.ai-assessment-button');
+                    if (aiButton && aiButton.parentNode) {
+                        aiButton.parentNode.removeChild(aiButton);
+                    }
+                    tempContainer.appendChild(resultsClone);
+                }
+            } else if (simulationType === 'retirement') {
+                // Get the inputs section from the retirement tab
+                const inputsSection = document.querySelector('#retirement-tab .input-section');
+                const resultsSection = document.getElementById('retirement-results');
+                
+                if (inputsSection && resultsSection) {
+                    // Create heading
+                    const heading = document.createElement('h1');
+                    heading.textContent = 'Retirement Simulation';
+                    heading.style.textAlign = 'center';
+                    heading.style.marginBottom = '20px';
+                    heading.style.color = '#4f46e5';
+                    tempContainer.appendChild(heading);
+                    
+                    // Add inputs section with title
+                    const inputsTitle = document.createElement('h2');
+                    inputsTitle.textContent = 'User Inputs';
+                    inputsTitle.style.marginTop = '30px';
+                    tempContainer.appendChild(inputsTitle);
+                    
+                    // Clone inputs and add to container
+                    const inputsClone = inputsSection.cloneNode(true);
+                    // Hide the run button in the screenshot
+                    const runButton = inputsClone.querySelector('.simulation-button-wrapper');
+                    if (runButton) runButton.style.display = 'none';
+                    tempContainer.appendChild(inputsClone);
+                    
+                    // Add results section with title
+                    const resultsTitle = document.createElement('h2');
+                    resultsTitle.textContent = 'Simulation Results';
+                    resultsTitle.style.marginTop = '30px';
+                    tempContainer.appendChild(resultsTitle);
+                    
+                    // Clone results and add to container
+                    const resultsClone = resultsSection.cloneNode(true);
+                    // Hide the AI Assessment button in the screenshot
+                    const aiButton = resultsClone.querySelector('.ai-assessment-button');
+                    if (aiButton && aiButton.parentNode) {
+                        aiButton.parentNode.removeChild(aiButton);
+                    }
+                    tempContainer.appendChild(resultsClone);
+                }
+            }
+            
+            // Temporarily add the container to the document body (invisible)
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            document.body.appendChild(tempContainer);
+            
+            // First capture all charts from original DOM and replace canvas elements in the clone with static images
+            const captureAndReplaceCharts = async () => {
+                try {
+                    // Get all chart canvases from original DOM
+                    let chartCanvases;
+                    if (simulationType === 'savings') {
+                        chartCanvases = [
+                            document.getElementById('yearsDistributionChart'),
+                            document.getElementById('growthSourcesChart')
+                        ];
+                    } else {
+                        chartCanvases = [
+                            document.getElementById('retirementBalanceChart'),
+                            document.getElementById('survivalChart')
+                        ];
+                    }
+                    
+                    // Get all chart containers from temp DOM
+                    const chartContainers = tempContainer.querySelectorAll('.chart-container');
+                    
+                    // Convert each chart to image and replace in the temp container
+                    for (let i = 0; i < chartCanvases.length; i++) {
+                        const canvas = chartCanvases[i];
+                        if (canvas && chartContainers[i]) {
+                            // Convert chart to image
+                            const img = document.createElement('img');
+                            img.src = canvas.toDataURL('image/png');
+                            img.style.width = '100%';
+                            img.style.height = '300px';
+                            img.style.objectFit = 'contain';
+                            
+                            // Clear chart container and add image
+                            chartContainers[i].innerHTML = '';
+                            chartContainers[i].appendChild(img);
+                        }
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Error capturing charts:', error);
+                    return false;
+                }
+            };
+            
+            // Process and take screenshot
+            captureAndReplaceCharts().then(() => {
+                // After charts are processed, take the screenshot
+                html2canvas(tempContainer, {
+                    scale: 1,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: 'white',
+                    scrollX: 0,
+                    scrollY: -window.scrollY,
+                    onclone: function(clonedDoc) {
+                        // Additional processing of the cloned document if needed
+                        const clonedContainer = clonedDoc.body.querySelector('div:first-child');
+                        if (clonedContainer) {
+                            // Make sure all canvas elements are visible
+                            const canvases = clonedContainer.querySelectorAll('canvas');
+                            canvases.forEach(canvas => {
+                                canvas.style.display = 'none'; // Hide canvases as we're using images instead
+                            });
+                        }
+                    }
+                }).then(canvas => {
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `${simulationType}_full_simulation_screenshot.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Clean up
+                    document.body.removeChild(tempContainer);
+                }).catch(error => {
+                    console.error('Error generating screenshot:', error);
+                    alert('There was an error generating the screenshot. Check console for details.');
+                    document.body.removeChild(tempContainer);
+                });
+            });
+        }
+
+        // Download JSON data as a file
+        function downloadJSON(data, filename) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Copy text to clipboard
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // Also add a formatCurrency function since it's used above but might be missing
+        function formatCurrency(value) {
+            if (typeof value !== 'number') return 'N/A';
+            return '$' + value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+        }
+
+        // Add these new functions at the end of your script section:
+        // Function to generate a comprehensive prompt for OpenAI
+        function generateOpenAIPrompt(simulationType, data) {
+            // Get FAQ content from the help modal using standard DOM methods
+            let faqContent = ''
+            const helpModal = document.getElementById('helpModal');
+            if (helpModal) {
+                const helpSections = helpModal.querySelectorAll('.help-section');
+                for (const section of helpSections) {
+                    const h3 = section.querySelector('h3');
+                    if (h3 && h3.textContent.toLowerCase().includes('faq')) {
+                        // Found the FAQ section, extract its text content
+                        faqContent = Array.from(section.childNodes)
+                                         .map(node => node.textContent?.trim() || '') // Use optional chaining
+                                         .filter(text => text.length > 0)
+                                         .join('\n');
+                        break; // Stop searching once FAQ section is found
+                    }
+                }
+            }
+            
+            // Basic introduction
+            let prompt = `You are a financial advisor analyzing a ${simulationType} simulation generated by the 'Financial Future' tool. `;
+            prompt += `Please provide a comprehensive assessment of the following simulation data, including strengths, concerns, and actionable advice. `;
+            prompt += `Focus on what these results mean for the user's financial future and what specific steps they could take to improve their outcome.\n\n`;
+            
+            // Add simulation type specific context
+            if (simulationType === 'savings') {
+                prompt += `## Savings Simulation Context\n`;
+                prompt += `This simulation shows how long it might take for someone to reach their retirement savings goal based on their current savings rate, `;
+                prompt += `investment strategy, and market conditions. The simulation runs multiple scenarios with different market returns to provide a range of possible outcomes.\n\n`;
+            } else {
+                prompt += `## Retirement Simulation Context\n`;
+                prompt += `This simulation shows whether someone's retirement savings are likely to last throughout their retirement based on their withdrawal rate, `;
+                prompt += `investment strategy, and market conditions. The simulation runs multiple scenarios with different market returns to provide a range of possible outcomes.\n\n`;
+            }
+            
+            // Add detailed input data
+            prompt += `## User Inputs\n`;
+            Object.entries(data.inputs).forEach(([key, value]) => {
+                const formattedKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+                const readableKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
+                let formattedValue = value;
+                if (typeof value === 'number' && !key.includes('Age') && !key.includes('Count') && !key.includes('Rate') && !key.includes('Growth')) {
+                    formattedValue = '$' + value.toLocaleString();
+                } else if (key.includes('Allocation') || key.includes('Rate') || key.includes('Growth')) {
+                    formattedValue = value + '%';
+                } else if (typeof value === 'boolean') {
+                    formattedValue = value ? 'Yes' : 'No';
+                }
+                prompt += `- ${readableKey}: ${formattedValue}\n`;
+            });
+            
+            // Add summary of results
+            prompt += `\n## Simulation Results\n`;
+            Object.entries(data.results).forEach(([key, value]) => {
+                if (!value || value === 'N/A') return;
+                const formattedKey = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+                const readableKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
+                prompt += `- ${readableKey}: ${value}\n`;
+            });
+            
+            // Add FAQ content for tool context
+            if (faqContent) {
+                prompt += `\n## Tool Context & FAQ\n`;
+                prompt += `For your reference, here is information about the tool that generated these results:\n${faqContent}\n\n`;
+            }
+            
+            // Add specific questions to guide analysis
+            prompt += `\n## Analysis Guidelines\n`;
+            prompt += `1. Assess whether the user is on track to meet their financial goals based on these results and the tool's methodology.\n`;
+            prompt += `2. Identify the most significant factors (input parameters or market assumptions) affecting their outcome.\n`;
+            prompt += `3. Suggest 3-5 specific, actionable steps they could take to improve their financial outlook, considering the tool's capabilities.\n`;
+            prompt += `4. Explain any potential risks or concerns highlighted by these results.\n`;
+            prompt += `5. If applicable, mention potential trade-offs between different approaches.\n`;
+            
+            // Add formatting guidance
+            prompt += `\n## Response Format\n`;
+            prompt += `Please format your response clearly using Markdown with these sections:\n`;
+            prompt += `### Summary Assessment\n(1-2 paragraphs overall assessment)\n`;
+            prompt += `### Key Strengths\n(Bulleted list using *)\n`;
+            prompt += `### Key Concerns\n(Bulleted list using *)\n`;
+            prompt += `### Recommended Actions\n(Numbered list with brief explanations)\n`;
+            prompt += `### Additional Considerations\n(Optional: Any other relevant points or nuances)\n`;
+            
+            return prompt;
+        }
+
+        // Function to call OpenAI API
+        async function callOpenAI(apiKey, prompt, simulationType) {
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "You are a financial advisor specialized in retirement planning. Your task is to analyze retirement simulation data and provide expert advice."
+                            },
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1500
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || 'Unknown API error');
+                }
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('Error calling OpenAI API:', error);
+                throw error;
+            }
+        }
     </script>
 </head>
 <body>
@@ -4016,6 +3913,9 @@
         <div id="results" class="results-container" style="display: none; flex-direction: column;">
             <div class="section-header">
                 <h2>Simulation Results</h2>
+                <button id="generateSavingsAIAssessment" class="ai-assessment-button" onclick="generateAIAssessment('savings')">
+                    <span class="ai-icon">🤖</span> Generate AI Assessment
+                </button>
             </div>
             
             <div class="result-card primary-card">
@@ -4219,6 +4119,9 @@
         <div id="retirement-results" class="results-container" style="display: none; flex-direction: column;">
             <div class="section-header">
                 <h2>Retirement Simulation Results</h2>
+                <button id="generateRetirementAIAssessment" class="ai-assessment-button" onclick="generateAIAssessment('retirement')">
+                    <span class="ai-icon">🤖</span> Generate AI Assessment
+                </button>
             </div>
             
             <div class="result-card primary-card">
@@ -4603,6 +4506,55 @@
             }
         });
     </script>
+
+    <!-- AI Assessment Modal -->
+    <div id="aiAssessmentModal" class="ai-assessment-modal">
+        <div class="ai-assessment-content">
+            <span class="close-ai-assessment" id="closeAiAssessment">&times;</span>
+            <h2>AI Assessment</h2>
+            
+            <div class="assessment-options">
+                <button id="downloadScreenshot">Download Screenshot</button>
+                <button id="downloadJSON">Download JSON Data</button>
+                <button id="copyJSON">Copy JSON Data</button>
+            </div>
+            
+            <div class="openai-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <h3>Generate Assessment with OpenAI</h3>
+                <div style="margin-bottom: 15px;">
+                    <label for="openai-api-key" style="display: block; margin-bottom: 8px;">OpenAI API Key:</label>
+                    <input type="password" id="openai-api-key" style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 6px;" 
+                           placeholder="sk-..." autocomplete="off">
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 5px;">
+                        Your API key is never stored or sent anywhere except directly to OpenAI.
+                    </div>
+                </div>
+                <button id="generateOpenAIAssessment" class="ai-assessment-button" style="width: 100%; justify-content: center;">
+                    <span class="ai-icon">✨</span> Generate Assessment with OpenAI
+                </button>
+            </div>
+            
+            <p>The AI assessment can be generated in two ways:</p>
+            <ol>
+                <li>Take a screenshot of the current simulation results</li>
+                <li>Export all simulation data as a JSON object</li>
+                <li>Or generate a comprehensive assessment using OpenAI</li>
+            </ol>
+            
+            <div id="assessmentResult" class="assessment-result" style="display: none;"></div>
+            
+            <div id="openai-loading" style="display: none; text-align: center; margin-top: 20px;">
+                <div class="loading-spinner" style="display: inline-block; width: 30px; height: 30px; border: 3px solid rgba(79, 70, 229, 0.3); border-radius: 50%; border-top-color: #4f46e5; animation: spin 1s linear infinite;"></div>
+                <p>Generating assessment with OpenAI...</p>
+            </div>
+            
+            <style>
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+        </div>
+    </div>
 </body>
 </html>
 
