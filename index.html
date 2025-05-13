@@ -3238,12 +3238,17 @@
                         {
                             label: 'Cumulative',
                             data: cumulativeData,
-                            backgroundColor: 'rgba(16, 185, 129, 0.3)', // Light green for cumulative
-                            borderColor: 'rgba(16, 185, 129, 0.8)',
-                            borderWidth: 2,
+                            backgroundColor: 'rgba(245, 158, 11, 0.3)', // Light orange for cumulative
+                            borderColor: '#f59e0b', // Orange for cumulative line
+                            borderWidth: 3, // Thicker line
                             type: 'line',
                             yAxisID: 'y1',
-                            order: 1
+                            order: 1,
+                            pointRadius: 5, // Larger nodes
+                            pointHoverRadius: 8, // Larger nodes on hover
+                            pointBackgroundColor: '#f59e0b', // Solid node color
+                            pointBorderColor: 'white', // Node border color
+                            pointBorderWidth: 1 // Node border width
                         }
                     ]
                 },
@@ -4178,22 +4183,24 @@
         
         // Function to handle the AI Analysis option
         function handleAiAnalysisOption() {
-            // Show the API key input section
-            document.getElementById('apiKeySection').style.display = 'block';
+            // document.getElementById('apiKeySection').style.display = 'block'; // Old behavior
+            handleSubmitApiKey(); // New: Directly proceed to analysis
         }
         
         // Function to handle sending data to OpenAI API
         async function handleSubmitApiKey() {
-            const apiKey = document.getElementById('openaiApiKey').value.trim();
-            
-            // Validate API key format (simple check for 'sk-' prefix)
-            if (!apiKey || !apiKey.startsWith('sk-')) {
-                alert('Please enter a valid OpenAI API key');
-                return;
+            // const apiKey = document.getElementById('openaiApiKey').value.trim(); // REMOVED: No longer read from input
+
+            // REMOVED: API key validation is now server-side implicitly by using the stored key
+            // if (!apiKey || !apiKey.startsWith('sk-')) { 
+            //     alert('Please enter a valid OpenAI API key');
+            //     return;
+            // }
+
+            // Ensure the modal sections are correctly shown/hidden
+            if(document.getElementById('apiKeySection')) { // Defensively hide if it somehow still exists
+                document.getElementById('apiKeySection').style.display = 'none'; 
             }
-            
-            // Show the loading spinner and results section
-            document.getElementById('apiKeySection').style.display = 'none';
             document.getElementById('aiAnalysisResults').style.display = 'block';
             document.getElementById('aiAnalysisContent').innerHTML = `
                 <div class="ai-loading">
@@ -4201,28 +4208,24 @@
                     <p>Analyzing your financial scenario...</p>
                 </div>
             `;
-            
+
             try {
-                // Generate the prompt based on the simulation data
                 const promptData = generateExportData();
                 const prompt = generateOpenAIPrompt(promptData);
-                
-                // Make the API call to OpenAI
-                const response = await fetchOpenAIResponse(apiKey, prompt);
-                
-                // Display the results
+                // The first argument to fetchOpenAIResponse (apiKey) is no longer used by the function when calling the proxy.
+                const response = await fetchOpenAIResponse(null, prompt); 
+
                 document.getElementById('aiAnalysisContent').innerHTML = `
                     <div class="ai-response">
                         ${marked.parse(response)}
                     </div>
                 `;
-                
             } catch (error) {
-                console.error('OpenAI API error:', error);
+                console.error('AI Analysis error in handleSubmitApiKey:', error);
                 document.getElementById('aiAnalysisContent').innerHTML = `
                     <div class="ai-error">
                         <h4>Error</h4>
-                        <p>${error.message || 'Failed to get analysis from OpenAI. Please try again.'}</p>
+                        <p>${error.message || 'Failed to get analysis. Please try again.'}</p>
                     </div>
                 `;
             }
@@ -4299,37 +4302,43 @@
         }
         
         // Function to call the OpenAI API with the given API key and prompt
-        async function fetchOpenAIResponse(apiKey, prompt) {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: 'gpt-4-turbo-preview',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are a helpful financial advisor analyzing retirement simulations. Provide clear, concise, and actionable advice. Format your response using markdown for better readability.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 1500
-                })
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`OpenAI API Error (${response.status}): ${errorText}`);
+        async function fetchOpenAIResponse(apiKey, prompt) { // apiKey is no longer used client-side
+            // The URL will be your Pages site URL + /functions_file_name (without .js)
+            // e.g., if your site is myapp.pages.dev and file is functions/openai-proxy.js,
+            // URL is '/openai-proxy' relative to your site, or full URL: 'https://myapp.pages.dev/openai-proxy'
+            const workerUrl = '/openai-proxy'; // Relative path to the function
+
+            try {
+                const response = await fetch(workerUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // The API key is now handled by the Cloudflare Worker, not sent from client
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt // Send the prompt in the body
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    // Display a more user-friendly error, details are logged in the worker
+                    console.error(`AI Analysis Service Error (${response.status}): ${errorText}`);
+                    throw new Error(`Failed to get analysis. The AI service returned an error.`);
+                }
+
+                const data = await response.json();
+                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    return data.choices[0].message.content;
+                } else {
+                    console.error('Unexpected response structure from AI service:', data);
+                    throw new Error('Received an unexpected response from the AI analysis service.');
+                }
+            } catch (error) {
+                console.error('Error in fetchOpenAIResponse:', error);
+                // Re-throw or handle as appropriate for your UI
+                throw error; // This will allow the handleSubmitApiKey function to catch it
             }
-            
-            const data = await response.json();
-            return data.choices[0].message.content;
         }
         
         // Function to load html2canvas library dynamically when needed
@@ -4368,14 +4377,17 @@
             // Set up option handlers
             document.getElementById('exportDataOption').addEventListener('click', handleExportData);
             document.getElementById('aiAnalysisOption').addEventListener('click', handleAiAnalysisOption);
-            document.getElementById('submitApiKey').addEventListener('click', handleSubmitApiKey);
+            // const submitApiKeyButton = document.getElementById('submitApiKey'); // REMOVED: Button will be gone
+            // if (submitApiKeyButton) submitApiKeyButton.addEventListener('click', handleSubmitApiKey);
             
-            // Handle API key input field enter key
-            document.getElementById('openaiApiKey').addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') {
-                    handleSubmitApiKey();
-                }
-            });
+            // const apiKeyInput = document.getElementById('openaiApiKey'); // REMOVED: Input will be gone
+            // if (apiKeyInput) {
+            //     apiKeyInput.addEventListener('keypress', (event) => {
+            //         if (event.key === 'Enter') {
+            //             handleSubmitApiKey();
+            //         }
+            //     });
+            // }
         }
         
         // Document ready listener
@@ -5057,6 +5069,7 @@
             </div>
             
             <!-- API Key Input Section (Initially Hidden) -->
+            <!--
             <div id="apiKeySection" style="display: none;">
                 <h3>Enter your OpenAI API Key</h3>
                 <p>Your API key is used locally and never stored on our servers.</p>
@@ -5068,6 +5081,7 @@
                     <p>Don't have an API key? <a href="https://platform.openai.com/account/api-keys" target="_blank">Get one from OpenAI</a></p>
                 </div>
             </div>
+            -->
             
             <!-- AI Analysis Results Section (Initially Hidden) -->
             <div id="aiAnalysisResults" style="display: none;">
