@@ -785,6 +785,21 @@
                 width: 16px;
                 height: 16px;
             }
+            
+            /* Mobile navigation - show only icons */
+            .header-nav-link {
+                padding: 10px 12px;
+            }
+            
+            .header-nav-link .nav-icon {
+                margin-right: 0;
+                font-size: 1.3em;
+                opacity: 1;
+            }
+            
+            .header-nav-link .nav-text {
+                display: none;
+            }
         }
 
         /* Improved button styling for simulation buttons */
@@ -4329,10 +4344,10 @@
             </div>
             <div class="header-nav">
                 <a href="#" data-tab="accumulation-tab" class="header-nav-link active">
-                    <span class="nav-icon">💰</span> Savings
+                    <span class="nav-icon">💰</span> <span class="nav-text">Savings</span>
                 </a>
                 <a href="#" data-tab="retirement-tab" class="header-nav-link">
-                    <span class="nav-icon">🏖️</span> Retirement
+                    <span class="nav-icon">🏖️</span> <span class="nav-text">Retirement</span>
                 </a>
             </div>
         </div>
