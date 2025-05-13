@@ -2670,126 +2670,317 @@
                 worstCaseAge !== "N/A" ? worstCaseAge : "Funds not depleted";
         }
 
-        // Add this to your JavaScript section
-        function populateSimulationsTable(simulationResults) {
-            const tableBody = document.getElementById('simulations-table-body');
-            tableBody.innerHTML = '';
+        // Function to generate AI assessment for retirement plan
+        function generateRetirementAssessment(simulationResults) {
+            const assessmentDiv = document.getElementById('ai-retirement-assessment-content');
+            if (!assessmentDiv) return;
             
-            // Find median simulation index
-            const sortedByBalance = [...simulationResults].sort((a, b) => a.finalBalance - b.finalBalance);
-            const medianIndex = Math.floor(sortedByBalance.length / 2);
-            const medianSimulation = sortedByBalance[medianIndex];
+            // Get input values
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const retirementSavings = parseFloat(document.getElementById('retirementSavings').value.replace(/[^0-9.]/g, ''));
+            const annualWithdrawal = parseFloat(document.getElementById('annualWithdrawal').value.replace(/[^0-9.]/g, ''));
+            const adjustForInflation = document.getElementById('withdrawalAdjustment').checked;
+            const stockAllocation = parseInt(document.getElementById('retirementStockAllocation').value);
+            const lifeExpectancy = parseInt(document.getElementById('retirementLifeExpectancy').value);
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
             
-            // Add data attribute to identify median simulation
-            let medianSimIndex = -1;
-            for (let i = 0; i < simulationResults.length; i++) {
-                if (simulationResults[i] === medianSimulation) {
-                    medianSimIndex = i;
-                    break;
-                }
+            // Calculate key metrics
+            const successfulSims = simulationResults.filter(sim => !sim.ranOutOfMoney).length;
+            const successRate = (successfulSims / simulationResults.length) * 100;
+            
+            // Calculate withdrawal rate
+            const withdrawalRate = (annualWithdrawal / retirementSavings) * 100;
+            
+            // Calculate years when portfolio is depleted (for failed simulations)
+            const failedSims = simulationResults.filter(sim => sim.ranOutOfMoney);
+            let medianFailureYear = null;
+            if (failedSims.length > 0) {
+                const sortedFailures = [...failedSims].sort((a, b) => a.yearsLasted - b.yearsLasted);
+                const medianFailureIndex = Math.floor(sortedFailures.length / 2);
+                medianFailureYear = sortedFailures[medianFailureIndex].yearsLasted;
             }
             
-            // Show all simulations
-            for (let i = 0; i < simulationResults.length; i++) {
-                const sim = simulationResults[i];
-                const row = document.createElement('tr');
+            // Get average annual return across all simulations
+            let totalReturn = 0;
+            let returnCount = 0;
+            simulationResults.forEach(sim => {
+                sim.yearlyData.forEach(year => {
+                    totalReturn += year.return;
+                    returnCount++;
+                });
+            });
+            const avgReturn = returnCount > 0 ? (totalReturn / returnCount) * 100 : 0;
+            
+            // Calculate median ending balance for successful simulations
+            const successfulBalances = simulationResults
+                .filter(sim => !sim.ranOutOfMoney)
+                .map(sim => sim.finalBalance)
+                .sort((a, b) => a - b);
                 
-                // Add data attributes for filtering
-                row.setAttribute('data-success', sim.ranOutOfMoney ? 'false' : 'true');
-                row.setAttribute('data-scenario', i + 1);
-                
-                // Mark median simulation
-                if (i === medianSimIndex) {
-                    row.classList.add('median-row');
-                    row.setAttribute('data-median', 'true');
+            const medianEndingBalance = successfulBalances.length > 0 
+                ? successfulBalances[Math.floor(successfulBalances.length / 2)]
+                : 0;
+            
+            // Inflation-adjusted withdrawal analysis
+            const inflationAdjustmentNote = adjustForInflation 
+                ? "Your withdrawals will increase with inflation, maintaining your purchasing power throughout retirement."
+                : "Your withdrawals will remain fixed, which means their purchasing power will decrease over time due to inflation.";
+            
+            // Generate assessment
+            let assessment = '';
+            
+            // Overall success assessment with enhanced details
+            if (successRate >= 90) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan is <span style="color: #10b981; font-weight: bold;">very robust</span> with a ${Math.round(successRate)}% probability of success. Based on historical market patterns, your savings of $${retirementSavings.toLocaleString()} are projected to sustain your annual withdrawal of $${annualWithdrawal.toLocaleString()} throughout your ${lifeExpectancy}-year retirement period. In successful scenarios, you're likely to end with a substantial balance (median: $${Math.round(medianEndingBalance).toLocaleString()}) that could be passed to heirs or used for additional spending.</p>`;
+            } else if (successRate >= 75) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan appears <span style="color: #10b981; font-weight: bold;">sound</span> with a ${Math.round(successRate)}% probability of success. Your savings of $${retirementSavings.toLocaleString()} should be adequate to fund your retirement with an annual withdrawal of $${annualWithdrawal.toLocaleString()} for ${lifeExpectancy} years. The median ending balance in successful simulations is $${Math.round(medianEndingBalance).toLocaleString()}, providing a reasonable buffer against unexpected expenses.</p>`;
+            } else if (successRate >= 60) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan has a ${Math.round(successRate)}% probability of success, which represents <span style="color: #f59e0b; font-weight: bold;">moderate risk</span>. While most simulations show your savings of $${retirementSavings.toLocaleString()} lasting through retirement, there's a significant chance (${Math.round(100 - successRate)}%) that adjustments might be needed during retirement. In failed scenarios, funds typically last about ${medianFailureYear || "?"} years (until age ${retirementAge + (medianFailureYear || 0)}), requiring contingency planning for your later years.</p>`;
+            } else {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan faces <span style="color: #ef4444; font-weight: bold;">significant challenges</span> with only a ${Math.round(successRate)}% probability of success. Your withdrawal strategy of $${annualWithdrawal.toLocaleString()} annually may not be sustainable given your savings level of $${retirementSavings.toLocaleString()} over a ${lifeExpectancy}-year retirement period. In failed scenarios, funds typically last only about ${medianFailureYear || "?"} years (until age ${retirementAge + (medianFailureYear || 0)}), which could leave you without sufficient resources in later retirement.</p>`;
+            }
+            
+            // Withdrawal rate assessment with enhanced details
+            if (withdrawalRate <= 3) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a <span style="color: #10b981; font-weight: bold;">very conservative</span> ${withdrawalRate.toFixed(1)}% of your savings. This is well below the traditional 4% guideline, suggesting excellent sustainability. ${inflationAdjustmentNote} With this conservative withdrawal rate, you might consider whether you could safely spend more and still maintain security.</p>`;
+            } else if (withdrawalRate <= 4) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which <span style="color: #10b981; font-weight: bold;">aligns with traditional retirement planning guidelines</span>. The "4% rule" is generally considered sustainable for a 30-year retirement, though individual circumstances may vary. ${inflationAdjustmentNote}</p>`;
+            } else if (withdrawalRate <= 5) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which is <span style="color: #f59e0b; font-weight: bold;">slightly above traditional guidelines</span>. This may still be sustainable depending on your asset allocation and market performance, but it does introduce additional risk. ${inflationAdjustmentNote}</p>`;
+            } else {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which is <span style="color: #ef4444; font-weight: bold;">significantly higher than traditional guidelines</span>. This aggressive withdrawal strategy substantially increases the risk of depleting your savings prematurely. ${inflationAdjustmentNote} Historical data suggests withdrawal rates above 5% have much lower success rates, especially over longer retirement periods.</p>`;
+            }
+            
+            // Asset allocation assessment
+            if (stockAllocation < 30) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your current stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">quite conservative</span>, especially given your retirement length of ${lifeExpectancy} years. While this reduces year-to-year volatility, historically it has also resulted in lower long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations). To fund a multi-decade retirement, most financial experts recommend maintaining at least 40-60% in stocks, even during retirement.</p>`;
+            } else if (stockAllocation > 70 && lifeExpectancy > 25) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">relatively aggressive</span> for a retiree, though potentially appropriate given your long ${lifeExpectancy}-year retirement horizon. While this allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), it also exposes you to greater sequence-of-returns risk, particularly in the first 5-10 years of retirement.</p>`;
+            } else if (stockAllocation > 70) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">aggressive</span> for someone entering retirement. This allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), but also carries significant sequence-of-returns risk. Consider whether a slightly more conservative allocation might provide better risk-adjusted outcomes, particularly for a retirement period of ${lifeExpectancy} years.</p>`;
+            } else {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) represents a <span style="color: #10b981; font-weight: bold;">well-balanced approach</span> for retirement, with a projected average annual return of ${avgReturn.toFixed(1)}%. This allocation balances growth potential with volatility protection, which is particularly important during the withdrawal phase. This balanced approach has historically provided sufficient returns to sustain a multi-decade retirement while reducing year-to-year fluctuations.</p>`;
+            }
+            
+            // Tax efficiency assessment
+            assessment += `<p><strong>Tax Considerations:</strong> Your simulations factor in a ${(taxRate * 100).toFixed(0)}% tax rate on withdrawals. ${taxRate > 0.2 ? 'This relatively high tax rate significantly impacts how long your savings will last. Consider tax-efficient withdrawal strategies that might lower your effective tax rate.' : 'This tax rate seems reasonable, but remember that tax-efficient withdrawal strategies can further extend the life of your portfolio.'} Coordinating withdrawals from various account types (taxable, tax-deferred, and tax-free) can potentially reduce your overall tax burden.</p>`;
+            
+            // Enhanced recommendations
+            assessment += `<p><strong>Key Recommendations:</strong></p><ul>`;
+            
+            // Success rate based recommendations
+            if (successRate < 75) {
+                if (withdrawalRate > 4) {
+                    assessment += `<li><strong>Adjust Withdrawal Amount:</strong> Consider reducing your initial withdrawal by approximately ${Math.round((withdrawalRate - 4) * 10)}% (to around $${Math.round(annualWithdrawal * 0.9).toLocaleString()} per year) to significantly improve the sustainability of your plan.</li>`;
+                }
+                if (retirementSavings < annualWithdrawal * 25) {
+                    const additionalSavingsNeeded = (annualWithdrawal * 25) - retirementSavings;
+                    assessment += `<li><strong>Increase Retirement Savings:</strong> Aim to add approximately $${Math.round(additionalSavingsNeeded).toLocaleString()} to your retirement savings before retiring, if possible. This would bring your portfolio closer to the 25x expenses guideline that many financial planners recommend.</li>`;
+                }
+                assessment += `<li><strong>Consider a Two-Phase Strategy:</strong> Plan for higher withdrawals in early retirement (when lifestyle spending is typically higher) with a reduction of 10-15% in later retirement years.</li>`;
+            }
+            
+            // Asset allocation recommendations
+            if (stockAllocation < 30 && lifeExpectancy > 20) {
+                assessment += `<li><strong>Increase Stock Allocation:</strong> Consider gradually increasing your stock allocation to 40-50% to provide better growth potential for your ${lifeExpectancy}-year retirement. This can be done gradually over 1-2 years to reduce timing risk.</li>`;
+            } else if (stockAllocation > 80 && lifeExpectancy < 20) {
+                assessment += `<li><strong>Reduce Volatility Risk:</strong> Consider reducing your stock allocation to 60-70% to provide better protection against sequence-of-returns risk in the early years of retirement, which can have a dramatic impact on long-term outcomes.</li>`;
+            }
+            
+            // Tax optimization recommendation
+            if (taxRate > 0.15) {
+                assessment += `<li><strong>Explore Tax Optimization:</strong> Work with a tax professional to develop a tax-efficient withdrawal strategy that might reduce your effective tax rate from ${(taxRate * 100).toFixed(0)}% to a lower level.</li>`;
+            }
+            
+            // Inflation adjustment recommendation
+            if (!adjustForInflation && lifeExpectancy > 15) {
+                assessment += `<li><strong>Consider Inflation Protection:</strong> Your current plan does not adjust withdrawals for inflation. This will result in significant loss of purchasing power over a ${lifeExpectancy}-year retirement. Consider building at least partial inflation adjustments into your plan.</li>`;
+            }
+            
+            // Longevity risk recommendations
+            if (lifeExpectancy > 30) {
+                assessment += `<li><strong>Plan for Longevity:</strong> Your expected retirement length of ${lifeExpectancy} years is substantial. Consider whether long-term care insurance or other longevity protection might be appropriate to protect against healthcare costs in very advanced age.</li>`;
+            }
+            
+            // General recommendations
+            assessment += `<li><strong>Maintain Emergency Fund:</strong> Keep 1-2 years of expenses in cash or short-term bonds to avoid selling investments during market downturns.</li>`;
+            assessment += `<li><strong>Dynamic Withdrawal Strategy:</strong> Consider adjusting your withdrawal amount based on portfolio performance - taking slightly less in down market years and potentially more in strong years.</li>`;
+            assessment += `<li><strong>Regular Plan Reviews:</strong> Reassess your retirement plan annually, especially in the first 5-10 years when sequence-of-returns risk is highest.</li>`;
+            
+            assessment += `</ul>`;
+            
+            // Add backup plans section
+            if (successRate < 85) {
+                assessment += `<p><strong>Contingency Planning:</strong> With a ${Math.round(successRate)}% success rate, it's prudent to consider backup options:</p><ul>`;
+                assessment += `<li><strong>Part-Time Work:</strong> Even modest income in the first 5-10 years of retirement can dramatically improve long-term outcomes</li>`;
+                assessment += `<li><strong>Spending Flexibility:</strong> Identify discretionary expenses that could be reduced by 10-20% during market downturns</li>`;
+                assessment += `<li><strong>Home Equity:</strong> Consider whether downsizing or a reverse mortgage might provide additional financial resources if needed</li>`;
+                assessment += `</ul>`;
+            }
+            
+            // Add next steps section
+            assessment += `<p><strong>Immediate Next Steps:</strong></p>`;
+            assessment += `<ol>`;
+            
+            // Prioritize most important action
+            if (successRate < 60) {
+                if (withdrawalRate > 5) {
+                    assessment += `<li>Reconsider your withdrawal strategy to bring the withdrawal rate closer to 4% of your portfolio</li>`;
                 } else {
-                    row.setAttribute('data-median', 'false');
+                    assessment += `<li>Explore options to increase your retirement savings by at least 15-20% before beginning withdrawals</li>`;
                 }
-                
-                // Scenario number
-                const scenarioCell = document.createElement('td');
-                scenarioCell.textContent = `#${i + 1}`;
-                
-                // Add median badge if this is the median simulation
-                if (i === medianSimIndex) {
-                    const medianBadge = document.createElement('span');
-                    medianBadge.className = 'median-badge';
-                    medianBadge.textContent = 'MEDIAN';
-                    scenarioCell.appendChild(medianBadge);
-                }
-                
-                row.appendChild(scenarioCell);
-                
-                // End balance
-                const balanceCell = document.createElement('td');
-                balanceCell.textContent = `$${Math.round(sim.finalBalance).toLocaleString()}`;
-                row.appendChild(balanceCell);
-                
-                // Years lasted
-                const yearsCell = document.createElement('td');
-                yearsCell.textContent = sim.ranOutOfMoney ? 
-                    `${sim.yearsLasted}` : 
-                    `${sim.yearsLasted} (full period)`;
-                row.appendChild(yearsCell);
-                
-                // Status
-                const statusCell = document.createElement('td');
-                statusCell.textContent = sim.ranOutOfMoney ? '❌' : '✅'; // Use emoji
-                statusCell.style.textAlign = 'center'; // Center the emoji
-                row.appendChild(statusCell);
-                
-                // Action
-                const actionCell = document.createElement('td');
-                const viewButton = document.createElement('button');
-                viewButton.className = 'view-details-btn';
-                viewButton.textContent = 'View Details';
-                viewButton.onclick = function() {
-                    showSimulationDetails(sim, i + 1);
-                };
-                actionCell.appendChild(viewButton);
-                row.appendChild(actionCell);
-                
-                tableBody.appendChild(row);
+            } else if (stockAllocation < 25 && lifeExpectancy > 20) {
+                assessment += `<li>Develop a plan to gradually increase your stock allocation to at least 40% over the next 12 months</li>`;
+            } else if (stockAllocation > 85) {
+                assessment += `<li>Reduce your stock allocation to approximately 60-70% to better manage sequence-of-returns risk</li>`;
+            } else {
+                assessment += `<li>Create a detailed withdrawal strategy that specifies which accounts to draw from in which order to optimize tax efficiency</li>`;
             }
             
-            // Set up filter buttons
-            setupFilterButtons();
+            assessment += `<li>Establish a schedule to review your retirement plan annually, with special attention to maintaining your target withdrawal rate</li>`;
+            assessment += `</ol>`;
+            
+            // Update the assessment content
+            assessmentDiv.innerHTML = assessment;
         }
 
-        // Function to set up filter buttons
-        function setupFilterButtons() {
-            const filterButtons = document.querySelectorAll('.filter-btn');
+        // Function to generate AI assessment for savings plan
+        function generateSavingsAssessment(simulationResults) {
+            const assessmentDiv = document.getElementById('ai-savings-assessment-content');
+            if (!assessmentDiv) return;
             
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Update active button state
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Get filter type
-                    const filterType = this.getAttribute('data-filter');
-                    
-                    // Apply filter
-                    const rows = document.querySelectorAll('#simulations-table-body tr');
-                    
-                    rows.forEach(row => {
-                        if (filterType === 'all') {
-                            row.style.display = '';
-                        } else if (filterType === 'success') {
-                            row.style.display = row.getAttribute('data-success') === 'true' ? '' : 'none';
-                        } else if (filterType === 'failure') {
-                            row.style.display = row.getAttribute('data-success') === 'false' ? '' : 'none';
-                        } else if (filterType === 'median') {
-                            row.style.display = row.getAttribute('data-median') === 'true' ? '' : 'none';
-                        }
-                    });
+            // Get input values
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value.replace(/[^0-9.]/g, ''));
+            const annualContribution = parseFloat(document.getElementById('annualContribution').value.replace(/[^0-9.]/g, ''));
+            const annualIncrease = parseFloat(document.getElementById('annualIncrease').value.replace(/[^0-9.]/g, ''));
+            const targetSavings = parseFloat(document.getElementById('targetSavings').value.replace(/[^0-9.]/g, ''));
+            const stockAllocation = parseInt(document.getElementById('stockAllocation').value);
+            
+            // Calculate key metrics
+            const yearsToGoal = retirementAge - currentAge;
+            const successfulSims = simulationResults.filter(sim => sim.finalBalance >= targetSavings).length;
+            const successRate = (successfulSims / simulationResults.length) * 100;
+            
+            // Calculate years to goal in successful simulations
+            const successfulYears = simulationResults
+                .filter(sim => sim.finalBalance >= targetSavings)
+                .map(sim => sim.yearsLasted);
+            
+            const medianYearsToGoal = successfulYears.length > 0 
+                ? successfulYears[Math.floor(successfulYears.length / 2)]
+                : "N/A";
+            
+            // Get average annual return across all simulations
+            let totalReturn = 0;
+            let returnCount = 0;
+            simulationResults.forEach(sim => {
+                sim.yearlyData.forEach(year => {
+                    totalReturn += year.return;
+                    returnCount++;
                 });
+            });
+            const avgReturn = returnCount > 0 ? (totalReturn / returnCount) * 100 : 0;
+            
+            // Generate assessment
+            let assessment = '';
+            
+            // Overall success assessment
+            if (successRate >= 90) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan is <span style="color: #10b981; font-weight: bold;">very robust</span> with a ${Math.round(successRate)}% probability of reaching your target savings of $${targetSavings.toLocaleString()} by age ${retirementAge}. Based on historical market patterns, your current savings of $${currentSavings.toLocaleString()} and annual contributions of $${annualContribution.toLocaleString()} are projected to reach your target in about ${medianYearsToGoal} years.</p>`;
+            } else if (successRate >= 75) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan appears <span style="color: #10b981; font-weight: bold;">sound</span> with a ${Math.round(successRate)}% probability of reaching your target savings of $${targetSavings.toLocaleString()} by age ${retirementAge}. Your current savings of $${currentSavings.toLocaleString()} and annual contributions of $${annualContribution.toLocaleString()} should be adequate to reach your target in about ${medianYearsToGoal} years.</p>`;
+            } else if (successRate >= 60) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan has a ${Math.round(successRate)}% probability of reaching your target savings of $${targetSavings.toLocaleString()} by age ${retirementAge}. While most simulations show you reaching your target, there's a significant chance (${Math.round(100 - successRate)}%) that adjustments might be needed to meet your goal. In successful simulations, it typically takes about ${medianYearsToGoal} years to reach your target.</p>`;
+            } else {
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan faces <span style="color: #ef4444; font-weight: bold;">significant challenges</span> with only a ${Math.round(successRate)}% probability of reaching your target savings of $${targetSavings.toLocaleString()} by age ${retirementAge}. Your current savings of $${currentSavings.toLocaleString()} and annual contributions of $${annualContribution.toLocaleString()} may not be sufficient to reach your target in ${yearsToGoal} years. In successful simulations, it typically takes about ${medianYearsToGoal} years to reach your target.</p>`;
+            }
+            
+            // Asset allocation assessment
+            if (stockAllocation < 30) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your current stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">quite conservative</span>, especially given your retirement length of ${yearsToGoal} years. While this reduces year-to-year volatility, historically it has also resulted in lower long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations). To fund a multi-decade retirement, most financial experts recommend maintaining at least 40-60% in stocks, even during retirement.</p>`;
+            } else if (stockAllocation > 70 && yearsToGoal > 25) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">relatively aggressive</span> for a retiree, though potentially appropriate given your long ${yearsToGoal}-year retirement horizon. While this allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), it also exposes you to greater sequence-of-returns risk, particularly in the first 5-10 years of retirement.</p>`;
+            } else if (stockAllocation > 70) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">aggressive</span> for someone entering retirement. This allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), but also carries significant sequence-of-returns risk. Consider whether a slightly more conservative allocation might provide better risk-adjusted outcomes, particularly for a retirement period of ${yearsToGoal} years.</p>`;
+            } else {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) represents a <span style="color: #10b981; font-weight: bold;">well-balanced approach</span> for retirement, with a projected average annual return of ${avgReturn.toFixed(1)}%. This allocation balances growth potential with volatility protection, which is particularly important during the withdrawal phase. This balanced approach has historically provided sufficient returns to sustain a multi-decade retirement while reducing year-to-year fluctuations.</p>`;
+            }
+            
+            // Enhanced recommendations
+            assessment += `<p><strong>Key Recommendations:</strong></p><ul>`;
+            
+            // Success rate based recommendations
+            if (successRate < 75) {
+                if (annualContribution < targetSavings / yearsToGoal) {
+                    const additionalContributionNeeded = (targetSavings / yearsToGoal) - annualContribution;
+                    assessment += `<li><strong>Increase Annual Contributions:</strong> Aim to increase your annual contributions by approximately $${Math.round(additionalContributionNeeded).toLocaleString()} to significantly improve the likelihood of reaching your target savings.</li>`;
+                }
+                assessment += `<li><strong>Consider a Two-Phase Strategy:</strong> Plan for higher contributions in early years (when expenses are typically lower) with a reduction of 10-15% in later years.</li>`;
+            }
+            
+            // Asset allocation recommendations
+            if (stockAllocation < 30 && yearsToGoal > 20) {
+                assessment += `<li><strong>Increase Stock Allocation:</strong> Consider gradually increasing your stock allocation to 40-50% to provide better growth potential for your ${yearsToGoal}-year retirement. This can be done gradually over 1-2 years to reduce timing risk.</li>`;
+            } else if (stockAllocation > 80 && yearsToGoal < 20) {
+                assessment += `<li><strong>Reduce Volatility Risk:</strong> Consider reducing your stock allocation to 60-70% to provide better protection against sequence-of-returns risk in the early years of retirement, which can have a dramatic impact on long-term outcomes.</li>`;
+            }
+            
+            // General recommendations
+            assessment += `<li><strong>Maintain Emergency Fund:</strong> Keep 1-2 years of expenses in cash or short-term bonds to avoid selling investments during market downturns.</li>`;
+            assessment += `<li><strong>Regular Plan Reviews:</strong> Reassess your retirement plan annually, especially in the first 5-10 years when sequence-of-returns risk is highest.</li>`;
+            
+            assessment += `</ul>`;
+            
+            // Add backup plans section
+            if (successRate < 85) {
+                assessment += `<p><strong>Contingency Planning:</strong> With a ${Math.round(successRate)}% success rate, it's prudent to consider backup options:</p><ul>`;
+                assessment += `<li><strong>Part-Time Work:</strong> Even modest income in the first 5-10 years of retirement can dramatically improve long-term outcomes</li>`;
+                assessment += `<li><strong>Spending Flexibility:</strong> Identify discretionary expenses that could be reduced by 10-20% during market downturns</li>`;
+                assessment += `<li><strong>Home Equity:</strong> Consider whether downsizing or a reverse mortgage might provide additional financial resources if needed</li>`;
+                assessment += `</ul>`;
+            }
+            
+            // Add next steps section
+            assessment += `<p><strong>Immediate Next Steps:</strong></p>`;
+            assessment += `<ol>`;
+            
+            // Prioritize most important action
+            if (successRate < 60) {
+                assessment += `<li>Explore options to increase your annual contributions by at least 15-20% to improve the likelihood of reaching your target savings</li>`;
+            } else if (stockAllocation < 25 && yearsToGoal > 20) {
+                assessment += `<li>Develop a plan to gradually increase your stock allocation to at least 40% over the next 12 months</li>`;
+            } else if (stockAllocation > 85) {
+                assessment += `<li>Reduce your stock allocation to approximately 60-70% to better manage sequence-of-returns risk</li>`;
+            } else {
+                assessment += `<li>Create a detailed withdrawal strategy that specifies which accounts to draw from in which order to optimize tax efficiency</li>`;
+            }
+            
+            assessment += `<li>Establish a schedule to review your retirement plan annually, with special attention to maintaining your target withdrawal rate</li>`;
+            assessment += `</ol>`;
+            
+            // Update the assessment content
+            assessmentDiv.innerHTML = assessment;
+        }
+
+        // Function to capture and save screenshot
+        function captureScreenshot(elementId, filename) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            html2canvas(element).then(canvas => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = filename;
+                link.click();
             });
         }
 
-        // Replace the showSimulationDetails function with this simplified version
-        function showSimulationDetails(simIndex) {
-            const sim = allSimulations[simIndex];
+        // Function to show simulation details
+        function showSimulationDetails(sim, simIndex) {
+            const simModal = document.getElementById('simModal');
+            if (!simModal) return;
             
             // Create a completely new modal each time (to avoid any existing issues)
             let modalHTML = `
@@ -3350,574 +3541,180 @@
             });
         }
 
-        // Function to update sort indicators in the table header
-        function updateSortIndicators() {
-            // Remove any existing indicators
-            document.querySelectorAll('.sort-indicator').forEach(el => el.remove());
+        // Function to generate AI assessment for retirement plan
+        function generateRetirementAssessment(simulationResults) {
+            const assessmentDiv = document.getElementById('ai-retirement-assessment-content');
+            if (!assessmentDiv) return;
             
-            // Add indicators to the headers
-            const headers = document.querySelectorAll('.simulation-table th');
-            headers.forEach(header => {
-                // Make the header look clickable
-                header.style.cursor = 'pointer';
-                
-                // Remove the existing indicator class
-                header.classList.remove('sorted-asc', 'sorted-desc');
-                
-                // Get the column name from the header
-                const columnName = header.getAttribute('data-sort');
-                
-                // If this is the current sort column, add the indicator
-                if (columnName === currentSortColumn) {
-                    header.classList.add(currentSortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
-                    
-                    const indicator = document.createElement('span');
-                    indicator.className = 'sort-indicator';
-                    indicator.textContent = currentSortDirection === 'asc' ? ' ↑' : ' ↓';
-                    header.appendChild(indicator);
-                }
+            // Get input values
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const retirementSavings = parseFloat(document.getElementById('retirementSavings').value.replace(/[^0-9.]/g, ''));
+            const annualWithdrawal = parseFloat(document.getElementById('annualWithdrawal').value.replace(/[^0-9.]/g, ''));
+            const adjustForInflation = document.getElementById('withdrawalAdjustment').checked;
+            const stockAllocation = parseInt(document.getElementById('retirementStockAllocation').value);
+            const lifeExpectancy = parseInt(document.getElementById('retirementLifeExpectancy').value);
+            const taxRate = parseFloat(document.getElementById('taxRate').value) / 100;
+            
+            // Calculate key metrics
+            const successfulSims = simulationResults.filter(sim => !sim.ranOutOfMoney).length;
+            const successRate = (successfulSims / simulationResults.length) * 100;
+            
+            // Calculate withdrawal rate
+            const withdrawalRate = (annualWithdrawal / retirementSavings) * 100;
+            
+            // Calculate years when portfolio is depleted (for failed simulations)
+            const failedSims = simulationResults.filter(sim => sim.ranOutOfMoney);
+            let medianFailureYear = null;
+            if (failedSims.length > 0) {
+                const sortedFailures = [...failedSims].sort((a, b) => a.yearsLasted - b.yearsLasted);
+                const medianFailureIndex = Math.floor(sortedFailures.length / 2);
+                medianFailureYear = sortedFailures[medianFailureIndex].yearsLasted;
+            }
+            
+            // Get average annual return across all simulations
+            let totalReturn = 0;
+            let returnCount = 0;
+            simulationResults.forEach(sim => {
+                sim.yearlyData.forEach(year => {
+                    totalReturn += year.return;
+                    returnCount++;
+                });
             });
-        }
-
-        // Initialize the column sorting
-        function initializeTableSorting() {
-            const headers = document.querySelectorAll('.simulation-table th');
+            const avgReturn = returnCount > 0 ? (totalReturn / returnCount) * 100 : 0;
             
-            // Add data-sort attributes to headers
-            const sortAttributes = ['simNumber', 'yearsToGoal', 'finalBalance', 'avgReturn'];
-            headers.forEach((header, index) => {
-                if (index < sortAttributes.length) { // Skip the Actions column
-                    header.setAttribute('data-sort', sortAttributes[index]);
-                    
-                    // Add click event for sorting
-                    header.addEventListener('click', function() {
-                        const column = this.getAttribute('data-sort');
-                        displaySimulationTable(1, column);
-                    });
-                }
-            });
-        }
-
-        // Make sure to call this after table is created
-        document.addEventListener('DOMContentLoaded', function() {
-            // Other initialization code...
+            // Calculate median ending balance for successful simulations
+            const successfulBalances = simulationResults
+                .filter(sim => !sim.ranOutOfMoney)
+                .map(sim => sim.finalBalance)
+                .sort((a, b) => a - b);
+                
+            const medianEndingBalance = successfulBalances.length > 0 
+                ? successfulBalances[Math.floor(successfulBalances.length / 2)]
+                : 0;
             
-            // This will run when DOM is loaded, but we also need to call it after table is created
-            setTimeout(initializeTableSorting, 1000); // Give time for the table to be created
-        });
-
-        // Function to show simulation details in the modal
-        function showSimulationDetails(simIndex) {
-            let sim;
+            // Inflation-adjusted withdrawal analysis
+            const inflationAdjustmentNote = adjustForInflation 
+                ? "Your withdrawals will increase with inflation, maintaining your purchasing power throughout retirement."
+                : "Your withdrawals will remain fixed, which means their purchasing power will decrease over time due to inflation.";
             
-            // Check if simIndex is actually a simulation object instead of an index
-            if (typeof simIndex === 'object' && simIndex !== null && simIndex.yearlyData) {
-                // We received a simulation object directly
-                sim = simIndex;
-                // Find the index of this simulation in the array (for display purposes)
-                simIndex = allSimulations.findIndex(s => s === sim);
-                if (simIndex === -1) simIndex = 0; // Default to 0 if not found
+            // Generate assessment
+            let assessment = '';
+            
+            // Overall success assessment with enhanced details
+            if (successRate >= 90) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan is <span style="color: #10b981; font-weight: bold;">very robust</span> with a ${Math.round(successRate)}% probability of success. Based on historical market patterns, your savings of $${retirementSavings.toLocaleString()} are projected to sustain your annual withdrawal of $${annualWithdrawal.toLocaleString()} throughout your ${lifeExpectancy}-year retirement period. In successful scenarios, you're likely to end with a substantial balance (median: $${Math.round(medianEndingBalance).toLocaleString()}) that could be passed to heirs or used for additional spending.</p>`;
+            } else if (successRate >= 75) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan appears <span style="color: #10b981; font-weight: bold;">sound</span> with a ${Math.round(successRate)}% probability of success. Your savings of $${retirementSavings.toLocaleString()} should be adequate to fund your retirement with an annual withdrawal of $${annualWithdrawal.toLocaleString()} for ${lifeExpectancy} years. The median ending balance in successful simulations is $${Math.round(medianEndingBalance).toLocaleString()}, providing a reasonable buffer against unexpected expenses.</p>`;
+            } else if (successRate >= 60) {
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan has a ${Math.round(successRate)}% probability of success, which represents <span style="color: #f59e0b; font-weight: bold;">moderate risk</span>. While most simulations show your savings of $${retirementSavings.toLocaleString()} lasting through retirement, there's a significant chance (${Math.round(100 - successRate)}%) that adjustments might be needed during retirement. In failed scenarios, funds typically last about ${medianFailureYear || "?"} years (until age ${retirementAge + (medianFailureYear || 0)}), requiring contingency planning for your later years.</p>`;
             } else {
-                // Add error checking to make sure simIndex is valid
-                if (simIndex === undefined || simIndex < 0 || (Array.isArray(allSimulations) && simIndex >= allSimulations.length)) {
-                    console.error("Invalid simulation index:", simIndex);
-                    // Don't show alert, just log to console
-                    return;
-                }
-                
-                sim = allSimulations[simIndex];
-                
-                // Additional check to ensure the simulation object exists
-                if (!sim) {
-                    console.error("Simulation at index", simIndex, "is undefined");
-                    // Don't show alert, just log to console
-                    return;
-                }
+                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan faces <span style="color: #ef4444; font-weight: bold;">significant challenges</span> with only a ${Math.round(successRate)}% probability of success. Your withdrawal strategy of $${annualWithdrawal.toLocaleString()} annually may not be sustainable given your savings level of $${retirementSavings.toLocaleString()} over a ${lifeExpectancy}-year retirement period. In failed scenarios, funds typically last only about ${medianFailureYear || "?"} years (until age ${retirementAge + (medianFailureYear || 0)}), which could leave you without sufficient resources in later retirement.</p>`;
             }
             
-            // Final check to ensure we have yearlyData
-            if (!sim.yearlyData || !Array.isArray(sim.yearlyData) || sim.yearlyData.length === 0) {
-                console.error("Simulation doesn't have valid yearlyData", sim);
-                // Create a minimal valid structure if needed
-                sim.yearlyData = sim.yearlyData || [{balance: 0, return: 0}];
-            }
-            
-            // Create a completely new modal each time (to avoid any existing issues)
-            let modalHTML = `
-            <div id="simModal" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.7);
-                z-index: 9999;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            ">
-                <div style="
-                    background: white;
-                    width: 90%;
-                    max-width: 900px;
-                    max-height: 90vh;
-                    padding: 30px;
-                    border-radius: 12px;
-                    overflow-y: auto;
-                    position: relative;
-                ">
-                    <span id="closeSimModal" style="
-                        position: absolute;
-                        top: 15px;
-                        right: 20px;
-                        font-size: 24px;
-                        cursor: pointer;
-                        font-weight: bold;
-                    ">&times;</span>
-                    
-                    <h2>Simulation ${typeof simIndex === 'number' ? simIndex + 1 : ''} Details</h2>
-                    
-                    <div style="
-                        display: flex;
-                        gap: 20px;
-                        margin: 20px 0;
-                        flex-wrap: wrap;
-                    ">
-                        <div style="
-                            flex: 1;
-                            min-width: 150px;
-                            padding: 15px;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            text-align: center;
-                        ">
-                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">
-                                ${sim.yearsToTarget !== undefined ? 'Years to Goal' : 'Years Lasted'}
-                            </div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
-                                ${sim.yearsToTarget !== undefined ? 
-                                    (sim.yearsToTarget !== null ? `${sim.yearsToTarget} years` : 'Not reached') : 
-                                    `${sim.yearsLasted} years`}
-                            </div>
-                        </div>
-                        
-                        <div style="
-                            flex: 1;
-                            min-width: 150px;
-                            padding: 15px;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            text-align: center;
-                        ">
-                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Final Balance</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
-                                $${sim.finalBalance.toLocaleString()}
-                            </div>
-                        </div>
-                        
-                        <div style="
-                            flex: 1;
-                            min-width: 150px;
-                            padding: 15px;
-                            border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                            text-align: center;
-                        ">
-                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 8px;">Average Return</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: #3730a3;">
-                                ${getAvgReturn(sim)}%
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Move chart container above the table -->
-                    <div class="sim-detail-chart-container" style="height: 300px; margin-top: 24px; width: 100%;">
-                        <canvas id="simDetailChartCanvas"></canvas>
-                    </div>
-                    
-                    <h3>Year-by-Year Data</h3>
-                    <div style="
-                        max-height: 300px;
-                        overflow-y: auto;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 8px;
-                        margin: 20px 0;
-                    ">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr style="position: sticky; top: 0; background: white;">
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Year</th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Age</th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Return</th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">
-                                        ${sim.yearlyData && sim.yearlyData[0] && sim.yearlyData[0].withdrawal !== undefined ? 
-                                            'Withdrawal' : 'Contribution'}
-                                    </th>
-                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${generateYearlyDataRows(sim)}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            `;
-            
-            // Remove any existing modal
-            const existingModal = document.getElementById('simModal');
-            if (existingModal) {
-                existingModal.remove();
-            }
-            
-            // Add the new modal to the document
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            
-            // Add close button functionality
-            document.getElementById('closeSimModal').addEventListener('click', function() {
-                document.getElementById('simModal').remove();
-            });
-            
-            // Close when clicking outside content
-            document.getElementById('simModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.remove();
-                }
-            });
-            
-            // Use a multi-step approach to ensure the DOM is ready
-            console.log("Setting up chart creation process");
-            
-            // First make sure the modal is in the DOM and visible
-            document.body.appendChild(document.createTextNode('')); // Force a reflow
-            
-            // Then try to create the chart after a delay
-            setTimeout(function() {
-                console.log("Modal should be fully rendered now, creating chart");
-                createSimDetailChart(sim);
-                
-                // If that didn't work, try one more time after a longer delay
-                setTimeout(function() {
-                    console.log("Second attempt to create chart");
-                    createSimDetailChart(sim);
-                }, 300);
-            }, 100);
-
-            // Get the starting age based on which tab is active
-            let startAge = 0;
-            if (document.getElementById('accumulation-tab').style.display !== 'none') {
-                startAge = parseInt(document.getElementById('currentAge').value);
-            } else if (document.getElementById('retirement-tab').style.display !== 'none') {
-                startAge = parseInt(document.getElementById('retirementAge').value);
-            }
-
-            // Create the chart directly after modal is added
-            displaySimDetailChart('simDetailChartCanvas', sim.yearlyData, startAge);
-        }
-
-        // Make sure this function is defined
-        function createSimDetailChart(simulation) {
-            console.log("Creating chart with direct canvas approach");
-            
-            // Get the canvas element first
-            const canvas = document.getElementById('simDetailChart');
-            if (!canvas) {
-                console.error("Canvas element not found");
-                return;
-            }
-            console.log("Found canvas:", canvas);
-            
-            // Get the context for direct drawing
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                console.error("Could not get canvas context");
-                return;
-            }
-            
-            // Clear the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Get data
-            const currentAge = parseInt(document.getElementById('currentAge')?.value || 30);
-            if (!simulation || !simulation.yearlyData || !Array.isArray(simulation.yearlyData)) {
-                console.error("Invalid simulation data");
-                drawErrorMessage(ctx, canvas);
-                return;
-            }
-            
-            const data = simulation.yearlyData.map(d => d.balance || 0);
-            if (data.length === 0) {
-                console.error("No data points to display");
-                drawErrorMessage(ctx, canvas);
-                return;
-            }
-            
-            // Draw a basic line chart
-            const padding = 40;
-            const chartWidth = canvas.width - padding * 2;
-            const chartHeight = canvas.height - padding * 2;
-            
-            // Find min/max for scaling
-            const maxValue = Math.max(...data);
-            
-            // Draw background
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw title
-            ctx.fillStyle = "#1e293b";
-            ctx.font = "bold 14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("Portfolio Balance Over Time", canvas.width / 2, 20);
-            
-            // Draw axes
-            ctx.beginPath();
-            ctx.moveTo(padding, padding);
-            ctx.lineTo(padding, canvas.height - padding);
-            ctx.lineTo(canvas.width - padding, canvas.height - padding);
-            ctx.strokeStyle = "#94a3b8";
-            ctx.stroke();
-            
-            // Draw data line
-            if (data.length > 1) {
-                ctx.beginPath();
-                ctx.moveTo(
-                    padding,
-                    canvas.height - padding - (data[0] / maxValue) * chartHeight
-                );
-                
-                for (let i = 1; i < data.length; i++) {
-                    const x = padding + (i / (data.length - 1)) * chartWidth;
-                    const y = canvas.height - padding - (data[i] / maxValue) * chartHeight;
-                    ctx.lineTo(x, y);
-                }
-                
-                ctx.strokeStyle = "#4f46e5";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // Fill area under line
-                ctx.lineTo(padding + chartWidth, canvas.height - padding);
-                ctx.lineTo(padding, canvas.height - padding);
-                ctx.fillStyle = "rgba(79, 70, 229, 0.1)";
-                ctx.fill();
-            }
-            
-            // Draw y-axis labels (dollar amounts)
-            ctx.fillStyle = "#64748b";
-            ctx.font = "12px Arial";
-            ctx.textAlign = "right";
-            
-            const numYLabels = 5;
-            for (let i = 0; i <= numYLabels; i++) {
-                const value = maxValue * (i / numYLabels);
-                const y = canvas.height - padding - (i / numYLabels) * chartHeight;
-                ctx.fillText('$' + Math.round(value).toLocaleString(), padding - 5, y + 4);
-                
-                // Draw horizontal grid line
-                ctx.beginPath();
-                ctx.moveTo(padding, y);
-                ctx.lineTo(canvas.width - padding, y);
-                ctx.strokeStyle = "#e2e8f0";
-                ctx.stroke();
-            }
-            
-            // Draw x-axis labels (years/age)
-            ctx.textAlign = "center";
-            const numXLabels = Math.min(data.length, 10); // Limit to avoid crowding
-            for (let i = 0; i < numXLabels; i++) {
-                const index = Math.floor(i * (data.length - 1) / (numXLabels - 1));
-                const x = padding + (index / (data.length - 1)) * chartWidth;
-                const age = currentAge + index;
-                ctx.fillText(age.toString(), x, canvas.height - padding + 15);
-            }
-            
-            console.log("Basic chart drawn directly to canvas");
-        }
-
-        // Helper function to display an error message on the canvas
-        function drawErrorMessage(ctx, canvas) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = "#ef4444";
-            ctx.font = "14px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("Error: Could not display chart", canvas.width / 2, canvas.height / 2);
-        }
-
-        // Add event listeners for pagination
-        document.getElementById('prevPageBtn').addEventListener('click', function() {
-            if (currentPage > 1) {
-                displaySimulationTable(currentPage - 1);
-            }
-        });
-
-        document.getElementById('nextPageBtn').addEventListener('click', function() {
-            if (currentPage < Math.ceil(allSimulations.length / rowsPerPage)) {
-                displaySimulationTable(currentPage + 1);
-            }
-        });
-
-        // Add event listener for closing the simulation detail modal
-        document.getElementById('closeSimDetailModal').addEventListener('click', function() {
-            document.getElementById('simulation-detail-modal').style.display = 'none';
-        });
-
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            const modal = document.getElementById('simulation-detail-modal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-
-        // Add this helper function near the top of your script
-        function safeSetTextContent(id, text) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = text;
+            // Withdrawal rate assessment with enhanced details
+            if (withdrawalRate <= 3) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a <span style="color: #10b981; font-weight: bold;">very conservative</span> ${withdrawalRate.toFixed(1)}% of your savings. This is well below the traditional 4% guideline, suggesting excellent sustainability. ${inflationAdjustmentNote} With this conservative withdrawal rate, you might consider whether you could safely spend more and still maintain security.</p>`;
+            } else if (withdrawalRate <= 4) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which <span style="color: #10b981; font-weight: bold;">aligns with traditional retirement planning guidelines</span>. The "4% rule" is generally considered sustainable for a 30-year retirement, though individual circumstances may vary. ${inflationAdjustmentNote}</p>`;
+            } else if (withdrawalRate <= 5) {
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which is <span style="color: #f59e0b; font-weight: bold;">slightly above traditional guidelines</span>. This may still be sustainable depending on your asset allocation and market performance, but it does introduce additional risk. ${inflationAdjustmentNote}</p>`;
             } else {
-                console.warn(`Element with ID '${id}' not found when setting text to: ${text}`);
+                assessment += `<p><strong>Withdrawal Strategy:</strong> Your annual withdrawal of $${annualWithdrawal.toLocaleString()} represents a withdrawal rate of ${withdrawalRate.toFixed(1)}%, which is <span style="color: #ef4444; font-weight: bold;">significantly higher than traditional guidelines</span>. This aggressive withdrawal strategy substantially increases the risk of depleting your savings prematurely. ${inflationAdjustmentNote} Historical data suggests withdrawal rates above 5% have much lower success rates, especially over longer retirement periods.</p>`;
             }
+            
+            // Asset allocation assessment
+            if (stockAllocation < 30) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your current stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">quite conservative</span>, especially given your retirement length of ${lifeExpectancy} years. While this reduces year-to-year volatility, historically it has also resulted in lower long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations). To fund a multi-decade retirement, most financial experts recommend maintaining at least 40-60% in stocks, even during retirement.</p>`;
+            } else if (stockAllocation > 70 && lifeExpectancy > 25) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">relatively aggressive</span> for a retiree, though potentially appropriate given your long ${lifeExpectancy}-year retirement horizon. While this allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), it also exposes you to greater sequence-of-returns risk, particularly in the first 5-10 years of retirement.</p>`;
+            } else if (stockAllocation > 70) {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) is <span style="color: #f59e0b; font-weight: bold;">aggressive</span> for someone entering retirement. This allocation has historically provided higher long-term returns (projected ${avgReturn.toFixed(1)}% average in your simulations), but also carries significant sequence-of-returns risk. Consider whether a slightly more conservative allocation might provide better risk-adjusted outcomes, particularly for a retirement period of ${lifeExpectancy} years.</p>`;
+            } else {
+                assessment += `<p><strong>Asset Allocation:</strong> Your stock allocation (${stockAllocation}%) represents a <span style="color: #10b981; font-weight: bold;">well-balanced approach</span> for retirement, with a projected average annual return of ${avgReturn.toFixed(1)}%. This allocation balances growth potential with volatility protection, which is particularly important during the withdrawal phase. This balanced approach has historically provided sufficient returns to sustain a multi-decade retirement while reducing year-to-year fluctuations.</p>`;
+            }
+            
+            // Tax efficiency assessment
+            assessment += `<p><strong>Tax Considerations:</strong> Your simulations factor in a ${(taxRate * 100).toFixed(0)}% tax rate on withdrawals. ${taxRate > 0.2 ? 'This relatively high tax rate significantly impacts how long your savings will last. Consider tax-efficient withdrawal strategies that might lower your effective tax rate.' : 'This tax rate seems reasonable, but remember that tax-efficient withdrawal strategies can further extend the life of your portfolio.'} Coordinating withdrawals from various account types (taxable, tax-deferred, and tax-free) can potentially reduce your overall tax burden.</p>`;
+            
+            // Enhanced recommendations
+            assessment += `<p><strong>Key Recommendations:</strong></p><ul>`;
+            
+            // Success rate based recommendations
+            if (successRate < 75) {
+                if (withdrawalRate > 4) {
+                    assessment += `<li><strong>Adjust Withdrawal Amount:</strong> Consider reducing your initial withdrawal by approximately ${Math.round((withdrawalRate - 4) * 10)}% (to around $${Math.round(annualWithdrawal * 0.9).toLocaleString()} per year) to significantly improve the sustainability of your plan.</li>`;
+                }
+                if (retirementSavings < annualWithdrawal * 25) {
+                    const additionalSavingsNeeded = (annualWithdrawal * 25) - retirementSavings;
+                    assessment += `<li><strong>Increase Retirement Savings:</strong> Aim to add approximately $${Math.round(additionalSavingsNeeded).toLocaleString()} to your retirement savings before retiring, if possible. This would bring your portfolio closer to the 25x expenses guideline that many financial planners recommend.</li>`;
+                }
+                assessment += `<li><strong>Consider a Two-Phase Strategy:</strong> Plan for higher withdrawals in early retirement (when lifestyle spending is typically higher) with a reduction of 10-15% in later retirement years.</li>`;
+            }
+            
+            // Asset allocation recommendations
+            if (stockAllocation < 30 && lifeExpectancy > 20) {
+                assessment += `<li><strong>Increase Stock Allocation:</strong> Consider gradually increasing your stock allocation to 40-50% to provide better growth potential for your ${lifeExpectancy}-year retirement. This can be done gradually over 1-2 years to reduce timing risk.</li>`;
+            } else if (stockAllocation > 80 && lifeExpectancy < 20) {
+                assessment += `<li><strong>Reduce Volatility Risk:</strong> Consider reducing your stock allocation to 60-70% to provide better protection against sequence-of-returns risk in the early years of retirement, which can have a dramatic impact on long-term outcomes.</li>`;
+            }
+            
+            // Tax optimization recommendation
+            if (taxRate > 0.15) {
+                assessment += `<li><strong>Explore Tax Optimization:</strong> Work with a tax professional to develop a tax-efficient withdrawal strategy that might reduce your effective tax rate from ${(taxRate * 100).toFixed(0)}% to a lower level.</li>`;
+            }
+            
+            // Inflation adjustment recommendation
+            if (!adjustForInflation && lifeExpectancy > 15) {
+                assessment += `<li><strong>Consider Inflation Protection:</strong> Your current plan does not adjust withdrawals for inflation. This will result in significant loss of purchasing power over a ${lifeExpectancy}-year retirement. Consider building at least partial inflation adjustments into your plan.</li>`;
+            }
+            
+            // Longevity risk recommendations
+            if (lifeExpectancy > 30) {
+                assessment += `<li><strong>Plan for Longevity:</strong> Your expected retirement length of ${lifeExpectancy} years is substantial. Consider whether long-term care insurance or other longevity protection might be appropriate to protect against healthcare costs in very advanced age.</li>`;
+            }
+            
+            // General recommendations
+            assessment += `<li><strong>Maintain Emergency Fund:</strong> Keep 1-2 years of expenses in cash or short-term bonds to avoid selling investments during market downturns.</li>`;
+            assessment += `<li><strong>Dynamic Withdrawal Strategy:</strong> Consider adjusting your withdrawal amount based on portfolio performance - taking slightly less in down market years and potentially more in strong years.</li>`;
+            assessment += `<li><strong>Regular Plan Reviews:</strong> Reassess your retirement plan annually, especially in the first 5-10 years when sequence-of-returns risk is highest.</li>`;
+            
+            assessment += `</ul>`;
+            
+            // Add backup plans section
+            if (successRate < 85) {
+                assessment += `<p><strong>Contingency Planning:</strong> With a ${Math.round(successRate)}% success rate, it's prudent to consider backup options:</p><ul>`;
+                assessment += `<li><strong>Part-Time Work:</strong> Even modest income in the first 5-10 years of retirement can dramatically improve long-term outcomes</li>`;
+                assessment += `<li><strong>Spending Flexibility:</strong> Identify discretionary expenses that could be reduced by 10-20% during market downturns</li>`;
+                assessment += `<li><strong>Home Equity:</strong> Consider whether downsizing or a reverse mortgage might provide additional financial resources if needed</li>`;
+                assessment += `</ul>`;
+            }
+            
+            // Add next steps section
+            assessment += `<p><strong>Immediate Next Steps:</strong></p>`;
+            assessment += `<ol>`;
+            
+            // Prioritize most important action
+            if (successRate < 60) {
+                if (withdrawalRate > 5) {
+                    assessment += `<li>Reconsider your withdrawal strategy to bring the withdrawal rate closer to 4% of your portfolio</li>`;
+                } else {
+                    assessment += `<li>Explore options to increase your retirement savings by at least 15-20% before beginning withdrawals</li>`;
+                }
+            } else if (stockAllocation < 25 && lifeExpectancy > 20) {
+                assessment += `<li>Develop a plan to gradually increase your stock allocation to at least 40% over the next 12 months</li>`;
+            } else if (stockAllocation > 85) {
+                assessment += `<li>Reduce your stock allocation to approximately 60-70% to better manage sequence-of-returns risk</li>`;
+            } else {
+                assessment += `<li>Create a detailed withdrawal strategy that specifies which accounts to draw from in which order to optimize tax efficiency</li>`;
+            }
+            
+            assessment += `<li>Establish a schedule to review your retirement plan annually, with special attention to maintaining your target withdrawal rate</li>`;
+            assessment += `</ol>`;
+            
+            // Update the assessment content
+            assessmentDiv.innerHTML = assessment;
         }
 
-        // Then you can use it throughout your code:
-        // safeSetTextContent('resultTargetAmount', '$' + targetAmount.toLocaleString());
-
-        // Remove the old direct canvas drawing function
-        /* function createSimDetailChart(simulation) { ... } */
-        /* function drawErrorMessage(ctx, canvas) { ... } */
-
-        // Add the new Chart.js function
-        function displaySimDetailChart(canvasId, yearlyData, startAge) {
-            const canvas = document.getElementById(canvasId);
-            if (!canvas) {
-                console.error(`Canvas element with ID '${canvasId}' not found.`);
-                return;
-            }
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-                console.error(`Could not get 2D context for canvas '${canvasId}'.`);
-                return;
-            }
-
-            // Prepare chart data
-            const labels = yearlyData.map((d, i) => startAge + i);
-            const balances = yearlyData.map(d => d.balance || 0);
-
-            // Destroy previous chart instance if it exists on this canvas
-            if (canvas.chartInstance) {
-                canvas.chartInstance.destroy();
-            }
-
-            // Create the new chart
-            canvas.chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Portfolio Balance',
-                        data: balances,
-                        borderColor: 'var(--primary)',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)', // Use primary color with transparency
-                        fill: true,
-                        tension: 0.1, // Smoothen the line slightly
-                        pointRadius: 0, // Hide points for cleaner look
-                        pointHoverRadius: 6, // Show larger points on hover
-                        pointHoverBackgroundColor: 'var(--primary)',
-                        pointHoverBorderColor: 'white',
-                        pointHoverBorderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false, // Trigger hover even when not directly over a point
-                    },
-                    plugins: {
-                        legend: { display: false }, // Hide legend as there's only one dataset
-                        tooltip: {
-                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 14 },
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: false, // Hide the colored box in the tooltip
-                            callbacks: {
-                                title: function(tooltipItems) {
-                                    return `Age: ${tooltipItems[0].label}`;
-                                },
-                                label: function(context) {
-                                    return `Balance: $${Math.round(context.raw).toLocaleString()}`;
-                                }
-                            }
-                        },
-                        // Add a custom plugin for vertical crosshair line
-                        crosshair: {
-                            line: {
-                                color: 'var(--neutral)',  // Color of the line
-                                width: 1,                 // Width of the line
-                                dashPattern: [5, 5]       // Make it a dashed line [dash, gap]
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Age'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Balance ($)'
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + Math.round(value).toLocaleString();
-                                }
-                            },
-                            beginAtZero: true
-                        }
-                    }
-                },
-                plugins: [{
-                    // Custom plugin for crosshair vertical line
-                    id: 'crosshair',
-                    beforeDraw: function(chart) {
-                        if (chart.tooltip._active && chart.tooltip._active.length) {
-                            const ctx = chart.ctx;
-                            const activePoint = chart.tooltip._active[0];
-                            const x = activePoint.element.x;
-                            const topY = chart.scales.y.top;
-                            const bottomY = chart.scales.y.bottom;
-
-                            // Draw vertical line
-                            ctx.save();
-                            ctx.beginPath();
-                            ctx.moveTo(x, topY);
-                            ctx.lineTo(x, bottomY);
-                            ctx.lineWidth = 1;
-                            ctx.strokeStyle = 'rgba(100, 116, 139, 0.5)';
-                            ctx.setLineDash([5, 5]);
-                            ctx.stroke();
-                            ctx.restore();
-                        }
-                    }
-                }]
-            });
-            console.log("Chart created for canvas:", canvasId);
-        }
-    </script>
-    
-    <script>
-        // Functions for AI assessment and screenshot capture
-        
         // Function to generate AI assessment for savings plan
         function generateSavingsAssessment(simulationResults) {
             const assessmentDiv = document.getElementById('ai-savings-assessment-content');
@@ -3925,24 +3722,26 @@
             
             // Get input values
             const currentAge = parseInt(document.getElementById('currentAge').value);
-            const targetAmount = parseFloat(document.getElementById('targetAmount').value.replace(/[^0-9.]/g, ''));
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
             const currentSavings = parseFloat(document.getElementById('currentSavings').value.replace(/[^0-9.]/g, ''));
+            const annualContribution = parseFloat(document.getElementById('annualContribution').value.replace(/[^0-9.]/g, ''));
+            const annualIncrease = parseFloat(document.getElementById('annualIncrease').value.replace(/[^0-9.]/g, ''));
+            const targetSavings = parseFloat(document.getElementById('targetSavings').value.replace(/[^0-9.]/g, ''));
             const stockAllocation = parseInt(document.getElementById('stockAllocation').value);
             
-            // Find median years to target
-            const sortedSimulations = [...simulationResults].sort((a, b) => {
-                if (!a.yearsToTarget && !b.yearsToTarget) return 0;
-                if (!a.yearsToTarget) return 1;
-                if (!b.yearsToTarget) return -1;
-                return a.yearsToTarget - b.yearsToTarget;
-            });
+            // Calculate key metrics
+            const yearsToGoal = retirementAge - currentAge;
+            const successfulSims = simulationResults.filter(sim => sim.finalBalance >= targetSavings).length;
+            const successRate = (successfulSims / simulationResults.length) * 100;
             
-            const medianIndex = Math.floor(sortedSimulations.length * 0.5);
-            const medianSimulation = sortedSimulations[medianIndex];
-            const medianYears = medianSimulation.yearsToTarget;
+            // Calculate years to goal in successful simulations
+            const successfulYears = simulationResults
+                .filter(sim => sim.finalBalance >= targetSavings)
+                .map(sim => sim.yearsLasted);
             
-            // Calculate progress percentage
-            const progressPercent = (currentSavings / targetAmount) * 100;
+            const medianYearsToGoal = successfulYears.length > 0 
+                ? successfulYears[Math.floor(successfulYears.length / 2)]
+                : "N/A";
             
             // Get average annual return across all simulations
             let totalReturn = 0;
@@ -3958,83 +3757,15 @@
             // Generate assessment
             let assessment = '';
             
-            // Overall assessment
-            if (medianYears === null) {
-                assessment += `<p><strong>Overall Assessment:</strong> Based on your current savings and contribution rate, you're unlikely to reach your target of $${targetAmount.toLocaleString()} within the next 50 years. Consider increasing your savings rate, reviewing your target amount, or exploring additional income sources.</p>`;
-            } else {
-                if (medianYears <= 15) {
-                    assessment += `<p><strong>Overall Assessment:</strong> Your savings plan is on track! You're projected to reach your goal of $${targetAmount.toLocaleString()} in approximately ${medianYears} years (around age ${currentAge + medianYears}). Your savings rate and investment strategy appear well-aligned with your goal.</p>`;
-                } else if (medianYears <= 30) {
-                    assessment += `<p><strong>Overall Assessment:</strong> Your savings plan is making steady progress toward your goal of $${targetAmount.toLocaleString()}. The median projection shows you reaching your target in ${medianYears} years (around age ${currentAge + medianYears}). With some adjustments, you might be able to accelerate this timeline.</p>`;
-                } else {
-                    assessment += `<p><strong>Overall Assessment:</strong> Your savings plan will likely take a significant time to reach your target of $${targetAmount.toLocaleString()}. The median projection shows you reaching your goal in ${medianYears} years (around age ${currentAge + medianYears}). Consider whether you can increase your savings rate or adjust your target.</p>`;
-                }
-            }
-            
-            // Investment allocation assessment
-            if (stockAllocation < 30) {
-                assessment += `<p><strong>Investment Allocation:</strong> Your current stock allocation (${stockAllocation}%) is relatively conservative. While this reduces market volatility, it may significantly extend the time needed to reach your goal. Consider whether a higher allocation to stocks might be appropriate given your time horizon.</p>`;
-            } else if (stockAllocation > 80) {
-                assessment += `<p><strong>Investment Allocation:</strong> Your current stock allocation (${stockAllocation}%) is aggressive. This may help you reach your goal faster but comes with higher volatility. Ensure this matches your risk tolerance, especially as you get closer to needing the funds.</p>`;
-            } else {
-                assessment += `<p><strong>Investment Allocation:</strong> Your stock allocation (${stockAllocation}%) represents a balanced approach, with a projected average annual return of ${avgReturn.toFixed(1)}%. This balances growth potential with reasonable risk management.</p>`;
-            }
-            
-            // Recommendations
-            assessment += `<p><strong>Key Recommendations:</strong></p><ul>`;
-            
-            if (medianYears === null || medianYears > 30) {
-                assessment += `<li>Consider increasing your annual savings amount to accelerate progress</li>`;
-                assessment += `<li>Review whether your target amount can be adjusted without compromising your goals</li>`;
-            }
-            
-            if (stockAllocation < 50 && currentAge < 50) {
-                assessment += `<li>Given your time horizon, you might benefit from a higher allocation to stocks</li>`;
-            }
-            
-            if (progressPercent < 10) {
-                assessment += `<li>Focus on building your initial savings base to benefit more from compound growth</li>`;
-            }
-            
-            assessment += `<li>Review your plan annually and adjust as your income and expenses change</li>`;
-            assessment += `</ul>`;
-            
-            // Update the assessment content
-            assessmentDiv.innerHTML = assessment;
-        }
-        
-        // Function to generate AI assessment for retirement plan
-        function generateRetirementAssessment(simulationResults) {
-            const assessmentDiv = document.getElementById('ai-retirement-assessment-content');
-            if (!assessmentDiv) return;
-            
-            // Get input values
-            const retirementAge = parseInt(document.getElementById('retirementAge').value);
-            const retirementSavings = parseFloat(document.getElementById('retirementSavings').value.replace(/[^0-9.]/g, ''));
-            const annualWithdrawal = parseFloat(document.getElementById('annualWithdrawal').value.replace(/[^0-9.]/g, ''));
-            const adjustForInflation = document.getElementById('withdrawalAdjustment').checked;
-            const stockAllocation = parseInt(document.getElementById('retirementStockAllocation').value);
-            const lifeExpectancy = parseInt(document.getElementById('retirementLifeExpectancy').value);
-            
-            // Calculate key metrics
-            const successfulSims = simulationResults.filter(sim => !sim.ranOutOfMoney).length;
-            const successRate = (successfulSims / simulationResults.length) * 100;
-            
-            // Calculate withdrawal rate
-            const withdrawalRate = (annualWithdrawal / retirementSavings) * 100;
-            
-            // Generate assessment
-            let assessment = '';
-            
             // Overall success assessment
             if (successRate >= 90) {
-                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan is very robust with a ${Math.round(successRate)}% probability of success. Based on historical market patterns, your savings of $${retirementSavings.toLocaleString()} are likely to sustain your desired withdrawal level throughout retirement.</p>`;
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan is <span style="color: #10b981; font-weight: bold;">very robust</span> with a ${Math.round(successRate)}% probability of success. Based on historical market patterns, your savings of $${targetSavings.toLocaleString()} are likely to sustain your desired withdrawal level throughout retirement.</p>`;
             } else if (successRate >= 75) {
-                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan appears sound with a ${Math.round(successRate)}% probability of success. Your savings of $${retirementSavings.toLocaleString()} should be adequate to fund your retirement, though some minor adjustments could increase your safety margin.</p>`;
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan appears sound with a ${Math.round(successRate)}% probability of success. Your savings of $${targetSavings.toLocaleString()} should be adequate to fund your retirement, though some minor adjustments could increase your safety margin.</p>`;
             } else if (successRate >= 60) {
-                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan has a ${Math.round(successRate)}% probability of success, which represents moderate risk. Consider whether you're comfortable with this level of certainty or would prefer to make adjustments to strengthen your plan.</p>`;
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan has a ${Math.round(successRate)}% probability of success, which represents moderate risk. Consider whether you're comfortable with this level of certainty or would prefer to make adjustments to strengthen your plan.</p>`;
             } else {
-                assessment += `<p><strong>Overall Assessment:</strong> Your retirement plan faces significant challenges with only a ${Math.round(successRate)}% probability of success. Your withdrawal strategy may not be sustainable given your savings level of $${retirementSavings.toLocaleString()}. Consider the adjustments suggested below.</p>`;
+                assessment += `<p><strong>Overall Assessment:</strong> Your savings plan faces significant challenges with only a ${Math.round(successRate)}% probability of success. Your withdrawal strategy may not be sustainable given your savings level of $${targetSavings.toLocaleString()}. Consider the adjustments suggested below.</p>`;
             }
             
             // Withdrawal rate assessment
