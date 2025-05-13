@@ -1527,6 +1527,7 @@
         .header-nav-link {
             display: flex;
             align-items: center;
+            justify-content: center; /* Better center alignment */
             padding: 10px 20px; /* Adjust padding */
             /* background-color: rgba(255, 255, 255, 0.15); */ /* Remove old background */
             background-color: transparent;
@@ -1537,7 +1538,7 @@
             font-size: 1rem; /* Slightly larger font */
             transition: all 0.2s ease;
             position: relative;
-            border: 1px solid transparent; /* Add transparent border for layout stability */
+            border: 1px solid rgba(79, 70, 229, 0.2); /* Add subtle border */
         }
         
         .header-nav-link:hover {
@@ -1545,13 +1546,16 @@
             background-color: rgba(79, 70, 229, 0.05); /* Very light primary on hover */
             color: var(--primary);
             /* transform: translateY(-1px); */ /* Remove transform */
-            border-color: rgba(79, 70, 229, 0.1); /* Subtle border on hover */
+            border-color: rgba(79, 70, 229, 0.3); /* Enhance border on hover */
         }
         
         .header-nav-link .nav-icon {
             margin-right: 8px;
-            opacity: 0.7;
+            opacity: 1; /* Full opacity for better visibility */
             font-size: 1.1em;
+            display: flex; /* Improve emoji alignment */
+            align-items: center;
+            justify-content: center;
         }
 
         /* Remove indicator for active link */
@@ -1565,7 +1569,7 @@
             /* transform: translateY(-2px); */ 
             /* padding: 8px 20px; */ 
             /* border: 2px solid white; */ 
-            border-color: transparent;
+            border-color: var(--primary); /* Primary color border for active state */
             /* animation: subtle-pulse 2s infinite; */ /* Remove animation */
             font-weight: 700;
             color: var(--primary); /* Use primary color for active text */
@@ -1651,6 +1655,26 @@
         }
 
         /* Updated result cards styling */
+        
+        /* Calculator intro styles */
+        .calculator-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .calculator-intro {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--neutral);
+            margin-bottom: 2rem;
+            text-align: center;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
     </style>
     
     <script>
@@ -4356,6 +4380,11 @@
     <!-- Accumulation Tab Content -->
     <div id="accumulation-tab" class="tab-content">
         <div class="input-section">
+            <h2 class="calculator-title">Savings Simulation</h2>
+            <p class="calculator-intro">
+                Plan your wealth-building journey by projecting how your savings will grow over time. This simulator helps you visualize the path to your financial goals based on your current situation and investment strategy.
+            </p>
+            
             <h2>Your Current Situation</h2>
             
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
@@ -4563,9 +4592,12 @@
     <!-- Retirement Tab Content -->
     <div id="retirement-tab" class="tab-content">
         <div class="input-section">
-            <h2>Retirement Planning</h2>
-            <p>This tool will help you estimate how long your retirement savings might last.</p>
+            <h2 class="calculator-title">Retirement Simulation</h2>
+            <p class="calculator-intro">
+                Analyze how long your retirement savings might last under various market conditions. This simulator helps you determine a sustainable withdrawal strategy and evaluate the probability of your money lasting throughout retirement.
+            </p>
             
+            <h2>Retirement Planning</h2>
             <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div>
                     <label for="retirementAge">Retirement Age
