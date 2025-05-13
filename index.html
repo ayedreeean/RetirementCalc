@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retirement Planner</title>
+    <title>FIREcalc</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -4364,7 +4364,7 @@
                     <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
                     <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clip-rule="evenodd" />
                 </svg>
-                <h1>Financial Future</h1>
+                <h1>FIREcalc</h1>
             </div>
             <div class="header-nav">
                 <a href="#" data-tab="accumulation-tab" class="header-nav-link active">
@@ -4878,11 +4878,11 @@
     <div id="helpModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="closeHelpModal">&times;</span>
-            <h2>Financial Future - Help Guide</h2>
+            <h2>FIREcalc - Help Guide</h2>
             
             <div class="help-section">
                 <h3>Tool Capabilities & Features</h3>
-                <p>Financial Future offers two powerful calculators to help you plan your financial life:</p>
+                <p>FIREcalc offers two powerful calculators to help you achieve financial independence and plan for early retirement:</p>
                 
                 <h4>Savings Calculator</h4>
                 <ul>
@@ -4952,39 +4952,38 @@
             <div class="help-section">
                 <h3>FAQ</h3>
                 
-                <h4>How accurate are these projections?</h4>
-                <p>The projections provide reasonable estimates based on historical market behavior from 1975-2020, but cannot account for unprecedented events or structural economic changes. We recommend using the results as a planning guideline rather than an exact prediction. For critical financial decisions, consult with a financial advisor.</p>
+                <h4>What is FIRE?</h4>
+                <p>FIRE stands for Financial Independence, Retire Early. It's a movement focused on extreme savings and investment to allow for early retirement. The core principle is to save and invest a large percentage of your income (often 50-70%) for a period of time, creating a portfolio that can sustain your living expenses indefinitely, typically through passive income or safe withdrawal strategies.</p>
                 
+                <h4>What is the 4% rule?</h4>
+                <p>The 4% rule is a retirement withdrawal strategy that suggests you can withdraw 4% of your initial portfolio value annually (adjusted for inflation) with a high probability of not running out of money over a 30-year retirement. It originated from the Trinity Study and is a cornerstone of FIRE planning. Our retirement calculator allows you to test different withdrawal rates to find what works for your specific situation.</p>
+                
+                <h4>How do I know if I've reached my FIRE number?</h4>
+                <p>Your FIRE number is typically calculated as 25 times your annual expenses (based on the 4% rule). For example, if you need $40,000 per year to live, your FIRE number would be $1,000,000. The savings calculator can help you project how long it might take to reach this target. Many FIRE practitioners also distinguish between "lean FIRE" (minimal expenses), "regular FIRE," and "fat FIRE" (more generous spending) depending on lifestyle goals.</p>
+                
+                <h4>How accurate are these projections?</h4>
+                <p>The projections provide reasonable estimates based on historical market behavior from 1975-2020, but cannot account for unprecedented events or structural economic changes. We recommend using the results as a planning guideline rather than an exact prediction. For critical financial decisions, consider consulting with a financial advisor who understands FIRE principles.</p>
                 
                 <h4>Should I use the optimistic, median, or conservative estimate for planning?</h4>
-                <p>Most financial planners recommend using the conservative (90th percentile) estimate for critical planning to build in a safety margin. The median estimate shows the most statistically likely outcome. For retirement planning specifically, consider planning with the conservative estimate to reduce the risk of outliving your savings.</p>
+                <p>Most FIRE practitioners recommend using the conservative (90th percentile) estimate for critical planning to build in a safety margin. This helps protect against sequence of returns risk, which is particularly important for early retirees who have a longer retirement horizon. The median estimate shows the most statistically likely outcome, but using it provides less protection against market downturns early in retirement.</p>
                 
                 <h4>How do I interpret the "Range of Outcomes" chart?</h4>
-                <p>This chart shows both individual and cumulative distributions. The colored bars represent how many simulations reached the goal in exactly that year, while the green line shows the cumulative percentage of simulations that reached the goal by that year. This helps you understand both when you're most likely to reach your goal and the probability of reaching it within a certain timeframe.</p>
-                
-                <h4>What does the "Cumulative" line in the Range of Outcomes chart represent?</h4>
-                <p>The cumulative line adds up all simulations that have succeeded by each point in time. For example, if the cumulative line shows 75% at year 15, it means that 75% of all simulations reached the target goal within 15 years or less. This helps you assess the probability of reaching your goal within a specific time horizon.</p>
-                
-                <h4>What's the difference between the two calculators?</h4>
-                <p>The Savings calculator helps you project how long it might take to reach a specific savings goal based on your current savings, income, and expenses. The Retirement calculator determines how long your retirement savings might last based on your withdrawal strategy, helping you assess the risk of outliving your money.</p>
-                
-                <h4>What is the "Stock Allocation" setting?</h4>
-                <p>This slider lets you adjust what percentage of your portfolio is invested in stocks versus bonds/cash. Higher stock allocations typically offer higher potential returns but with greater volatility and risk. The simulation assumes bonds/cash return a fixed 3% annually, while stock returns vary based on historical performance.</p>
+                <p>This chart shows both individual and cumulative distributions. The colored bars represent how many simulations reached the goal in exactly that year, while the green line shows the cumulative percentage of simulations that reached the goal by that year. This helps you understand both when you're most likely to reach your FIRE goal and the probability of reaching it within a certain timeframe.</p>
                 
                 <h4>What does the "Success Rate" in the Retirement calculator mean?</h4>
-                <p>The success rate is the percentage of simulations where your money lasted throughout your entire expected retirement period. For example, a 90% success rate means that in 90% of the simulated scenarios, your retirement savings lasted for the full retirement period you specified without running out.</p>
+                <p>The success rate is the percentage of simulations where your money lasted throughout your entire expected retirement period. For FIRE planning, many aim for a 90-95% success rate due to the longer retirement period. A higher success rate provides more confidence that your portfolio will survive market downturns, but may require you to work longer to build a larger nest egg.</p>
                 
                 <h4>How are taxes handled in the Retirement calculator?</h4>
-                <p>The Retirement calculator applies your specified tax rate to determine how much you need to withdraw pre-tax to achieve your desired after-tax withdrawal amount. For example, if you want $40,000 after taxes with a 15% tax rate, the simulation will withdraw approximately $47,059 from your portfolio.</p>
+                <p>The Retirement calculator applies your specified tax rate to determine how much you need to withdraw pre-tax to achieve your desired after-tax withdrawal amount. For FIRE planning, tax optimization is crucial - consider strategies like Roth conversion ladders, tax-loss harvesting, and staying in lower tax brackets by managing your income carefully.</p>
                 
-                <h4>How often should I re-run these calculations?</h4>
-                <p>Consider updating your projections annually or whenever you experience a major life change (job change, inheritance, marriage, etc.). It's also wise to revisit your projections after significant market movements or changes to your investment strategy.</p>
+                <h4>What if I want to include other income sources like rental properties or part-time work?</h4>
+                <p>You can account for these by reducing your withdrawal amount by the expected income from these sources. For example, if you need $40,000 annually but expect $10,000 from a rental property, you would set your withdrawal amount to $30,000. Many FIRE practitioners use a combination of portfolio withdrawals and side income ("barista FIRE" or "coast FIRE") to reduce pressure on their investment portfolio.</p>
                 
-                <h4>How is inflation incorporated into the simulations?</h4>
-                <p>Both calculators use Monte Carlo simulation with historical inflation data from 1975-2020, randomly sampling actual inflation rates for each year of the simulation. This approach captures realistic inflation variability rather than using a fixed average. In the Savings calculator, inflation affects both expenses and income growth. In the Retirement calculator, you can choose whether to adjust your withdrawals for inflation, which helps maintain your purchasing power throughout retirement.</p>
+                <h4>How should I adjust my FIRE plan for inflation?</h4>
+                <p>Both calculators use Monte Carlo simulation with historical inflation data, randomly sampling actual inflation rates for each year. In the Retirement calculator, enabling the "Adjust for Inflation" option ensures your withdrawals maintain purchasing power throughout your retirement. This is especially important for early retirees who may face 40+ years of inflation effects.</p>
                 
-                <h4>What are the "Key Milestones" in the Savings calculator?</h4>
-                <p>These show when you're projected to reach 25%, 50%, 75%, and 100% of your target amount based on the median simulation. They help you track progress toward your goal and understand the accelerating power of compound returns (later milestones often come faster than earlier ones).</p>
+                <h4>What asset allocation is best for FIRE?</h4>
+                <p>There's no one-size-fits-all answer, but many FIRE practitioners maintain a relatively high stock allocation (70-80%) even in retirement due to the longer time horizon. Use the Stock Allocation slider to test different allocations and see how they affect your success rate and potential portfolio growth. Consider decreasing stock allocation slightly as you approach your FIRE date to reduce sequence of returns risk.</p>
             </div>
         </div>
     </div>
