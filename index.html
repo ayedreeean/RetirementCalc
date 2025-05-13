@@ -3937,9 +3937,10 @@
                 // 1. Generate the JSON data to export based on active simulator
                 const jsonData = generateExportData();
                 
-                // 2. Create screenshot
-                const resultsElement = document.getElementById(
-                    activeSimulator === 'accumulation' ? 'results' : 'retirement-results'
+                // 2. Create screenshot that includes both inputs and results
+                // Get the tab content which contains both inputs and results
+                const tabElement = document.getElementById(
+                    activeSimulator === 'accumulation' ? 'accumulation-tab' : 'retirement-tab'
                 );
                 
                 // Show toast indicating that capture is in progress
@@ -3948,12 +3949,42 @@
                 toast.classList.add('visible');
                 
                 try {
-                    const screenshotBlob = await html2canvas(resultsElement, {
+                    // Load html2canvas library if not already loaded
+                    if (!window.html2canvas) {
+                        await loadHtml2Canvas();
+                    }
+                    
+                    // Create screenshot of the entire tab (inputs + results)
+                    const screenshotBlob = await html2canvas(tabElement, {
                         scrollX: 0,
                         scrollY: -window.scrollY,
                         windowWidth: document.documentElement.offsetWidth,
                         windowHeight: document.documentElement.offsetHeight,
-                        scale: 2
+                        scale: 1.5,
+                        logging: false,
+                        allowTaint: true,
+                        useCORS: true,
+                        onclone: function(clonedDoc) {
+                            // Make sure both input and results sections are visible in the clone
+                            const clonedTab = clonedDoc.getElementById(
+                                activeSimulator === 'accumulation' ? 'accumulation-tab' : 'retirement-tab'
+                            );
+                            const clonedResults = clonedDoc.getElementById(
+                                activeSimulator === 'accumulation' ? 'results' : 'retirement-results'
+                            );
+                            
+                            if (clonedTab && clonedResults) {
+                                clonedResults.style.display = 'flex';
+                                clonedResults.style.flexDirection = 'column';
+                                
+                                // Adjust styles for screenshot - we need to make it more compact
+                                const inputSection = clonedTab.querySelector('.input-section');
+                                if (inputSection) {
+                                    inputSection.style.padding = '15px';
+                                    inputSection.style.marginBottom = '10px';
+                                }
+                            }
+                        }
                     }).then(canvas => {
                         return new Promise(resolve => {
                             canvas.toBlob(blob => {
