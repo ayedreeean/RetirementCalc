@@ -1645,6 +1645,7 @@
         var rowsPerPage = 10;
         var currentSortColumn = null;
         var currentSortDirection = 'asc';
+        var activeSimulator = 'accumulation'; // Global variable for tracking which simulator is active
         
         // Define historical market data in the global scope
         const historicalData = [
@@ -3916,9 +3917,6 @@
         }
 
         // Add these AI Analysis related functions
-        
-        // Variable to store which simulator is active (accumulation or retirement)
-        let activeSimulator = 'accumulation';
         
         // Function to open the AI Analysis modal
         function openAiAnalysisModal(simulator) {
