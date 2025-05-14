@@ -2,7 +2,7 @@
   "name": "FIREcalc - Financial Independence Simulator",
   "short_name": "FIREcalc",
   "description": "A calculator for financial independence and retirement planning.",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
