@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "ai.firecalc.twa",
+    "sha256_cert_fingerprints":
+    ["71:43:4A:6B:5E:2E:29:32:66:D2:A1:D3:B8:25:8B:EA:73:52:DC:F1:E0:97:0E:C6:A0:34:4B:4A:0B:A9:54:15"]
+  }
+}] 
