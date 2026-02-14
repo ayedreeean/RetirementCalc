@@ -647,11 +647,22 @@
         /* Responsive layout adjustments */
         @media (max-width: 768px) {
             body {
-                padding-top: 110px !important; /* Mobile: header is taller due to nav wrapping */
+                padding-top: 66px !important; /* Mobile: compact header is 56px + 10px breathing room */
             }
             .header-content {
-                height: auto !important;
-                padding: 8px 15px !important;
+                height: 56px !important;
+                padding: 0 15px !important;
+                flex-wrap: nowrap;
+            }
+            .logo svg {
+                width: 24px !important;
+                height: 24px !important;
+            }
+            .logo h1 {
+                font-size: 1.2rem !important;
+            }
+            .logo {
+                gap: 6px !important;
             }
             .tab {
                 padding: 10px;
