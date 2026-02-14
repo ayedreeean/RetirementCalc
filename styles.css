@@ -647,7 +647,11 @@
         /* Responsive layout adjustments */
         @media (max-width: 768px) {
             body {
-                padding-top: 110px !important; /* Mobile: header is ~101px due to wrapping */
+                padding-top: 110px !important; /* Mobile: header is taller due to nav wrapping */
+            }
+            .header-content {
+                height: auto !important;
+                padding: 8px 15px !important;
             }
             .tab {
                 padding: 10px;
