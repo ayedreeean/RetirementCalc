@@ -725,7 +725,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px !important; /* Adjust height */
+            height: 70px; /* Adjust height — no !important, allow mobile media query override */
             /* min-height: 30px; */ /* Not needed with fixed height */
         }
 
