@@ -33,7 +33,7 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
-            padding-top: 80px !important; /* Adjust if header height changes */
+            padding-top: 80px !important; /* Desktop: header is ~71px */
         }
         
         html {
@@ -646,6 +646,9 @@
 
         /* Responsive layout adjustments */
         @media (max-width: 768px) {
+            body {
+                padding-top: 110px !important; /* Mobile: header is ~101px due to wrapping */
+            }
             .tab {
                 padding: 10px;
                 font-size: 0.9rem;
