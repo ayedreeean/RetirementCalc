@@ -1951,6 +1951,183 @@
             line-height: 1.6;
         }
 
+        /* =============================================
+           INCOME SOURCES — Collapsible Section
+           ============================================= */
+        .collapsible-section {
+            margin: 24px 0;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .collapsible-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--background);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neutral-dark);
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .collapsible-toggle:hover {
+            background: var(--neutral-light);
+        }
+        .collapsible-chevron {
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 0.75rem;
+        }
+        .collapsible-toggle[aria-expanded="true"] .collapsible-chevron {
+            transform: rotate(90deg);
+        }
+        .collapsible-content {
+            padding: 16px 18px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .income-group {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--neutral-light);
+        }
+        .income-group:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--neutral-dark);
+            cursor: pointer;
+            margin-bottom: 12px;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+        }
+        .income-subfields {
+            margin-left: 26px;
+        }
+
+        /* =============================================
+           TAX STRATEGY SECTION
+           ============================================= */
+        .tax-strategy-section {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            background: var(--card-background);
+        }
+        .tax-strategy-header {
+            cursor: pointer;
+            user-select: none;
+        }
+        .tax-strategy-header h2 {
+            font-size: 1.3rem !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #taxStrategyToggle {
+            font-size: 0.8rem;
+            color: var(--neutral);
+            transition: transform 0.2s;
+        }
+        .tax-mode-selector {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+        .tax-mode-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+        }
+        .tax-mode-option:has(input:checked) {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+        .tax-mode-option input[type="radio"] {
+            accent-color: var(--primary);
+        }
+        .tax-mode-label {
+            font-size: 0.95rem;
+        }
+
+        /* Account mix bar */
+        .account-mix-bar {
+            display: flex;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: var(--neutral-light);
+            margin-top: 8px;
+        }
+        .mix-pretax {
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+        .mix-roth {
+            background: var(--success);
+            transition: width 0.3s;
+        }
+        .mix-taxable {
+            background: var(--warning);
+            transition: width 0.3s;
+        }
+        .account-mix-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--neutral);
+        }
+        .mix-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mix-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .mix-dot-pretax { background: var(--primary); }
+        .mix-dot-roth { background: var(--success); }
+        .mix-dot-taxable { background: var(--warning); }
+        .tax-mix-warning {
+            color: var(--danger);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 480px) {
+            .tax-mode-selector {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
         /* Thumb-friendly touch targets */
         @media (max-width: 768px) {
             .header-nav-link {

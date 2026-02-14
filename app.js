@@ -8,6 +8,12 @@
         const MAX_INPUT_VALUE = 999999999;
         const MAX_AGE = 90;
 
+        // Social Security claiming age adjustment factors
+        const SS_AGE_FACTORS = {
+            62: 0.70, 63: 0.75, 64: 0.80, 65: 0.8667,
+            66: 0.9333, 67: 1.00, 68: 1.08, 69: 1.16, 70: 1.24
+        };
+
         // ============================================
         // GLOBAL STATE
         // ============================================
@@ -53,7 +59,11 @@
                 'stockAllocation', 'incomeGrowth', 'savingsSimulationCount',
                 'retirementAge', 'retirementSavings', 'annualWithdrawal',
                 'retirementStockAllocation', 'withdrawalAdjustment', 'taxRate',
-                'simulationCount', 'retirementLifeExpectancy'
+                'simulationCount', 'retirementLifeExpectancy',
+                'includeSS', 'ssMonthlyBenefit', 'ssClaimingAge',
+                'includeSpouseSS', 'spouseSSMonthlyBenefit', 'spouseSSClaimingAge',
+                'includeOtherIncome', 'monthlyPension', 'pensionStartAge',
+                'monthlyOtherIncome', 'otherIncomeDuration'
             ];
             fields.forEach(id => {
                 const el = document.getElementById(id);
@@ -227,6 +237,31 @@
                 }
             });
             
+            // Income Sources collapsible toggle
+            const incomeToggle = document.getElementById('incomeSourcesToggle');
+            const incomeContent = document.getElementById('incomeSourcesContent');
+            if (incomeToggle && incomeContent) {
+                incomeToggle.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !expanded);
+                    incomeContent.style.display = expanded ? 'none' : 'block';
+                });
+            }
+
+            // Checkbox show/hide for income sub-fields
+            function setupCheckboxToggle(checkboxId, fieldsId) {
+                const cb = document.getElementById(checkboxId);
+                const fields = document.getElementById(fieldsId);
+                if (cb && fields) {
+                    const update = () => { fields.style.display = cb.checked ? 'block' : 'none'; };
+                    cb.addEventListener('change', update);
+                    update();
+                }
+            }
+            setupCheckboxToggle('includeSS', 'ssFields');
+            setupCheckboxToggle('includeSpouseSS', 'spouseSSFields');
+            setupCheckboxToggle('includeOtherIncome', 'otherIncomeFields');
+
             // Setup AI Analysis (once)
             setupAiAnalysis();
 
@@ -258,6 +293,18 @@
                     if (params.has('taxRate')) document.getElementById('taxRate').value = params.get('taxRate');
                     if (params.has('retirementLifeExpectancy')) document.getElementById('retirementLifeExpectancy').value = params.get('retirementLifeExpectancy');
                     if (params.has('simulationCount')) document.getElementById('simulationCount').value = params.get('simulationCount');
+                    // Income sources
+                    if (params.has('includeSS')) document.getElementById('includeSS').checked = params.get('includeSS') === 'true';
+                    if (params.has('ssMonthlyBenefit')) document.getElementById('ssMonthlyBenefit').value = params.get('ssMonthlyBenefit');
+                    if (params.has('ssClaimingAge')) document.getElementById('ssClaimingAge').value = params.get('ssClaimingAge');
+                    if (params.has('includeSpouseSS')) document.getElementById('includeSpouseSS').checked = params.get('includeSpouseSS') === 'true';
+                    if (params.has('spouseSSMonthlyBenefit')) document.getElementById('spouseSSMonthlyBenefit').value = params.get('spouseSSMonthlyBenefit');
+                    if (params.has('spouseSSClaimingAge')) document.getElementById('spouseSSClaimingAge').value = params.get('spouseSSClaimingAge');
+                    if (params.has('includeOtherIncome')) document.getElementById('includeOtherIncome').checked = params.get('includeOtherIncome') === 'true';
+                    if (params.has('monthlyPension')) document.getElementById('monthlyPension').value = params.get('monthlyPension');
+                    if (params.has('pensionStartAge')) document.getElementById('pensionStartAge').value = params.get('pensionStartAge');
+                    if (params.has('monthlyOtherIncome')) document.getElementById('monthlyOtherIncome').value = params.get('monthlyOtherIncome');
+                    if (params.has('otherIncomeDuration')) document.getElementById('otherIncomeDuration').value = params.get('otherIncomeDuration');
                     runRetirementSimulation();
                 } else {
                     // Accumulation tab (default)
@@ -572,6 +619,25 @@
             const stockAllocation = parseInt(document.getElementById('retirementStockAllocation').value) / 100;
             const simulationCount = parseInt(document.getElementById('simulationCount').value);
             const lifeExpectancy = parseInt(document.getElementById('retirementLifeExpectancy').value);
+
+            // Income sources
+            const includeSS = document.getElementById('includeSS').checked;
+            const ssMonthlyBenefit = parseFloat((document.getElementById('ssMonthlyBenefit').value || '0').replace(/[^0-9.]/g, '')) || 0;
+            const ssClaimingAge = parseInt(document.getElementById('ssClaimingAge').value) || 67;
+            const includeSpouseSS = document.getElementById('includeSpouseSS').checked;
+            const spouseSSMonthlyBenefit = parseFloat((document.getElementById('spouseSSMonthlyBenefit').value || '0').replace(/[^0-9.]/g, '')) || 0;
+            const spouseSSClaimingAge = parseInt(document.getElementById('spouseSSClaimingAge').value) || 67;
+            const includeOtherIncome = document.getElementById('includeOtherIncome').checked;
+            const monthlyPension = parseFloat((document.getElementById('monthlyPension').value || '0').replace(/[^0-9.]/g, '')) || 0;
+            const pensionStartAge = parseInt(document.getElementById('pensionStartAge').value) || 65;
+            const monthlyOtherIncome = parseFloat((document.getElementById('monthlyOtherIncome').value || '0').replace(/[^0-9.]/g, '')) || 0;
+            const otherIncomeDuration = parseInt(document.getElementById('otherIncomeDuration').value) || 0;
+
+            // Compute base annual SS benefits adjusted for claiming age
+            const ssAnnualBase = ssMonthlyBenefit * (SS_AGE_FACTORS[ssClaimingAge] || 1.0) * 12;
+            const spouseSSAnnualBase = spouseSSMonthlyBenefit * (SS_AGE_FACTORS[spouseSSClaimingAge] || 1.0) * 12;
+            const annualPension = monthlyPension * 12;
+            const annualOtherIncome = monthlyOtherIncome * 12;
             
             // Validate inputs
             if (isNaN(retirementAge) || isNaN(retirementSavings) || isNaN(annualWithdrawal) || 
@@ -616,11 +682,18 @@
                         const yearlyData = [];
                         let currentWithdrawal = annualWithdrawal;
                         let totalWithdrawn = 0;
+                        let totalIncomeReceived = 0;
+
+                        // COLA-adjusted SS benefits (grow with inflation each year)
+                        let currentSSBenefit = ssAnnualBase;
+                        let currentSpouseSSBenefit = spouseSSAnnualBase;
+                        let yearsWithOtherIncome = 0;
                         
                         while (years < lifeExpectancy && !ranOutOfMoney) {
                             // Get random market return and inflation
                             const randomIndex = Math.floor(Math.random() * historicalData.length);
                             const yearData = historicalData[randomIndex];
+                            const currentAge = retirementAge + years;
                             
                             // Calculate portfolio return based on allocation
                             const portfolioReturn = (yearData.marketReturn * stockAllocation) + 
@@ -633,22 +706,66 @@
                             if (adjustForInflation && years > 0) {
                                 currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
                             }
+
+                            // Apply COLA to SS benefits (after year 0)
+                            if (years > 0) {
+                                currentSSBenefit = currentSSBenefit * (1 + yearData.inflation);
+                                currentSpouseSSBenefit = currentSpouseSSBenefit * (1 + yearData.inflation);
+                            }
+
+                            // Calculate income from all sources
+                            let ssIncome = 0;
+                            if (includeSS && currentAge >= ssClaimingAge) {
+                                ssIncome += currentSSBenefit;
+                            }
+                            if (includeSpouseSS && currentAge >= spouseSSClaimingAge) {
+                                ssIncome += currentSpouseSSBenefit;
+                            }
+
+                            let pensionInc = 0;
+                            let otherInc = 0;
+                            if (includeOtherIncome) {
+                                if (currentAge >= pensionStartAge) {
+                                    pensionInc = annualPension; // Fixed, no COLA
+                                }
+                                if (otherIncomeDuration === 0 || yearsWithOtherIncome < otherIncomeDuration) {
+                                    otherInc = annualOtherIncome;
+                                    if (annualOtherIncome > 0) yearsWithOtherIncome++;
+                                }
+                            }
+
+                            const totalIncome = ssIncome + pensionInc + otherInc;
+                            totalIncomeReceived += totalIncome;
                             
-                            // Calculate pre-tax withdrawal needed
-                            const preTaxWithdrawal = currentWithdrawal / (1 - taxRate);
+                            // Calculate pre-tax withdrawal needed (tax-engine integration)
+                            let preTaxWithdrawal;
+                            if (typeof window.calculateWithdrawalTax === 'function' && typeof window.getTaxSettings === 'function') {
+                                const _taxSettings = window.getTaxSettings();
+                                const _taxResult = window.calculateWithdrawalTax(currentWithdrawal,
+                                    { socialSecurity: ssIncome, pension: pensionInc, otherOrdinary: otherInc }, _taxSettings);
+                                preTaxWithdrawal = _taxResult.preTaxWithdrawal;
+                            } else {
+                                preTaxWithdrawal = currentWithdrawal / (1 - taxRate);
+                            }
+
+                            // Reduce portfolio withdrawal by income sources
+                            const neededFromPortfolio = Math.max(0, preTaxWithdrawal - totalIncome);
                             
                             // Withdraw from portfolio
-                            portfolio -= preTaxWithdrawal;
+                            portfolio -= neededFromPortfolio;
                             totalWithdrawn += currentWithdrawal; // Track after-tax withdrawals
                             
                             // Store data for this year
                             yearlyData.push({
-                                age: retirementAge + years,
+                                age: currentAge,
                                 balance: Math.max(0, portfolio),
                                 return: portfolioReturn,
                                 inflation: yearData.inflation,
-                                withdrawal: preTaxWithdrawal,
-                                afterTaxWithdrawal: currentWithdrawal
+                                withdrawal: neededFromPortfolio,
+                                afterTaxWithdrawal: currentWithdrawal,
+                                ssIncome: ssIncome,
+                                otherIncome: pensionInc + otherInc,
+                                totalIncome: totalIncome
                             });
                             
                             // Check if ran out of money
@@ -666,7 +783,8 @@
                             yearsLasted: ranOutOfMoney ? years : lifeExpectancy,
                             finalBalance: portfolio,
                             yearlyData: yearlyData,
-                            totalWithdrawn: totalWithdrawn
+                            totalWithdrawn: totalWithdrawn,
+                            totalIncomeReceived: totalIncomeReceived
                         });
                     }
                     
@@ -1059,6 +1177,10 @@
             const p50Data = [];
             const p90Data = [];
             
+            // Income data from median simulation
+            const incomeData = [];
+            const hasIncomeData = p50Simulation.yearlyData.some(y => y.totalIncome > 0);
+
             // Fill arrays with actual simulation data
             ages.forEach((age, i) => {
                 // For 10th percentile simulation
@@ -1072,6 +1194,10 @@
                 // For 90th percentile simulation
                 p90Data.push(i < p90Simulation.yearlyData.length ? 
                     p90Simulation.yearlyData[i].balance : null);
+
+                // Income (median sim)
+                incomeData.push(i < p50Simulation.yearlyData.length ?
+                    p50Simulation.yearlyData[i].totalIncome || 0 : null);
             });
             
             // Create chart
@@ -1113,7 +1239,18 @@
                             fill: false,
                             tension: 0.4,
                             borderWidth: 2
-                        }
+                        },
+                        ...(hasIncomeData ? [{
+                            label: 'Annual Income (Median)',
+                            data: incomeData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            borderDash: [5, 3],
+                            yAxisID: 'y1'
+                        }] : [])
                     ]
                 },
                 options: {
@@ -1145,7 +1282,16 @@
                                     return '$' + value.toLocaleString();
                                 }
                             }
-                        }
+                        },
+                        ...(hasIncomeData ? {
+                            y1: {
+                                position: 'right',
+                                title: { display: true, text: 'Annual Income' },
+                                ticks: { callback: function(v) { return '$' + v.toLocaleString(); } },
+                                grid: { drawOnChartArea: false },
+                                beginAtZero: true
+                            }
+                        } : {})
                     }
                 }
             });
@@ -1267,6 +1413,23 @@
                 `$${Math.round(medianWithdrawals).toLocaleString()}`;
             document.getElementById('worstCaseAge').textContent = 
                 worstCaseAge !== "N/A" ? worstCaseAge : "Funds not depleted";
+
+            // Update SS/income coverage display
+            const ssCoverageItem = document.getElementById('ssCoverageItem');
+            const hasIncome = simulationResults.some(sim => sim.totalIncomeReceived > 0);
+            if (ssCoverageItem) {
+                if (hasIncome) {
+                    ssCoverageItem.style.display = 'block';
+                    // Calculate coverage from median simulation
+                    const medianSim = sortedByWithdrawals[Math.floor(sortedByWithdrawals.length * 0.5)];
+                    const totalExpenses = medianSim.yearlyData.reduce((s, y) => s + (y.afterTaxWithdrawal / (1 - 0)), 0); // pre-tax
+                    const totalExpensesPT = medianSim.yearlyData.reduce((s, y) => s + y.withdrawal + y.totalIncome, 0);
+                    const coveragePct = totalExpensesPT > 0 ? (medianSim.totalIncomeReceived / totalExpensesPT * 100) : 0;
+                    document.getElementById('ssCoveragePercent').textContent = `${Math.round(coveragePct)}%`;
+                } else {
+                    ssCoverageItem.style.display = 'none';
+                }
+            }
         }
 
         // Add this to your JavaScript section
@@ -1405,14 +1568,19 @@
                 // Check which type of simulation we're dealing with (savings vs retirement)
                 const isRetirementSim = yearData.withdrawal !== undefined;
                 
+                const incomeCol = isRetirementSim && yearData.totalIncome != null
+                    ? `<td style="padding: 10px;">$${Math.round(yearData.totalIncome).toLocaleString()}</td>`
+                    : `<td style="padding: 10px;">-</td>`;
+
                 rows += `
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 10px;">${index + 1}</td>
                         <td style="padding: 10px;">${currentAge + index}</td>
                         <td style="padding: 10px;">${(yearData.return * 100).toFixed(1)}%</td>
                         <td style="padding: 10px;">${isRetirementSim ? 
-                            `$${yearData.withdrawal ? yearData.withdrawal.toLocaleString() : '0'} (withdrawal)` : 
+                            `$${yearData.withdrawal ? Math.round(yearData.withdrawal).toLocaleString() : '0'}` : 
                             `$${yearData.contribution ? yearData.contribution.toLocaleString() : '0'}`}</td>
+                        ${incomeCol}
                         <td style="padding: 10px;">$${yearData.balance.toLocaleString()}</td>
                     </tr>
                 `;
@@ -1446,6 +1614,18 @@
                     params.append('taxRate', document.getElementById('taxRate').value);
                     params.append('retirementLifeExpectancy', document.getElementById('retirementLifeExpectancy').value);
                     params.append('simulationCount', document.getElementById('simulationCount').value);
+                    // Income sources
+                    params.append('includeSS', document.getElementById('includeSS').checked);
+                    params.append('ssMonthlyBenefit', document.getElementById('ssMonthlyBenefit').value);
+                    params.append('ssClaimingAge', document.getElementById('ssClaimingAge').value);
+                    params.append('includeSpouseSS', document.getElementById('includeSpouseSS').checked);
+                    params.append('spouseSSMonthlyBenefit', document.getElementById('spouseSSMonthlyBenefit').value);
+                    params.append('spouseSSClaimingAge', document.getElementById('spouseSSClaimingAge').value);
+                    params.append('includeOtherIncome', document.getElementById('includeOtherIncome').checked);
+                    params.append('monthlyPension', document.getElementById('monthlyPension').value);
+                    params.append('pensionStartAge', document.getElementById('pensionStartAge').value);
+                    params.append('monthlyOtherIncome', document.getElementById('monthlyOtherIncome').value);
+                    params.append('otherIncomeDuration', document.getElementById('otherIncomeDuration').value);
                 } else {
                     // Accumulation tab fields
                     params.append('tab', 'accumulation');
@@ -2286,7 +2466,12 @@
                     withdrawalAdjustment: document.getElementById('withdrawalAdjustment').checked,
                     taxRate: parseFloat(document.getElementById('taxRate').value),
                     stockAllocation: parseInt(document.getElementById('retirementStockAllocation').value),
-                    lifeExpectancy: parseInt(document.getElementById('retirementLifeExpectancy').value)
+                    lifeExpectancy: parseInt(document.getElementById('retirementLifeExpectancy').value),
+                    includeSS: document.getElementById('includeSS').checked,
+                    ssMonthlyBenefit: parseFloat((document.getElementById('ssMonthlyBenefit').value || '0').replace(/[^0-9.]/g, '')) || 0,
+                    ssClaimingAge: parseInt(document.getElementById('ssClaimingAge').value),
+                    includeSpouseSS: document.getElementById('includeSpouseSS').checked,
+                    includeOtherIncome: document.getElementById('includeOtherIncome').checked
                 };
                 
                 // Gather retirement results

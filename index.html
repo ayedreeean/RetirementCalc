@@ -325,33 +325,249 @@
                 </div>
             </div>
             
-            <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <div>
-                    <label for="taxRate">Estimated Tax Rate (%)
+            <!-- Tax Strategy Section -->
+            <div class="tax-strategy-section">
+                <div class="tax-strategy-header" id="taxStrategyHeader">
+                    <h2 style="margin:0; cursor:pointer;">
+                        <span id="taxStrategyToggle">▶</span> Tax Strategy
                         <span class="tooltip-container">
                             <span class="tooltip-icon">?</span>
-                            <span class="tooltip-text">The percentage of withdrawals that will go to taxes. Enter your expected effective tax rate in retirement.</span>
+                            <span class="tooltip-text">Choose between a simple flat tax rate or detailed bracket-based tax modeling with account type awareness.</span>
                         </span>
-                    </label>
-                    <input type="number" id="taxRate" value="15" min="0" max="50" step="1">
+                    </h2>
                 </div>
-                
-                <div>
-                    <label for="simulationCount">Number of Simulations
-                        <span class="tooltip-container">
-                            <span class="tooltip-icon">?</span>
-                            <span class="tooltip-text">More simulations provide more accurate results but take longer to process.</span>
-                        </span>
-                    </label>
-                    <select id="simulationCount">
-                        <option value="500">500 (Faster)</option>
-                        <option value="1000" selected>1,000 (Standard)</option>
-                        <option value="2000">2,000 (More Accurate)</option>
-                        <option value="5000">5,000 (Comprehensive)</option>
-                    </select>
+                <div id="taxStrategyBody" style="display:none; margin-top: 16px;">
+                    <div class="tax-mode-selector">
+                        <label class="tax-mode-option">
+                            <input type="radio" name="taxMode" value="simple" checked>
+                            <span class="tax-mode-label">Simple (flat rate)</span>
+                        </label>
+                        <label class="tax-mode-option">
+                            <input type="radio" name="taxMode" value="detailed">
+                            <span class="tax-mode-label">Detailed (bracket-based)</span>
+                        </label>
+                    </div>
+
+                    <!-- Simple Mode -->
+                    <div id="taxSimpleSection">
+                        <div style="margin-top: 12px;">
+                            <label for="taxRate">Effective Tax Rate (%)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-text">The percentage of withdrawals that will go to taxes. Enter your expected effective tax rate in retirement.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="taxRate" value="15" min="0" max="50" step="1">
+                        </div>
+                    </div>
+
+                    <!-- Detailed Mode -->
+                    <div id="taxDetailedSection" style="display:none;">
+                        <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 12px;">
+                            <div>
+                                <label for="taxFilingStatus">Filing Status</label>
+                                <select id="taxFilingStatus">
+                                    <option value="mfj" selected>Married Filing Jointly</option>
+                                    <option value="single">Single</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="taxStateRate">State Tax Rate (%)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">?</span>
+                                        <span class="tooltip-text">Flat state income tax rate. Set to 0 for states with no income tax.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="taxStateRate" value="0" min="0" max="15" step="0.1">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px;">
+                            <label>Retirement Account Mix
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-text">How your portfolio is split across account types. Pre-tax withdrawals are taxed as ordinary income, Roth is tax-free, and taxable brokerage gets capital gains treatment.</span>
+                                </span>
+                            </label>
+                            <div id="accountMixBar" class="account-mix-bar">
+                                <div class="mix-pretax" style="width:60%"></div>
+                                <div class="mix-roth" style="width:20%"></div>
+                                <div class="mix-taxable" style="width:20%"></div>
+                            </div>
+                            <div class="account-mix-legend">
+                                <span class="mix-legend-item"><span class="mix-dot mix-dot-pretax"></span>Pre-tax</span>
+                                <span class="mix-legend-item"><span class="mix-dot mix-dot-roth"></span>Roth</span>
+                                <span class="mix-legend-item"><span class="mix-dot mix-dot-taxable"></span>Taxable</span>
+                            </div>
+                            <div class="input-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
+                                <div>
+                                    <label for="taxPreTaxPct">Pre-tax (%)</label>
+                                    <input type="number" id="taxPreTaxPct" value="60" min="0" max="100" step="1">
+                                </div>
+                                <div>
+                                    <label for="taxRothPct">Roth (%)</label>
+                                    <input type="number" id="taxRothPct" value="20" min="0" max="100" step="1">
+                                </div>
+                                <div>
+                                    <label for="taxTaxablePct">Taxable (%)</label>
+                                    <input type="number" id="taxTaxablePct" value="20" min="0" max="100" step="1">
+                                </div>
+                            </div>
+                            <div id="accountMixWarning" class="tax-mix-warning" style="display:none;">⚠ Account mix must total 100%</div>
+                        </div>
+
+                        <div style="margin-top: 12px;">
+                            <label>
+                                <input type="checkbox" id="taxOptimizeOrder" checked>
+                                Optimize withdrawal order
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">?</span>
+                                    <span class="tooltip-text">Draw from taxable brokerage first (capital gains rates), then pre-tax (ordinary income), then Roth (tax-free) last.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div style="margin-top: 16px;">
+                <label for="simulationCount">Number of Simulations
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">More simulations provide more accurate results but take longer to process.</span>
+                    </span>
+                </label>
+                <select id="simulationCount">
+                    <option value="500">500 (Faster)</option>
+                    <option value="1000" selected>1,000 (Standard)</option>
+                    <option value="2000">2,000 (More Accurate)</option>
+                    <option value="5000">5,000 (Comprehensive)</option>
+                </select>
+            </div>
             
+            <!-- Income Sources (collapsible) -->
+            <div class="collapsible-section">
+                <button type="button" class="collapsible-toggle" id="incomeSourcesToggle" aria-expanded="false" aria-controls="incomeSourcesContent">
+                    <span class="collapsible-chevron">▶</span> Income Sources
+                </button>
+                <div class="collapsible-content" id="incomeSourcesContent" style="display: none;">
+                    <!-- Social Security -->
+                    <div class="income-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="includeSS" checked>
+                            Include Social Security
+                        </label>
+                        <div class="income-subfields" id="ssFields">
+                            <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div>
+                                    <label for="ssMonthlyBenefit">Estimated Monthly Benefit ($)
+                                        <span class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-text">Your estimated monthly Social Security benefit at full retirement age (67). Check ssa.gov for your estimate.</span>
+                                        </span>
+                                    </label>
+                                    <input type="text" id="ssMonthlyBenefit" value="2000" placeholder="e.g., 2000">
+                                </div>
+                                <div>
+                                    <label for="ssClaimingAge">Claiming Age
+                                        <span class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-text">Age 67 = 100% of benefit. Earlier = reduced (62 = 70%). Later = increased (70 = 124%).</span>
+                                        </span>
+                                    </label>
+                                    <select id="ssClaimingAge">
+                                        <option value="62">62</option>
+                                        <option value="63">63</option>
+                                        <option value="64">64</option>
+                                        <option value="65">65</option>
+                                        <option value="66">66</option>
+                                        <option value="67" selected>67</option>
+                                        <option value="68">68</option>
+                                        <option value="69">69</option>
+                                        <option value="70">70</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spouse's Social Security -->
+                    <div class="income-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="includeSpouseSS">
+                            Include Spouse's Social Security
+                        </label>
+                        <div class="income-subfields" id="spouseSSFields" style="display: none;">
+                            <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div>
+                                    <label for="spouseSSMonthlyBenefit">Spouse's Monthly Benefit ($)</label>
+                                    <input type="text" id="spouseSSMonthlyBenefit" value="1500" placeholder="e.g., 1500">
+                                </div>
+                                <div>
+                                    <label for="spouseSSClaimingAge">Spouse's Claiming Age</label>
+                                    <select id="spouseSSClaimingAge">
+                                        <option value="62">62</option>
+                                        <option value="63">63</option>
+                                        <option value="64">64</option>
+                                        <option value="65">65</option>
+                                        <option value="66">66</option>
+                                        <option value="67" selected>67</option>
+                                        <option value="68">68</option>
+                                        <option value="69">69</option>
+                                        <option value="70">70</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other Income -->
+                    <div class="income-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="includeOtherIncome">
+                            Include Other Income
+                        </label>
+                        <div class="income-subfields" id="otherIncomeFields" style="display: none;">
+                            <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                                <div>
+                                    <label for="monthlyPension">Monthly Pension/Annuity ($)
+                                        <span class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-text">Fixed pension or annuity payment. Not adjusted for inflation.</span>
+                                        </span>
+                                    </label>
+                                    <input type="text" id="monthlyPension" value="0" placeholder="e.g., 1000">
+                                </div>
+                                <div>
+                                    <label for="pensionStartAge">Pension Start Age</label>
+                                    <input type="number" id="pensionStartAge" value="65" min="40" max="90">
+                                </div>
+                            </div>
+                            <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+                                <div>
+                                    <label for="monthlyOtherIncome">Monthly Rental/Side Income ($)
+                                        <span class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-text">Additional monthly income from rental properties, part-time work, etc.</span>
+                                        </span>
+                                    </label>
+                                    <input type="text" id="monthlyOtherIncome" value="0" placeholder="e.g., 500">
+                                </div>
+                                <div>
+                                    <label for="otherIncomeDuration">Income Duration (years, 0 = lifetime)
+                                        <span class="tooltip-container">
+                                            <span class="tooltip-icon">?</span>
+                                            <span class="tooltip-text">How many years this income lasts. 0 means it continues for your entire retirement.</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="otherIncomeDuration" value="0" min="0" max="50">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Wrap the retirement simulation button in a container -->
             <div class="simulation-button-wrapper">
                 <button id="runRetirementSimulation" class="simulation-button" onclick="runRetirementSimulation()">
@@ -439,6 +655,11 @@
                         <div class="summary-value" id="worstCaseAge" style="font-size: 1.8rem; margin: 8px 0;">-</div>
                         <div class="summary-description" style="font-size: 0.85rem; color: var(--neutral);">When funds run out (10th percentile)</div>
                     </div>
+                    <div class="summary-item" id="ssCoverageItem" style="border: 1px solid var(--neutral-light); padding: 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow); background-color: white; text-align: center; display: none;">
+                        <div class="summary-label">Income Sources Coverage</div>
+                        <div class="summary-value" id="ssCoveragePercent" style="font-size: 1.8rem; margin: 8px 0;">-</div>
+                        <div class="summary-description" style="font-size: 0.85rem; color: var(--neutral);">% of expenses covered by SS &amp; other income</div>
+                    </div>
                 </div>
             </div>
 
@@ -507,6 +728,7 @@
                                     <th>Age</th>
                                     <th>Return</th>
                                     <th>Withdrawal</th>
+                                    <th>Income</th>
                                     <th>Inflation</th>
                                 </tr>
                             </thead>
@@ -718,6 +940,7 @@
     <!-- CSS for AI Analysis Feature moved to styles.css -->
 
     <!-- Duplicate script blocks removed — all handlers in consolidated DOMContentLoaded -->
+    <script src="tax-engine.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
