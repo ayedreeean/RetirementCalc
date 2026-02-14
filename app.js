@@ -1612,6 +1612,11 @@
                     params.append('retirementStockAllocation', document.getElementById('retirementStockAllocation').value);
                     params.append('withdrawalAdjustment', document.getElementById('withdrawalAdjustment').checked);
                     params.append('taxRate', document.getElementById('taxRate').value);
+                    // Tax strategy params
+                    if (typeof window.getTaxShareParams === 'function') {
+                        const taxParams = window.getTaxShareParams();
+                        for (const [k, v] of taxParams.entries()) params.append(k, v);
+                    }
                     params.append('retirementLifeExpectancy', document.getElementById('retirementLifeExpectancy').value);
                     params.append('simulationCount', document.getElementById('simulationCount').value);
                     // Income sources
