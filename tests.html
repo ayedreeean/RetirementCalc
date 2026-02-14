@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIRECalc — Test Suite</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; max-width: 900px; margin: 0 auto; }
+        h1 { margin-bottom: 8px; }
+        .subtitle { color: #64748b; margin-bottom: 24px; }
+        .summary { display: flex; gap: 16px; margin-bottom: 24px; }
+        .summary-box { padding: 16px 24px; border-radius: 8px; font-size: 1.1rem; font-weight: 600; }
+        .summary-pass { background: #dcfce7; color: #166534; }
+        .summary-fail { background: #fee2e2; color: #991b1b; }
+        .summary-total { background: #e0e7ff; color: #3730a3; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 32px; }
+        th { background: #1e293b; color: white; text-align: left; padding: 12px 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        td { padding: 10px 16px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        tr:last-child td { border-bottom: none; }
+        .pass { color: #166534; font-weight: 600; }
+        .fail { color: #991b1b; font-weight: 600; }
+        .category { background: #f1f5f9; font-weight: 600; }
+        .detail { color: #64748b; font-size: 0.82rem; }
+    </style>
+</head>
+<body>
+    <h1>🧪 FIRECalc Test Suite</h1>
+    <p class="subtitle">Browser-based tests — no build tools required</p>
+    <div class="summary" id="summary"></div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width:40%">Test</th>
+                <th style="width:30%">Expected</th>
+                <th style="width:20%">Actual</th>
+                <th style="width:10%">Result</th>
+            </tr>
+        </thead>
+        <tbody id="results"></tbody>
+    </table>
+
+    <script>
+        // ============================================
+        // Import constants & data from app.js context
+        // ============================================
+        const DEFAULT_BOND_RETURN = 0.03;
+
+        // Historical data (copied from app.js)
+        const historicalData = [
+            {year:1975,marketReturn:0.371,inflation:0.070},{year:1976,marketReturn:0.238,inflation:0.048},
+            {year:1977,marketReturn:-0.071,inflation:0.067},{year:1978,marketReturn:0.064,inflation:0.090},
+            {year:1979,marketReturn:0.184,inflation:0.113},{year:1980,marketReturn:0.323,inflation:0.135},
+            {year:1981,marketReturn:-0.049,inflation:0.103},{year:1982,marketReturn:0.215,inflation:0.062},
+            {year:1983,marketReturn:0.224,inflation:0.032},{year:1984,marketReturn:0.063,inflation:0.043},
+            {year:1985,marketReturn:0.318,inflation:0.036},{year:1986,marketReturn:0.186,inflation:0.019},
+            {year:1987,marketReturn:0.056,inflation:0.036},{year:1988,marketReturn:0.167,inflation:0.041},
+            {year:1989,marketReturn:0.315,inflation:0.047},{year:1990,marketReturn:-0.032,inflation:0.054},
+            {year:1991,marketReturn:0.304,inflation:0.042},{year:1992,marketReturn:0.076,inflation:0.030},
+            {year:1993,marketReturn:0.100,inflation:0.030},{year:1994,marketReturn:0.013,inflation:0.026},
+            {year:1995,marketReturn:0.373,inflation:0.028},{year:1996,marketReturn:0.229,inflation:0.030},
+            {year:1997,marketReturn:0.333,inflation:0.023},{year:1998,marketReturn:0.286,inflation:0.016},
+            {year:1999,marketReturn:0.211,inflation:0.022},{year:2000,marketReturn:-0.091,inflation:0.034},
+            {year:2001,marketReturn:-0.119,inflation:0.028},{year:2002,marketReturn:-0.220,inflation:0.016},
+            {year:2003,marketReturn:0.287,inflation:0.023},{year:2004,marketReturn:0.109,inflation:0.027},
+            {year:2005,marketReturn:0.049,inflation:0.034},{year:2006,marketReturn:0.156,inflation:0.032},
+            {year:2007,marketReturn:0.055,inflation:0.028},{year:2008,marketReturn:-0.370,inflation:0.038},
+            {year:2009,marketReturn:0.266,inflation:-0.004},{year:2010,marketReturn:0.153,inflation:0.016},
+            {year:2011,marketReturn:0.021,inflation:0.032},{year:2012,marketReturn:0.160,inflation:0.021},
+            {year:2013,marketReturn:0.323,inflation:0.015},{year:2014,marketReturn:0.136,inflation:0.016},
+            {year:2015,marketReturn:0.015,inflation:0.001},{year:2016,marketReturn:0.119,inflation:0.013},
+            {year:2017,marketReturn:0.218,inflation:0.021},{year:2018,marketReturn:-0.043,inflation:0.024},
+            {year:2019,marketReturn:0.315,inflation:0.018},{year:2020,marketReturn:0.184,inflation:0.012},
+            {year:2021,marketReturn:0.269,inflation:0.047},{year:2022,marketReturn:-0.194,inflation:0.080},
+            {year:2023,marketReturn:0.242,inflation:0.034},{year:2024,marketReturn:0.233,inflation:0.029}
+        ];
+
+        // ============================================
+        // Simulation functions (extracted logic)
+        // ============================================
+        function runAccumulationSim(currentSavings, income, expenses, targetAmount, stockAllocation, incomeGrowth, maxYears, simCount) {
+            const results = [];
+            for (let i = 0; i < simCount; i++) {
+                let portfolio = currentSavings;
+                let currentIncome = income;
+                let currentExpenses = expenses;
+                let years = 0;
+                let reachedGoal = false;
+                while (years < maxYears && !reachedGoal) {
+                    const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
+                    const portfolioReturn = (yearData.marketReturn * stockAllocation) + (DEFAULT_BOND_RETURN * (1 - stockAllocation));
+                    portfolio = portfolio * (1 + portfolioReturn);
+                    currentExpenses = currentExpenses * (1 + yearData.inflation);
+                    currentIncome = currentIncome * (1 + incomeGrowth) * (1 + yearData.inflation);
+                    const annualSavings = Math.max(0, currentIncome - currentExpenses);
+                    portfolio += annualSavings;
+                    if (portfolio >= targetAmount) reachedGoal = true;
+                    years++;
+                }
+                results.push({ reachedGoal, years: reachedGoal ? years : null, finalBalance: portfolio });
+            }
+            return results;
+        }
+
+        function runRetirementSim(retirementSavings, annualWithdrawal, stockAllocation, taxRate, adjustForInflation, maxYears, simCount) {
+            const results = [];
+            for (let i = 0; i < simCount; i++) {
+                let portfolio = retirementSavings;
+                let currentWithdrawal = annualWithdrawal;
+                let ranOutOfMoney = false;
+                let years = 0;
+                while (years < maxYears && !ranOutOfMoney) {
+                    const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
+                    const portfolioReturn = (yearData.marketReturn * stockAllocation) + (DEFAULT_BOND_RETURN * (1 - stockAllocation));
+                    portfolio = portfolio * (1 + portfolioReturn);
+                    if (adjustForInflation && years > 0) {
+                        currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
+                    }
+                    const preTaxWithdrawal = currentWithdrawal / (1 - taxRate);
+                    portfolio -= preTaxWithdrawal;
+                    if (portfolio <= 0) { ranOutOfMoney = true; portfolio = 0; }
+                    years++;
+                }
+                results.push({ ranOutOfMoney, yearsLasted: years, finalBalance: portfolio });
+            }
+            return results;
+        }
+
+        function formatCurrency(amount) {
+            if (amount == null || isNaN(amount)) return '$0';
+            const isNegative = amount < 0;
+            const abs = Math.abs(amount);
+            const formatted = abs.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            return isNegative ? `-$${formatted}` : `$${formatted}`;
+        }
+
+        // ============================================
+        // Test framework
+        // ============================================
+        let passed = 0, failed = 0;
+        const tbody = document.getElementById('results');
+
+        function addCategory(name) {
+            const tr = document.createElement('tr');
+            tr.className = 'category';
+            tr.innerHTML = `<td colspan="4">${name}</td>`;
+            tbody.appendChild(tr);
+        }
+
+        function test(name, expected, actual, pass, detail) {
+            if (pass) passed++; else failed++;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${name}${detail ? `<br><span class="detail">${detail}</span>` : ''}</td>
+                <td>${expected}</td>
+                <td>${actual}</td>
+                <td class="${pass ? 'pass' : 'fail'}">${pass ? '✅ PASS' : '❌ FAIL'}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        // ============================================
+        // Run tests
+        // ============================================
+
+        // --- Historical Data Validation ---
+        addCategory('Historical Data Validation');
+
+        test('Has entries from 1975-2024',
+            '50 entries',
+            `${historicalData.length} entries`,
+            historicalData.length === 50);
+
+        const minYear = Math.min(...historicalData.map(d => d.year));
+        const maxYear = Math.max(...historicalData.map(d => d.year));
+        test('Year range 1975-2024', '1975-2024', `${minYear}-${maxYear}`, minYear === 1975 && maxYear === 2024);
+
+        const allReturnsValid = historicalData.every(d => d.marketReturn >= -0.5 && d.marketReturn <= 0.5);
+        test('All returns between -0.5 and 0.5', 'true', String(allReturnsValid), allReturnsValid);
+
+        const allInflationValid = historicalData.every(d => d.inflation >= -0.01 && d.inflation <= 0.15);
+        test('All inflation between -0.01 and 0.15', 'true', String(allInflationValid), allInflationValid);
+
+        // --- Zero Growth Test ---
+        addCategory('Accumulation Simulation Math');
+
+        // Zero growth: $100K, 0% stock, 0 income, 0 expenses, 10 years
+        // With 0% stock allocation, return = 3% bonds only. To get true zero growth,
+        // we need 0% stock and the sim uses historical data. Let's test with a deterministic check.
+        // Actually, with 0 income and 0 expenses, portfolio just grows by bond return.
+        // For a true zero test, let's check that with zero allocation and zero bond return concept:
+        // We'll accept ~100K * (1.03)^10 ≈ $134,392 with 0% stock (all bonds at 3%)
+        {
+            const results = runAccumulationSim(100000, 0, 0, 10000000, 0, 0, 10, 100);
+            const medianBalance = results.map(r => r.finalBalance).sort((a,b) => a-b)[50];
+            const expected = 100000 * Math.pow(1.03, 10); // ~134,392
+            const withinRange = Math.abs(medianBalance - expected) / expected < 0.05;
+            test('$100K, 0% stock (3% bonds), 10yr',
+                `~${formatCurrency(Math.round(expected))}`,
+                formatCurrency(Math.round(medianBalance)),
+                withinRange,
+                'All-bond portfolio should compound at ~3%');
+        }
+
+        // Known compound growth: $10K, 100% stock, but we need deterministic.
+        // We'll use many sims and check the median is in a reasonable range.
+        // Historical avg nominal return ~10.7%, so $10K over 10 years should be much higher.
+        // Instead, let's verify the math by checking with 0% stock = 3% bonds exactly.
+        {
+            const results = runAccumulationSim(10000, 0, 0, 99999999, 0, 0, 10, 1);
+            const balance = results[0].finalBalance;
+            const expected = 10000 * Math.pow(1.03, 10); // $13,439.16
+            const withinRange = Math.abs(balance - expected) < 1;
+            test('Known compound: $10K, 3% bonds, 10yr',
+                `$${expected.toFixed(0)}`,
+                `$${balance.toFixed(0)}`,
+                withinRange,
+                'Deterministic with 0% stock allocation');
+        }
+
+        // --- Median Return Range ---
+        {
+            // Run 1000 sims with 100% stock, check median annual return is in 5-9% range (real)
+            const simCount = 1000;
+            const years = 20;
+            const results = runAccumulationSim(100000, 0, 0, 99999999, 1.0, 0, years, simCount);
+            const medianFinal = results.map(r => r.finalBalance).sort((a,b) => a-b)[Math.floor(simCount/2)];
+            // Calculate implied annual return
+            const impliedReturn = Math.pow(medianFinal / 100000, 1/years) - 1;
+            const inRange = impliedReturn >= 0.05 && impliedReturn <= 0.14;
+            test('Median nominal return (1000 sims, 100% stock)',
+                '5-14% annual',
+                `${(impliedReturn * 100).toFixed(1)}%`,
+                inRange,
+                `Median final: ${formatCurrency(Math.round(medianFinal))}`);
+        }
+
+        // --- 4% Rule Test ---
+        addCategory('Retirement Simulation Math');
+
+        {
+            const simCount = 1000;
+            const results = runRetirementSim(1000000, 40000, 0.6, 0, false, 30, simCount);
+            const successRate = results.filter(r => !r.ranOutOfMoney).length / simCount * 100;
+            const passes = successRate > 90;
+            test('4% rule: $1M, $40K/yr, 30yr survival >90%',
+                '>90%',
+                `${successRate.toFixed(1)}%`,
+                passes,
+                `${results.filter(r => !r.ranOutOfMoney).length}/${simCount} survived`);
+        }
+
+        {
+            // With high withdrawal rate, should mostly fail
+            const results = runRetirementSim(100000, 50000, 0.6, 0, false, 30, 500);
+            const successRate = results.filter(r => !r.ranOutOfMoney).length / 500 * 100;
+            test('High withdrawal: $100K savings, $50K/yr',
+                '<10% survival',
+                `${successRate.toFixed(1)}%`,
+                successRate < 10,
+                '50% withdrawal rate should fail');
+        }
+
+        // --- Edge Cases ---
+        addCategory('Edge Cases');
+
+        {
+            const results = runAccumulationSim(0, 0, 0, 1000000, 0.7, 0, 10, 10);
+            const allZero = results.every(r => Math.abs(r.finalBalance) < 1);
+            test('Zero savings, zero income', '~$0 final', formatCurrency(Math.round(results[0].finalBalance)), allZero);
+        }
+
+        {
+            const results = runRetirementSim(0, 40000, 0.6, 0, false, 30, 10);
+            const allFailed = results.every(r => r.ranOutOfMoney);
+            test('Zero retirement savings', 'All deplete immediately', `${results[0].yearsLasted} years`, allFailed || results[0].yearsLasted <= 1);
+        }
+
+        {
+            // Negative withdrawal makes no sense but shouldn't crash
+            let crashed = false;
+            try {
+                const results = runRetirementSim(1000000, -10000, 0.6, 0, false, 30, 10);
+                // With negative withdrawal (adding money), should never run out
+                test('Negative withdrawal (adding money)', 'No crash, all survive', 
+                    `${results.filter(r => !r.ranOutOfMoney).length}/10 survived`, !results.some(r => r.ranOutOfMoney));
+            } catch(e) {
+                crashed = true;
+                test('Negative withdrawal', 'No crash', 'Crashed: ' + e.message, false);
+            }
+        }
+
+        // --- Currency Formatter ---
+        addCategory('Currency Formatter');
+
+        test('formatCurrency(1234)', '$1,234', formatCurrency(1234), formatCurrency(1234) === '$1,234');
+        test('formatCurrency(0)', '$0', formatCurrency(0), formatCurrency(0) === '$0');
+        test('formatCurrency(-5000)', '-$5,000', formatCurrency(-5000), formatCurrency(-5000) === '-$5,000');
+        test('formatCurrency(1000000)', '$1,000,000', formatCurrency(1000000), formatCurrency(1000000) === '$1,000,000');
+        test('formatCurrency(NaN)', '$0', formatCurrency(NaN), formatCurrency(NaN) === '$0');
+        test('formatCurrency(null)', '$0', formatCurrency(null), formatCurrency(null) === '$0');
+
+        // --- Summary ---
+        const total = passed + failed;
+        document.getElementById('summary').innerHTML = `
+            <div class="summary-box summary-total">Total: ${total}</div>
+            <div class="summary-box summary-pass">Passed: ${passed}</div>
+            <div class="summary-box summary-fail">Failed: ${failed}</div>
+        `;
+        document.title = `FIRECalc Tests — ${failed === 0 ? 'ALL PASS ✅' : failed + ' FAILED ❌'}`;
+    </script>
+</body>
+</html>
