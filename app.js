@@ -23,9 +23,9 @@
     };
 
     const C = {
-        teal: '#0F7B6C', tealStrong: '#0B6358', sun: '#EE8F3A', sunStrong: '#B8621A',
+        teal: '#0F7B6C', tealStrong: '#0B6358', sun: '#EE8F3A', sunStrong: '#9A5214',
         sky: '#4F9BD9', coral: '#D0503F', plum: '#8C6BC8', rose: '#C2577F',
-        ink: '#1C2433', muted: '#5B6576', faint: '#8A93A2', grid: 'rgba(28, 36, 51, .07)'
+        ink: '#1C2433', muted: '#5B6576', faint: '#636B7A', grid: 'rgba(28, 36, 51, .07)'
     };
     const PIN_COLORS = [C.sun, C.sky, C.plum, C.rose];
 
@@ -1807,6 +1807,12 @@
         table.append(thead, tbody);
     }
 
+    // Zoom the y-axis to the lowest curve so close scenarios stay distinguishable; ticks keep the scale honest.
+    function compareFloor(series) {
+        const lowest = Math.min(...series.map(arr => Math.min(...arr.filter(v => v != null))));
+        return Math.max(0, Math.min(80, Math.floor((lowest - 5) / 10) * 10));
+    }
+
     function renderSavingsCompare() {
         const card = $('savingsCompare');
         const pins = state.pins.savings;
@@ -1866,7 +1872,7 @@
             },
             options: {
                 interaction: { mode: 'index', intersect: false },
-                scales: { x: xAxis('Years into retirement'), y: yAxis({ min: 0, max: 100, ticks: { padding: 8, stepSize: 25, callback: v => `${v}%` } }) },
+                scales: { x: xAxis('Years into retirement'), y: yAxis({ min: compareFloor(all.map(a => a.survival)), max: 100, ticks: { padding: 8, maxTicksLimit: 6, callback: v => `${v}%` } }) },
                 plugins: { tooltip: { callbacks: { title: items => `Year ${items[0].label}`, label: item => ` ${pct(item.parsed.y)} have money · ${item.dataset.label.length > 38 ? `${item.dataset.label.slice(0, 38)}…` : item.dataset.label}` } } }
             }
         });
