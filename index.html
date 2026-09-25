@@ -14,7 +14,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -114,7 +113,7 @@
                 <label for="targetAmount">Retirement Goal ($)
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">The total amount of savings you are aiming to accumulate for this financial goal.</span>
+                        <span class="tooltip-text">The savings you want in today's purchasing power. The model compares your inflation-adjusted balance to this amount. A nominal balance can pass this number before your purchasing power does.</span>
                     </span>
                 </label>
                 <input type="text" id="targetAmount" value="1000000" placeholder="e.g., 1000000" title="Total savings target needed to fund your retirement">
@@ -125,7 +124,7 @@
                 <label for="stockAllocation">Stock Allocation: <span id="stockAllocationValue">70</span>%
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">The percentage of your investment portfolio allocated to stocks. The remainder is assumed to be in lower-risk assets like bonds/cash (simulated with a 3% annual return). Stock returns are simulated based on historical S&amp;P 500 data.</span>
+                        <span class="tooltip-text">The percentage allocated to US large-cap stocks (S&amp;P 500 total return). The rest earns that year's 10-year Treasury return, which can be negative. It is not a flat 3% and it is not the Bloomberg Aggregate bond index.</span>
                     </span>
                 </label>
                 <input type="range" id="stockAllocation" min="0" max="100" value="70" 
@@ -146,6 +145,20 @@
                     <option value="5000">5,000 (Comprehensive)</option>
                 </select>
             </div>
+
+            <div style="margin-top: 16px;">
+                <label for="savingsReturnMode">Market path
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Shuffled years draws each year independently from 1975–2024. Historical cycles walks through the years that actually followed each start year. The sample starts in 1975, so 1966 and 1973–74 are not included.</span>
+                    </span>
+                </label>
+                <select id="savingsReturnMode">
+                    <option value="shuffled" selected>Shuffled years</option>
+                    <option value="historical">Historical cycles</option>
+                </select>
+                <p id="savingsReturnModeNote" style="font-size: 0.85rem; color: #64748b; margin-top: 8px;"></p>
+            </div>
             
             <div class="simulation-button-wrapper">
                 <button id="runSimulation" class="simulation-button" onclick="runAccumulationSimulation()">
@@ -161,15 +174,7 @@
             
             <div class="result-card primary-card">
                 <div class="result-highlight" id="yearsToGoal">--</div>
-                <div class="result-description">Median years to reach your target.</div>
-            </div>
-            
-            <!-- Add AI Analysis button after the primary result card -->
-            <div class="ai-analysis-container">
-                <button id="aiAnalysisBtn" class="ai-analysis-button">
-                    <svg width="24px" height="24px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;"><title>OpenAI icon</title><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="currentColor"/></svg>
-                    AI Analysis
-                </button>
+                <div class="result-description" id="yearsToGoalNote">Median years to reach your target in today's purchasing power.</div>
             </div>
             
             <!-- Insert Range of Outcomes chart here, right after the primary results card -->
@@ -187,10 +192,10 @@
             </div>
             
             <div class="result-card">
-                <h3>Median Portfolio Growth Sources
+                <h3>Median Portfolio Growth (today's dollars)
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">Shows how your savings grow in the median simulation, breaking down contributions versus investment returns over time.</span>
+                        <span class="tooltip-text">Median path, in today's purchasing power. The goal line you typed is in the same dollars. Nominal balances are larger once inflation compounds.</span>
                     </span>
                 </h3>
                 <div class="chart-label">Growth Components</div>
@@ -203,7 +208,7 @@
                 <h3>Key Milestones
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">Shows when you're expected to reach important savings thresholds based on the median simulation.</span>
+                        <span class="tooltip-text">When the median path reaches 25%, 50%, 75%, and 100% of your goal in today's purchasing power.</span>
                     </span>
                 </h3>
                 <div class="milestones-grid">
@@ -303,7 +308,7 @@
                     <label for="retirementStockAllocation">Stock Allocation: <span id="retirementStockAllocationValue">60</span>%
                         <span class="tooltip-container">
                             <span class="tooltip-icon">?</span>
-                            <span class="tooltip-text">The percentage of your investment portfolio allocated to stocks during retirement. The remainder is assumed to be in lower-risk assets like bonds/cash (simulated with a 3% annual return). Stock returns are simulated based on historical S&amp;P 500 data.</span>
+                            <span class="tooltip-text">The percentage allocated to US large-cap stocks (S&amp;P 500 total return). The rest earns that year's 10-year Treasury return, which can be negative. It is not a flat 3% and it is not the Bloomberg Aggregate bond index.</span>
                         </span>
                     </label>
                     <input type="range" id="retirementStockAllocation" min="0" max="100" value="60" 
@@ -430,7 +435,7 @@
                                 Optimize withdrawal order
                                 <span class="tooltip-container">
                                     <span class="tooltip-icon">?</span>
-                                    <span class="tooltip-text">Draw from taxable brokerage first (capital gains rates), then pre-tax (ordinary income), then Roth (tax-free) last.</span>
+                                    <span class="tooltip-text">Not applied. The model does not track separate account balances, so withdrawals stay split by the percentages above.</span>
                                 </span>
                             </label>
                         </div>
@@ -452,6 +457,20 @@
                     <option value="5000">5,000 (Comprehensive)</option>
                 </select>
             </div>
+
+            <div style="margin-top: 16px;">
+                <label for="retirementReturnMode">Market path
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">?</span>
+                        <span class="tooltip-text">Shuffled years draws each year independently from 1975–2024. Historical cycles uses only complete start-year windows long enough for your retirement length. A 30-year retirement has 21 windows. 1966 and 1973–74 are not in the sample.</span>
+                    </span>
+                </label>
+                <select id="retirementReturnMode">
+                    <option value="shuffled" selected>Shuffled years</option>
+                    <option value="historical">Historical cycles</option>
+                </select>
+                <p id="retirementReturnModeNote" style="font-size: 0.85rem; color: #64748b; margin-top: 8px;"></p>
+            </div>
             
             <!-- Income Sources (collapsible) -->
             <div class="collapsible-section">
@@ -462,7 +481,7 @@
                     <!-- Social Security -->
                     <div class="income-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="includeSS" checked>
+                            <input type="checkbox" id="includeSS">
                             Include Social Security
                         </label>
                         <div class="income-subfields" id="ssFields">
@@ -592,27 +611,20 @@
             <div class="result-card primary-card">
                 <div class="result-highlight" id="successRate">-</div>
                 <p style="text-align: center;">
-                    Probability of not running out of money
+                    Share of scenarios where the portfolio lasted the full retirement
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">Based on thousands of simulations, this is the percentage of scenarios where your savings last throughout your retirement.</span>
+                        <span class="tooltip-text">Success means the balance stayed above zero at the end of every year of the horizon you set. Social Security is off unless you turn it on. When it is on, the note under this number says so, because that income raises the success rate.</span>
                     </span>
                 </p>
-            </div>
-
-            <!-- Add AI Analysis button after the primary result card -->
-            <div class="ai-analysis-container">
-                <button id="retirementAiAnalysisBtn" class="ai-analysis-button">
-                    <svg width="24px" height="24px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;"><title>OpenAI icon</title><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="currentColor"/></svg>
-                    AI Analysis
-                </button>
+                <p id="retirementAssumptions" style="text-align: center; font-size: 0.95rem; margin-top: 12px;"></p>
             </div>
 
             <div class="result-card">
                 <h3>Portfolio Balance Over Time
                     <span class="tooltip-container">
                         <span class="tooltip-icon">?</span>
-                        <span class="tooltip-text">Shows how your retirement portfolio value might change over time under different scenarios.</span>
+                        <span class="tooltip-text">Sample paths in future dollars, ranked by ending value. These lines are not the balance percentile at each age.</span>
                     </span>
                 </h3>
                 <div class="chart-label">Balance Projections</div>
@@ -661,7 +673,7 @@
                     <div class="summary-item" style="border: 1px solid var(--neutral-light); padding: 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow); background-color: white; text-align: center;">
                         <div class="summary-label">Worst Case Ending Age</div>
                         <div class="summary-value" id="worstCaseAge" style="font-size: 1.8rem; margin: 8px 0;">-</div>
-                        <div class="summary-description" style="font-size: 0.85rem; color: var(--neutral);">When funds run out (10th percentile)</div>
+                        <div class="summary-description" style="font-size: 0.85rem; color: var(--neutral);">Short depletion among paths that ran out</div>
                     </div>
                     <div class="summary-item" id="ssCoverageItem" style="border: 1px solid var(--neutral-light); padding: 16px; border-radius: var(--radius-sm); box-shadow: var(--shadow); background-color: white; text-align: center; display: none;">
                         <div class="summary-label">Income Sources Coverage</div>
@@ -772,110 +784,70 @@
             <h2>FIREcalc - Help Guide</h2>
             
             <div class="help-section">
-                <h3>Tool Capabilities & Features</h3>
-                <p>FIREcalc offers two powerful calculators to help you achieve financial independence and plan for early retirement:</p>
-                
-                <h4>Savings Calculator</h4>
+                <h3>What this calculator actually does</h3>
+                <p>FIREcalc runs a savings calculator and a retirement calculator in your browser. Nothing you type is sent to a server to compute the result.</p>
+                <h4>The data, 1975–2024</h4>
                 <ul>
-                    <li><strong>Goal Projection:</strong> Estimate how long it might take to reach a specific savings target</li>
-                    <li><strong>Key Milestones:</strong> See when you're projected to reach 25%, 50%, 75%, and 100% of your goal</li>
-                    <li><strong>Range of Outcomes:</strong> View the distribution of possible timelines based on different market scenarios</li>
-                    <li><strong>Growth Sources:</strong> Understand how much of your wealth comes from contributions vs. investment returns</li>
-                    <li><strong>Simulation Summary:</strong> See optimistic, typical, and conservative estimates for reaching your goal</li>
-                    <li><strong>Share Feature:</strong> Create shareable links to your specific scenarios</li>
+                    <li><strong>Stocks:</strong> S&amp;P 500 total return, including dividends. 1975–2020 is the series this app already used. 2021–2024 had been price returns (dividends left out) and are now total returns: 28.47%, −18.04%, 26.06%, and 24.88%, from Damodaran’s S&amp;P 500 series.</li>
+                    <li><strong>Non-stock sleeve:</strong> that year’s 10-year US Treasury total return, from Aswath Damodaran, NYU Stern, “Historical Returns on Stocks, Bonds and Bills” (January 2026). This is not the Bloomberg US Aggregate. Treasury returns can be negative. 2022 was −17.83% in the same year stocks were −18.04%. The series is more volatile than a total-bond-market fund.</li>
+                    <li><strong>Inflation:</strong> the CPI rate already stored on each row, paired with that year’s stock return.</li>
                 </ul>
-                
-                <h4>Retirement Calculator</h4>
+                <p>The table starts in 1975. It does not include 1966 or 1973–74, which are among the hardest US retirement start dates. A success rate here is not a full-history Trinity or Bengen study.</p>
+                <h4>Two ways to use the table</h4>
                 <ul>
-                    <li><strong>Longevity Analysis:</strong> Project how long your retirement savings might last</li>
-                    <li><strong>Success Rate:</strong> Calculate the probability of your money lasting through retirement</li>
-                    <li><strong>Portfolio Simulation:</strong> See how your retirement account might change over time</li>
-                    <li><strong>Withdrawal Strategy:</strong> Test different withdrawal amounts, with or without inflation adjustments</li>
-                    <li><strong>Tax Impact:</strong> Account for taxes on withdrawals from retirement accounts</li>
-                    <li><strong>Asset Allocation:</strong> Compare results with different stock/bond allocations</li>
-                    <li><strong>Share Feature:</strong> Create shareable links to your specific scenarios</li>
+                    <li><strong>Shuffled years:</strong> each simulated year is drawn at random from the 50 rows. Stock return, Treasury return, and inflation stay together for that draw. The next year is independent. The simulation count is how many of these paths run. This is not a historical sequence.</li>
+                    <li><strong>Historical cycles:</strong> the model walks forward through the years that actually followed a start year. Retirement keeps only complete windows. A 30-year retirement has 21 windows (1975–2004 through 1995–2024). A 50-year retirement has one window. Savings uses every start year from 1975 until the goal or until 2024, so a start near the end of the sample has only a few years of data.</li>
                 </ul>
-            </div>
-            
-            <div class="help-section">
-                <h3>Simulation Approach</h3>
-                <p>Our calculators use Monte Carlo simulation, a statistical technique that runs many scenarios with different market returns to provide a range of possible outcomes.</p>
-                
-                <h4>How It Works:</h4>
-                <ol>
-                    <li><strong>Multiple Scenarios:</strong> Each simulation runs 1,000 different market scenarios</li>
-                    <li><strong>Random Sampling:</strong> Each year's returns are randomly selected from historical data</li>
-                    <li><strong>Full Lifecycle:</strong> The tool simulates each year from your current age through retirement</li>
-                    <li><strong>Percentile Results:</strong> Results show 10th percentile (optimistic), median (typical), and 90th percentile (conservative) outcomes</li>
-                </ol>
-                
-                <h4>Key Assumptions:</h4>
+                <h4>Savings goal is today’s purchasing power</h4>
+                <p>The dollar goal you type is what you want in today’s dollars. Each year the portfolio earns that year’s stock and Treasury return, income and spending rise with that year’s inflation, and the contribution is income minus spending (never below zero). The model compares portfolio ÷ cumulative inflation to your goal. Charts and milestones are in today’s dollars. A nominal balance can pass the goal number while purchasing power has not.</p>
+                <h4>Retirement success</h4>
+                <p>Success means the portfolio is still above zero at the end of every year of the horizon you chose. The year’s return is applied before the withdrawal. If “Adjust withdrawals for inflation” is checked, spending rises with inflation starting in the second year. The first year uses the spending amount you typed. Simple taxes gross spending up by 1 ÷ (1 − tax rate). There is no fee, no glide path, and no separate cash bucket.</p>
+                <p>Social Security is off unless you open Income Sources and turn it on. When it is on, the result says the monthly benefit, the claiming age, and that the income is inside the success rate. That rate is then not a portfolio-only withdrawal test. The default used to leave a $2,000 monthly benefit checked behind a collapsed panel. It no longer does.</p>
+                <h4>What the headline numbers are</h4>
                 <ul>
-                    <li>Inflation is modeled using Monte Carlo simulation with historical CPI data from 1975-2020, identical to how market returns are simulated</li>
-                    <li>Investment returns are based on historical data (see below)</li>
-                    <li>For the savings calculator, annual contributions are calculated as income minus expenses</li>
-                    <li>Taxes are estimated based on the specified tax rate in retirement</li>
-                    <li>All values are in today's dollars when adjusted for inflation</li>
+                    <li>Savings shows the median number of years to the real goal. It does not show a 10th or 90th percentile.</li>
+                    <li>The retirement balance chart draws sample paths ranked by ending value. Those lines are not the percentile of wealth at each age.</li>
+                    <li>Retirement balances are future dollars. Savings balances on the growth chart are today’s dollars.</li>
                 </ul>
             </div>
-            
-            <div class="help-section">
-                <h3>Historical Data Sources</h3>
-                <p>Our simulations use historical market data from 1975 to 2020 for a realistic range of potential outcomes:</p>
-                
-                <ul>
-                    <li><strong>Stock Returns:</strong> S&P 500 Total Return Index, including dividends (1975-2020)</li>
-                    <li><strong>Bond Returns:</strong> Bloomberg US Aggregate Bond Index (1975-2020)</li>
-                    <li><strong>Inflation Data:</strong> US Consumer Price Index (CPI) data (1975-2020)</li>
-                </ul>
-                
-                <p>This period includes major events like:</p>
-                <ul>
-                    <li>Multiple recessions (1980s, 2001, 2008-2009)</li>
-                    <li>Bull markets of the 1980s, 1990s, and 2010s</li>
-                    <li>High inflation periods (late 1970s)</li>
-                    <li>Low interest rate environments (2010s)</li>
-                </ul>
-                
-                <p><strong>Important Note:</strong> Past performance does not guarantee future results. These simulations provide estimates based on historical data but cannot predict future market performance with certainty.</p>
-            </div>
-            
+
             <div class="help-section">
                 <h3>FAQ</h3>
-                
+
                 <h4>What is FIRE?</h4>
-                <p>FIRE stands for Financial Independence, Retire Early. It's a movement focused on extreme savings and investment to allow for early retirement. The core principle is to save and invest a large percentage of your income (often 50-70%) for a period of time, creating a portfolio that can sustain your living expenses indefinitely, typically through passive income or safe withdrawal strategies.</p>
-                
-                <h4>What is the 4% rule?</h4>
-                <p>The 4% rule is a retirement withdrawal strategy that suggests you can withdraw 4% of your initial portfolio value annually (adjusted for inflation) with a high probability of not running out of money over a 30-year retirement. It originated from the Trinity Study and is a cornerstone of FIRE planning. Our retirement calculator allows you to test different withdrawal rates to find what works for your specific situation.</p>
-                
-                <h4>How do I know if I've reached my FIRE number?</h4>
-                <p>Your FIRE number is typically calculated as 25 times your annual expenses (based on the 4% rule). For example, if you need $40,000 per year to live, your FIRE number would be $1,000,000. The savings calculator can help you project how long it might take to reach this target. Many FIRE practitioners also distinguish between "lean FIRE" (minimal expenses), "regular FIRE," and "fat FIRE" (more generous spending) depending on lifestyle goals.</p>
-                
+                <p>FIRE means financial independence, retire early: save and invest enough that work becomes optional. A common starting point is a portfolio of about 25 times annual spending, which is a 4% initial withdrawal. That is a rule of thumb, not a result this tool prints by itself.</p>
+
+                <h4>What is the 4% rule, and does this tool reproduce it?</h4>
+                <p>The published 4% rule (Bengen, and the Trinity study) measured an inflation-adjusted withdrawal over historical retirement cohorts, using historical stock and bond returns. This tool can run a similar question only in Historical cycles mode, and only inside 1975–2024. Shuffled years are a different statistic. A 15% tax makes a $40,000 after-tax withdrawal a larger pre-tax draw. Social Security, if you turn it on, lowers the portfolio withdrawal and raises the success rate. Read the note under the result before treating the percentage as a 4% test.</p>
+
+                <h4>How do I know if I’ve reached my FIRE number?</h4>
+                <p>Type the portfolio you want in today’s purchasing power. The savings calculator reports how many years the median path takes to get there after inflation. Reaching a nominal balance equal to that number is not the same thing.</p>
+
                 <h4>How accurate are these projections?</h4>
-                <p>The projections provide reasonable estimates based on historical market behavior from 1975-2020, but cannot account for unprecedented events or structural economic changes. We recommend using the results as a planning guideline rather than an exact prediction. For critical financial decisions, consider consulting with a financial advisor who understands FIRE principles.</p>
-                
-                <h4>Should I use the optimistic, median, or conservative estimate for planning?</h4>
-                <p>Most FIRE practitioners recommend using the conservative (90th percentile) estimate for critical planning to build in a safety margin. This helps protect against sequence of returns risk, which is particularly important for early retirees who have a longer retirement horizon. The median estimate shows the most statistically likely outcome, but using it provides less protection against market downturns early in retirement.</p>
-                
-                <h4>How do I interpret the "Range of Outcomes" chart?</h4>
-                <p>This chart shows both individual and cumulative distributions. The colored bars represent how many simulations reached the goal in exactly that year, while the green line shows the cumulative percentage of simulations that reached the goal by that year. This helps you understand both when you're most likely to reach your FIRE goal and the probability of reaching it within a certain timeframe.</p>
-                
-                <h4>What does the "Success Rate" in the Retirement calculator mean?</h4>
-                <p>The success rate is the percentage of simulations where your money lasted throughout your entire expected retirement period. For FIRE planning, many aim for a 90-95% success rate due to the longer retirement period. A higher success rate provides more confidence that your portfolio will survive market downturns, but may require you to work longer to build a larger nest egg.</p>
-                
-                <h4>How are taxes handled in the Retirement calculator?</h4>
-                <p>The Retirement calculator applies your specified tax rate to determine how much you need to withdraw pre-tax to achieve your desired after-tax withdrawal amount. For FIRE planning, tax optimization is crucial - consider strategies like Roth conversion ladders, tax-loss harvesting, and staying in lower tax brackets by managing your income carefully.</p>
-                
-                <h4>What if I want to include other income sources like rental properties or part-time work?</h4>
-                <p>You can account for these by reducing your withdrawal amount by the expected income from these sources. For example, if you need $40,000 annually but expect $10,000 from a rental property, you would set your withdrawal amount to $30,000. Many FIRE practitioners use a combination of portfolio withdrawals and side income ("barista FIRE" or "coast FIRE") to reduce pressure on their investment portfolio.</p>
-                
-                <h4>How should I adjust my FIRE plan for inflation?</h4>
-                <p>Both calculators use Monte Carlo simulation with historical inflation data, randomly sampling actual inflation rates for each year. In the Retirement calculator, enabling the "Adjust for Inflation" option ensures your withdrawals maintain purchasing power throughout your retirement. This is especially important for early retirees who may face 40+ years of inflation effects.</p>
-                
-                <h4>What asset allocation is best for FIRE?</h4>
-                <p>There's no one-size-fits-all answer, but many FIRE practitioners maintain a relatively high stock allocation (70-80%) even in retirement due to the longer time horizon. Use the Stock Allocation slider to test different allocations and see how they affect your success rate and potential portfolio growth. Consider decreasing stock allocation slightly as you approach your FIRE date to reduce sequence of returns risk.</p>
+                <p>They replay or reshuffle one 50-year US large-cap and Treasury sample. They leave out fees, returns before 1975, and markets outside this table. Use them as a planning sketch. For a decision about when to retire, compare Historical cycles with Shuffled years, and with Social Security off, before trusting a high success rate.</p>
+
+                <h4>Which result should I plan on?</h4>
+                <p>The savings screen shows one median, not an optimistic and a conservative percentile. Use Historical cycles as the sequence check and Shuffled years as a wider stress test. A single median is a weak plan if the retirement is long.</p>
+
+                <h4>How do I read the Range of Outcomes chart?</h4>
+                <p>Each bar is how many paths reached the real goal in that year. The line is the running total of paths that had reached it by then. Paths that never reach the goal are omitted from the bars. In historical mode, some of those misses are short windows at the end of the sample.</p>
+
+                <h4>What does retirement success rate mean?</h4>
+                <p>It is the share of paths that still had money at the end of every year of your horizon. In historical mode the denominator is the number of complete windows, which is small. 21 windows of 30 years is not the same as a century of overlapping cohorts.</p>
+
+                <h4>How are taxes handled?</h4>
+                <p>Simple mode applies one rate: pre-tax need = spending ÷ (1 − rate). Detailed mode uses 2025 federal brackets, the standard deduction, and long-term gains on half of taxable-account withdrawals. Brackets are not inflation-indexed while withdrawals grow, so long retirements drift into higher brackets. Social Security taxability uses married-filing-jointly thresholds even if you select single. The “optimize withdrawal order” box does not change the result, because account balances are not tracked. Withdrawals stay split by the percentages you enter. The model does not include early-withdrawal penalties, RMDs, NIIT, IRMAA, or ACA premiums.</p>
+
+                <h4>How do I include part-time work, a pension, or Social Security?</h4>
+                <p>Open Income Sources and enter them there. Do not also subtract that income from the withdrawal, or you will count it twice. Social Security uses the benefit at full retirement age (67) and scales it for the claiming age you pick. It receives a cost-of-living adjustment. A pension stays flat in nominal dollars.</p>
+
+                <h4>How is inflation handled?</h4>
+                <p>Savings: the goal stays in today’s dollars and the balance is deflated. Retirement: check “Adjust withdrawals for inflation” if spending should hold its purchasing power. The first retirement year uses the amount you typed. Later years use the inflation rates from the path.</p>
+
+                <h4>What does the stock slider mean?</h4>
+                <p>The stock share earns the S&amp;P 500 total return. The rest earns the 10-year Treasury return for the same year, including years when Treasuries lose money. There is no separate cash yield and no glide path.</p>
             </div>
+            
         </div>
     </div>
     
@@ -886,68 +858,11 @@
     
     <!-- Success message for high retirement success rate -->
     <div id="success-message" class="success-message" style="display: none;">
-        Congratulations! Your retirement plan looks very secure! 🎉
+        High success rate. Read the note under the result for whether Social Security or other income is included.
     </div>
-
-    <!-- Add AI Analysis Modal -->
-    <div id="aiAnalysisModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeAiAnalysisModal">&times;</span>
-            <h2>AI Analysis</h2>
-            
-            <div class="ai-options-container">
-                <div class="ai-option" id="exportDataOption">
-                    <div class="ai-option-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="36" height="36">
-                            <path d="M9.97.97a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06l-1.72-1.72v3.44h-1.5V3.31L8.03 5.03a.75.75 0 01-1.06-1.06l3-3zM9.75 6.75v6a.75.75 0 001.5 0v-6h3a3 3 0 013 3v7.5a3 3 0 01-3 3h-7.5a3 3 0 01-3-3v-7.5a3 3 0 013-3h3z" />
-                        </svg>
-                    </div>
-                    <h3>Export Data</h3>
-                    <p>Save a screenshot of your results and copy simulation data to clipboard</p>
-                </div>
-                
-                <div class="ai-option" id="aiAnalysisOption">
-                    <div class="ai-option-icon">
-                        <svg width="36px" height="36px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><title>OpenAI icon</title><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="currentColor"/></svg>
-                    </div>
-                    <h3>AI Insight</h3>
-                    <p>Send your simulation results to OpenAI for personalized analysis and recommendations</p>
-                </div>
-            </div>
-            
-            <!-- API Key Input Section (Initially Hidden) -->
-            <!--
-            <div id="apiKeySection" style="display: none;">
-                <h3>Enter your OpenAI API Key</h3>
-                <p>Your API key is used locally and never stored on our servers.</p>
-                <div class="api-key-input-container">
-                    <input type="password" id="openaiApiKey" placeholder="sk-..." class="api-key-input">
-                    <button id="submitApiKey" class="api-key-submit">Analyze</button>
-                </div>
-                <div class="api-key-help">
-                    <p>Don't have an API key? <a href="https://platform.openai.com/account/api-keys" target="_blank">Get one from OpenAI</a></p>
-                </div>
-            </div>
-            -->
-            
-            <!-- AI Analysis Results Section (Initially Hidden) -->
-            <div id="aiAnalysisResults" style="display: none;">
-                <h3>AI Analysis Results</h3>
-                <div id="aiAnalysisContent" class="ai-analysis-content">
-                    <div class="ai-loading">
-                        <div class="spinner"></div>
-                        <p>Analyzing your financial scenario...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CSS for AI Analysis Feature -->
-
-    <!-- CSS for AI Analysis Feature moved to styles.css -->
 
     <!-- Duplicate script blocks removed — all handlers in consolidated DOMContentLoaded -->
+    <script src="market-data.js"></script>
     <script src="tax-engine.js"></script>
     <script src="app.js"></script>
 </body>

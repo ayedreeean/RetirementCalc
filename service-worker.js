@@ -1,4 +1,4 @@
-const CACHE_NAME = 'firecalc-v4';
+const CACHE_NAME = 'firecalc-v5';
 const urlsToCache = [
   '/index.html',
   '/' // Cache the root as well, which often resolves to index.html

@@ -2,7 +2,7 @@
         // CONSTANTS
         // ============================================
         const DEFAULT_INFLATION = 0.03;
-        const DEFAULT_BOND_RETURN = 0.03;
+        const historicalData = window.FIRECALC_HISTORICAL;
         const SIMULATIONS_DEFAULT = 1000;
         const MAX_ACCUMULATION_YEARS = 50;
         const MAX_INPUT_VALUE = 999999999;
@@ -61,6 +61,7 @@
                 'retirementStockAllocation', 'withdrawalAdjustment', 'taxRate',
                 'simulationCount', 'retirementLifeExpectancy',
                 'includeSS', 'ssMonthlyBenefit', 'ssClaimingAge',
+                'savingsReturnMode', 'retirementReturnMode',
                 'includeSpouseSS', 'spouseSSMonthlyBenefit', 'spouseSSClaimingAge',
                 'includeOtherIncome', 'monthlyPension', 'pensionStartAge',
                 'monthlyOtherIncome', 'otherIncomeDuration'
@@ -71,13 +72,19 @@
                     inputs[id] = el.type === 'checkbox' ? el.checked : el.value;
                 }
             });
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs)); } catch(e) {}
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(inputs));
+                localStorage.setItem('firecalc_inputs_version', '2');
+            } catch(e) {}
         }
 
         function loadInputsFromStorage() {
             try {
                 const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                if (!saved) return;
+                if (!saved) {
+                    try { localStorage.setItem('firecalc_inputs_version', '2'); } catch (e) {}
+                    return;
+                }
                 Object.keys(saved).forEach(id => {
                     const el = document.getElementById(id);
                     if (el) {
@@ -97,62 +104,34 @@
                         }
                     }
                 });
+                migrateLegacySocialSecurityDefault(saved);
             } catch(e) {}
         }
 
-        // Define historical market data in the global scope
-        const historicalData = [
-            {year: 1975, marketReturn: 0.371, inflation: 0.070},
-            {year: 1976, marketReturn: 0.238, inflation: 0.048},
-            {year: 1977, marketReturn: -0.071, inflation: 0.067},
-            {year: 1978, marketReturn: 0.064, inflation: 0.090},
-            {year: 1979, marketReturn: 0.184, inflation: 0.113},
-            {year: 1980, marketReturn: 0.323, inflation: 0.135},
-            {year: 1981, marketReturn: -0.049, inflation: 0.103},
-            {year: 1982, marketReturn: 0.215, inflation: 0.062},
-            {year: 1983, marketReturn: 0.224, inflation: 0.032},
-            {year: 1984, marketReturn: 0.063, inflation: 0.043},
-            {year: 1985, marketReturn: 0.318, inflation: 0.036},
-            {year: 1986, marketReturn: 0.186, inflation: 0.019},
-            {year: 1987, marketReturn: 0.056, inflation: 0.036},
-            {year: 1988, marketReturn: 0.167, inflation: 0.041},
-            {year: 1989, marketReturn: 0.315, inflation: 0.047},
-            {year: 1990, marketReturn: -0.032, inflation: 0.054},
-            {year: 1991, marketReturn: 0.304, inflation: 0.042},
-            {year: 1992, marketReturn: 0.076, inflation: 0.030},
-            {year: 1993, marketReturn: 0.100, inflation: 0.030},
-            {year: 1994, marketReturn: 0.013, inflation: 0.026},
-            {year: 1995, marketReturn: 0.373, inflation: 0.028},
-            {year: 1996, marketReturn: 0.229, inflation: 0.030},
-            {year: 1997, marketReturn: 0.333, inflation: 0.023},
-            {year: 1998, marketReturn: 0.286, inflation: 0.016},
-            {year: 1999, marketReturn: 0.211, inflation: 0.022},
-            {year: 2000, marketReturn: -0.091, inflation: 0.034},
-            {year: 2001, marketReturn: -0.119, inflation: 0.028},
-            {year: 2002, marketReturn: -0.220, inflation: 0.016},
-            {year: 2003, marketReturn: 0.287, inflation: 0.023},
-            {year: 2004, marketReturn: 0.109, inflation: 0.027},
-            {year: 2005, marketReturn: 0.049, inflation: 0.034},
-            {year: 2006, marketReturn: 0.156, inflation: 0.032},
-            {year: 2007, marketReturn: 0.055, inflation: 0.028},
-            {year: 2008, marketReturn: -0.370, inflation: 0.038},
-            {year: 2009, marketReturn: 0.266, inflation: -0.004},
-            {year: 2010, marketReturn: 0.153, inflation: 0.016},
-            {year: 2011, marketReturn: 0.021, inflation: 0.032},
-            {year: 2012, marketReturn: 0.160, inflation: 0.021},
-            {year: 2013, marketReturn: 0.323, inflation: 0.015},
-            {year: 2014, marketReturn: 0.136, inflation: 0.016},
-            {year: 2015, marketReturn: 0.015, inflation: 0.001},
-            {year: 2016, marketReturn: 0.119, inflation: 0.013},
-            {year: 2017, marketReturn: 0.218, inflation: 0.021},
-            {year: 2018, marketReturn: -0.043, inflation: 0.024},
-            {year: 2019, marketReturn: 0.315, inflation: 0.018},
-            {year: 2020, marketReturn: 0.184, inflation: 0.012},
-            {year: 2021, marketReturn: 0.269, inflation: 0.047},
-            {year: 2022, marketReturn: -0.194, inflation: 0.080},
-            {year: 2023, marketReturn: 0.242, inflation: 0.034},
-            {year: 2024, marketReturn: 0.233, inflation: 0.029}
-        ];
+        // Older visits saved the factory default with Social Security checked.
+        // Turn that untouched default off once so a returning browser is not
+        // still running the subsidized case. Custom benefit amounts are kept.
+        function migrateLegacySocialSecurityDefault(saved) {
+            let version = null;
+            try { version = localStorage.getItem('firecalc_inputs_version'); } catch (e) {}
+            if (version === '2') return;
+            const untouched = saved
+                && saved.includeSS === true
+                && String(saved.ssMonthlyBenefit) === '2000'
+                && String(saved.ssClaimingAge) === '67';
+            if (untouched) {
+                const el = document.getElementById('includeSS');
+                if (el) el.checked = false;
+                try {
+                    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                    stored.includeSS = false;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+                } catch (e) {}
+            }
+            try { localStorage.setItem('firecalc_inputs_version', '2'); } catch (e) {}
+        }
+
+
         
         // Add any other global variables/functions needed by both calculators here
         
@@ -262,9 +241,6 @@
             setupCheckboxToggle('includeSpouseSS', 'spouseSSFields');
             setupCheckboxToggle('includeOtherIncome', 'otherIncomeFields');
 
-            // Setup AI Analysis (once)
-            setupAiAnalysis();
-
             // Setup share button
             setupShareButton();
 
@@ -293,6 +269,7 @@
                     if (params.has('taxRate')) document.getElementById('taxRate').value = params.get('taxRate');
                     if (params.has('retirementLifeExpectancy')) document.getElementById('retirementLifeExpectancy').value = params.get('retirementLifeExpectancy');
                     if (params.has('simulationCount')) document.getElementById('simulationCount').value = params.get('simulationCount');
+                    if (params.has('retirementReturnMode')) document.getElementById('retirementReturnMode').value = params.get('retirementReturnMode');
                     // Income sources
                     if (params.has('includeSS')) document.getElementById('includeSS').checked = params.get('includeSS') === 'true';
                     if (params.has('ssMonthlyBenefit')) document.getElementById('ssMonthlyBenefit').value = params.get('ssMonthlyBenefit');
@@ -320,10 +297,15 @@
                     }
                     if (params.has('incomeGrowth')) document.getElementById('incomeGrowth').value = params.get('incomeGrowth');
                     if (params.has('savingsSimulationCount')) document.getElementById('savingsSimulationCount').value = params.get('savingsSimulationCount');
+                    if (params.has('savingsReturnMode')) document.getElementById('savingsReturnMode').value = params.get('savingsReturnMode');
                     runAccumulationSimulation();
                 }
             }
+            wireReturnModeControl('savingsReturnMode', 'savingsSimulationCount', 'savingsReturnModeNote', 'savings');
+            wireReturnModeControl('retirementReturnMode', 'simulationCount', 'retirementReturnModeNote', 'retirement');
             applySharedParameters();
+            wireReturnModeControl('savingsReturnMode', 'savingsSimulationCount', 'savingsReturnModeNote', 'savings');
+            wireReturnModeControl('retirementReturnMode', 'simulationCount', 'retirementReturnModeNote', 'retirement');
 
             // Update global target amount + listen for changes
             const targetInput = document.getElementById('targetAmount');
@@ -393,6 +375,33 @@
             }
         });
         
+
+        function wireReturnModeControl(selectId, countId, noteId, which) {
+            const sel = document.getElementById(selectId);
+            const count = document.getElementById(countId);
+            const note = document.getElementById(noteId);
+            if (!sel) return;
+            const sync = () => {
+                const historical = sel.value === 'historical';
+                if (count) count.disabled = historical;
+                if (!note) return;
+                if (which === 'retirement') {
+                    note.textContent = historical
+                        ? 'Uses every complete window in 1975–2024. A 30-year retirement has 21 windows. The sample does not include 1966 or 1973–74. The non-stock sleeve is that year’s 10-year Treasury return.'
+                        : 'Each year is drawn independently from 1975–2024. This is not a historical sequence. The non-stock sleeve is that year’s 10-year Treasury return, which can be negative.';
+                } else {
+                    note.textContent = historical
+                        ? 'One path per start year from 1975 until the goal or the sample ends in 2024. Late starts have fewer years. 1966 and 1973–74 are not included.'
+                        : 'Each year is drawn independently from 1975–2024. The savings goal is measured in today’s purchasing power.';
+                }
+            };
+            if (!sel.dataset.bound) {
+                sel.addEventListener('change', sync);
+                sel.dataset.bound = '1';
+            }
+            sync();
+        }
+
         // Function to show a specific tab and hide others
         function showTab(tabId) {
             // Hide all tabs
@@ -454,103 +463,50 @@
             // Run simulation with small delay to allow UI to update
             setTimeout(() => {
                 const maxYears = 50;
-                const simulationResults = [];
-                
-                for (let i = 0; i < simulationCount; i++) {
-                    let portfolio = currentSavings;
-                    let years = 0;
-                    let reachedGoal = false;
-                    const yearlyData = [];
-                    
-                    let currentIncome = income;
-                    let currentExpenses = expenses;
-                    
-                    while (years < maxYears && !reachedGoal) {
-                        // Get random market return and inflation
-                        const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
-                        
-                        // Calculate portfolio return based on allocation
-                        const portfolioReturn = (yearData.marketReturn * stockAllocation) + 
-                                              (DEFAULT_BOND_RETURN * (1 - stockAllocation));
-                        
-                        // Update portfolio value with returns
-                        portfolio = portfolio * (1 + portfolioReturn);
-                        
-                        // Update income and expenses with inflation and growth
-                        currentExpenses = currentExpenses * (1 + yearData.inflation);
-                        currentIncome = currentIncome * (1 + incomeGrowth) * (1 + yearData.inflation);
-                        
-                        // Calculate annual savings (income - expenses)
-                        const annualSavings = Math.max(0, currentIncome - currentExpenses);
-                        
-                        // Add annual savings to portfolio
-                        portfolio += annualSavings;
-                        
-                        // Store data for this year
-                        yearlyData.push({
-                            year: currentAge + years,
-                            balance: portfolio,
-                            return: portfolioReturn,
-                            inflation: yearData.inflation,
-                            income: currentIncome,
-                            expenses: currentExpenses,
-                            contribution: annualSavings
-                        });
-                        
-                        // Check if goal has been reached
-                        if (portfolio >= targetAmount) {
-                            reachedGoal = true;
-                        }
-                        
-                        years++;
-                    }
-                    
-                    // Store simulation results
-                    simulationResults.push({
-                        yearsToGoal: reachedGoal ? years : null,
-                        reachedGoal: reachedGoal,
-                        finalBalance: portfolio,
-                        yearlyData: yearlyData
-                    });
-                }
-                
-                // Calculate years to target for each simulation
-                simulationResults.forEach(simulation => {
-                    let yearsToTarget = null;
-                    for (let i = 0; i < simulation.yearlyData.length; i++) {
-                        if (simulation.yearlyData[i].balance >= targetAmount) {
-                            yearsToTarget = i; // This is years from start, not the absolute year
-                            break;
-                        }
-                    }
-                    simulation.yearsToTarget = yearsToTarget;
+                const returnMode = (document.getElementById('savingsReturnMode') || {}).value || 'shuffled';
+                const sequences = window.FirecalcSim.buildSequences(
+                    historicalData, returnMode, maxYears, simulationCount, false);
+                const simulationResults = sequences.map(sequence => {
+                    const trial = window.FirecalcSim.runAccumulationTrial({
+                        currentAge: currentAge,
+                        currentSavings: currentSavings,
+                        income: income,
+                        expenses: expenses,
+                        targetAmount: targetAmount,
+                        stockAllocation: stockAllocation,
+                        incomeGrowth: incomeGrowth,
+                        maxYears: maxYears
+                    }, sequence);
+                    if (returnMode !== 'historical') trial.startYear = null;
+                    trial.yearsToGoal = trial.yearsToTarget;
+                    return trial;
                 });
-                
-                // Sort simulations by time to reach target (properly handling cases where target isn't reached)
+
                 const sortedSimulations = [...simulationResults].sort((a, b) => {
-                    if (!a.yearsToTarget && !b.yearsToTarget) return 0;
-                    if (!a.yearsToTarget) return 1; // Simulations that don't reach target go last
-                    if (!b.yearsToTarget) return -1;
+                    if (a.yearsToTarget == null && b.yearsToTarget == null) return 0;
+                    if (a.yearsToTarget == null) return 1;
+                    if (b.yearsToTarget == null) return -1;
                     return a.yearsToTarget - b.yearsToTarget;
                 });
-                
+
                 console.log("Savings simulations completed:", simulationResults.length);
-                
-                // Find the median years to target
+
                 const medianIndex = Math.floor(sortedSimulations.length * 0.5);
                 const medianSimulation = sortedSimulations[medianIndex];
-                const median = medianSimulation.yearsToTarget !== null ? medianSimulation.yearsToTarget : ">50";
-                
-                // Also update these to use the same sorted array
-                const p10 = sortedSimulations[Math.floor(sortedSimulations.length * 0.1)].yearsToTarget;
-                const p90 = sortedSimulations[Math.floor(sortedSimulations.length * 0.9)].yearsToTarget;
-                
-                // Store the median simulation for other functions to use
+                const median = medianSimulation.yearsToTarget;
+
                 window.medianSimulation = medianSimulation;
-                
-                // Update UI with results
-                document.getElementById('yearsToGoal').textContent = 
-                    typeof median === 'number' ? `${median} years` : "25+ years";
+
+                const yearsLabel = median == null
+                    ? (returnMode === 'historical' ? 'Not reached' : 'Not within 50 years')
+                    : `${median} years`;
+                document.getElementById('yearsToGoal').textContent = yearsLabel;
+                const yearsNote = document.getElementById('yearsToGoalNote');
+                if (yearsNote) {
+                    yearsNote.textContent = returnMode === 'historical'
+                        ? `Median of ${simulationResults.length} historical windows, one per start year from 1975. The goal is today's purchasing power. Windows that start late are shorter because the sample ends in 2024. 1966 and 1973–74 are not in the sample.`
+                        : `Median of ${simulationResults.length} shuffled-year trials. The goal is today's purchasing power: the nominal balance divided by inflation since the start. Years are drawn independently, not as a historical sequence.`;
+                }
                 
                 // Safely update resultTargetAmount if it exists
                 const resultTargetElement = document.getElementById('resultTargetAmount');
@@ -578,9 +534,7 @@
                 button.disabled = false;
                 button.textContent = originalButtonText;
                 
-                // Update this line to use the new ID "yearsToGoal" instead of "medianYearsToGoal"
-                document.getElementById('yearsToGoal').textContent = median;
-                initializeTableSorting(); // Initialize sorting after table is created
+                initializeTableSorting();
                 
                 // Scroll to the results section, accounting for the fixed header
                 const resultsElement = document.getElementById('results');
@@ -596,6 +550,28 @@
                     behavior: 'smooth'
                 });
             }, 50);
+        }
+
+
+        function retirementAssumptionSentences(opts) {
+            const sentences = [];
+            if (opts.returnMode === 'historical') {
+                sentences.push(`Historical cycles: ${opts.windowCount} complete ${opts.lifeExpectancy}-year windows from the 1975–2024 sample. This sample does not include 1966 or 1973–74.`);
+            } else {
+                sentences.push(`Shuffled years: ${opts.windowCount} trials. Each year is drawn independently from 1975–2024. That is not a historical sequence, and 1966 / 1973–74 are not in the sample.`);
+            }
+            if (opts.includeSS && opts.ssMonthlyBenefit > 0) {
+                sentences.push(`Social Security is on: $${Math.round(opts.ssMonthlyBenefit).toLocaleString()} per month at full retirement age, claimed at age ${opts.ssClaimingAge}. That income is included in this success rate. It is not a portfolio-only withdrawal result.`);
+            } else {
+                sentences.push('Social Security is off. This success rate counts portfolio withdrawals only, unless a pension or other income is also turned on.');
+            }
+            if (opts.includeSpouseSS && opts.spouseSSMonthlyBenefit > 0) {
+                sentences.push(`Spouse Social Security is on: $${Math.round(opts.spouseSSMonthlyBenefit).toLocaleString()} per month at full retirement age, claimed at age ${opts.spouseSSClaimingAge}.`);
+            }
+            if (opts.includeOtherIncome && ((opts.monthlyPension || 0) > 0 || (opts.monthlyOtherIncome || 0) > 0)) {
+                sentences.push('Pension or other income is on, so part of spending is not withdrawn from the portfolio.');
+            }
+            return sentences;
         }
 
         // Function to run the retirement simulation
@@ -673,9 +649,19 @@
             // Run simulation with small delay to allow UI to update
             setTimeout(() => {
                 try {
+                    const returnMode = (document.getElementById('retirementReturnMode') || {}).value || 'shuffled';
+                    const sequences = window.FirecalcSim.buildSequences(
+                        historicalData, returnMode, lifeExpectancy, simulationCount, true);
+                    if (sequences.length === 0) {
+                        showValidationError('The 1975–2024 sample has no complete window for that retirement length. Shorten the horizon or switch to shuffled years.');
+                        button.disabled = false;
+                        button.textContent = originalButtonText;
+                        return;
+                    }
                     const simulationResults = [];
                     
-                    for (let i = 0; i < simulationCount; i++) {
+                    for (let i = 0; i < sequences.length; i++) {
+                        const sequence = sequences[i];
                         let portfolio = retirementSavings;
                         let years = 0;
                         let ranOutOfMoney = false;
@@ -689,15 +675,10 @@
                         let currentSpouseSSBenefit = spouseSSAnnualBase;
                         let yearsWithOtherIncome = 0;
                         
-                        while (years < lifeExpectancy && !ranOutOfMoney) {
-                            // Get random market return and inflation
-                            const randomIndex = Math.floor(Math.random() * historicalData.length);
-                            const yearData = historicalData[randomIndex];
+                        while (years < sequence.length && !ranOutOfMoney) {
+                            const yearData = sequence[years];
                             const currentAge = retirementAge + years;
-                            
-                            // Calculate portfolio return based on allocation
-                            const portfolioReturn = (yearData.marketReturn * stockAllocation) + 
-                                                  (DEFAULT_BOND_RETURN * (1 - stockAllocation));
+                            const portfolioReturn = window.FirecalcSim.portfolioReturn(yearData, stockAllocation);
                             
                             // Update portfolio value with returns (at start of year)
                             portfolio = portfolio * (1 + portfolioReturn);
@@ -784,7 +765,8 @@
                             finalBalance: portfolio,
                             yearlyData: yearlyData,
                             totalWithdrawn: totalWithdrawn,
-                            totalIncomeReceived: totalIncomeReceived
+                            totalIncomeReceived: totalIncomeReceived,
+                            startYear: returnMode === 'historical' ? sequence[0].year : null
                         });
                     }
                     
@@ -796,8 +778,24 @@
                     
                     // Update UI with results
                     document.getElementById('successRate').textContent = `${Math.round(successRate)}%`;
+                    const assumptionSentences = retirementAssumptionSentences({
+                        returnMode: returnMode,
+                        windowCount: sequences.length,
+                        lifeExpectancy: lifeExpectancy,
+                        includeSS: includeSS,
+                        ssMonthlyBenefit: ssMonthlyBenefit,
+                        ssClaimingAge: ssClaimingAge,
+                        includeSpouseSS: includeSpouseSS,
+                        spouseSSMonthlyBenefit: spouseSSMonthlyBenefit,
+                        spouseSSClaimingAge: spouseSSClaimingAge,
+                        includeOtherIncome: includeOtherIncome,
+                        monthlyPension: monthlyPension,
+                        monthlyOtherIncome: monthlyOtherIncome
+                    });
+                    const assumptionEl = document.getElementById('retirementAssumptions');
+                    if (assumptionEl) assumptionEl.textContent = assumptionSentences.join(' ');
                     
-                    // Trigger confetti if success rate is over 80%
+                    // High success gets a note that states what was actually tested.
                     if (successRate >= 80) {
                         // Confetti animation
                         const duration = 3 * 1000;
@@ -832,6 +830,7 @@
                         
                         // Show success message
                         const successMessage = document.getElementById('success-message');
+                        successMessage.textContent = assumptionSentences.join(' ');
                         successMessage.style.display = 'block';
                         
                         // Hide success message after 5 seconds
@@ -911,20 +910,14 @@
             const totalData = [];
             
             yearlyData.forEach(yearData => {
-                // Initial investment stays constant
-                initialInvestmentData.push(initialInvestment);
-                
-                // Add new contributions for this year
+                const cpi = yearData.cpi || 1;
+                initialInvestmentData.push(initialInvestment / cpi);
                 cumulativeContributions += yearData.contribution;
-                contributionsData.push(cumulativeContributions);
-                
-                // Calculate total balance and returns
+                contributionsData.push(cumulativeContributions / cpi);
                 const balance = yearData.balance;
                 cumulativeReturns = balance - cumulativeContributions - initialInvestment;
-                returnsData.push(Math.max(0, cumulativeReturns)); // Ensure returns don't go negative
-                
-                // Calculate total for tooltip
-                totalData.push(initialInvestment + cumulativeContributions + Math.max(0, cumulativeReturns));
+                returnsData.push(Math.max(0, cumulativeReturns) / cpi);
+                totalData.push((initialInvestment + cumulativeContributions + Math.max(0, cumulativeReturns)) / cpi);
             });
             
             // Create chart
@@ -997,7 +990,7 @@
                             stacked: true,
                             title: {
                                 display: true,
-                                text: 'Balance ($)'
+                                text: "Today's dollars"
                             },
                             ticks: {
                                 callback: function(value) {
@@ -1105,9 +1098,11 @@
                 let yearReached = null;
                 
                 for (let i = 0; i < medianSimulation.yearlyData.length; i++) {
-                    if (medianSimulation.yearlyData[i].balance >= amount) {
-                        // Store years from start, not the age
-                        yearReached = i; // Use the index as years from start instead of yearlyData[i].year
+                    const realBalance = medianSimulation.yearlyData[i].realBalance != null
+                        ? medianSimulation.yearlyData[i].realBalance
+                        : medianSimulation.yearlyData[i].balance;
+                    if (realBalance >= amount) {
+                        yearReached = i + 1;
                         break;
                     }
                 }
@@ -1214,7 +1209,7 @@
                     labels: ages,
                     datasets: [
                         {
-                            label: '90th Percentile (Optimistic)',
+                            label: 'Higher ending path',
                             data: p90Data,
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1232,7 +1227,7 @@
                             borderWidth: 3
                         },
                         {
-                            label: '10th Percentile (Conservative)',
+                            label: 'Lower ending path',
                             data: p10Data,
                             borderColor: '#f59e0b',
                             backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -1275,7 +1270,7 @@
                         y: {
                             title: {
                                 display: true,
-                                text: 'Portfolio Value'
+                                text: 'Portfolio value (future dollars)'
                             },
                             ticks: {
                                 callback: function(value) {
@@ -1470,7 +1465,7 @@
                 
                 // Scenario number
                 const scenarioCell = document.createElement('td');
-                scenarioCell.textContent = `#${i + 1}`;
+                scenarioCell.textContent = sim.startYear ? String(sim.startYear) : `#${i + 1}`;
                 
                 // Add median badge if this is the median simulation
                 if (i === medianSimIndex) {
@@ -1520,6 +1515,8 @@
 
         // Function to set up filter buttons
         function setupFilterButtons() {
+            if (setupFilterButtons.bound) return;
+            setupFilterButtons.bound = true;
             const filterButtons = document.querySelectorAll('.filter-btn');
             
             filterButtons.forEach(button => {
@@ -1619,6 +1616,7 @@
                     }
                     params.append('retirementLifeExpectancy', document.getElementById('retirementLifeExpectancy').value);
                     params.append('simulationCount', document.getElementById('simulationCount').value);
+                    params.append('retirementReturnMode', document.getElementById('retirementReturnMode').value);
                     // Income sources
                     params.append('includeSS', document.getElementById('includeSS').checked);
                     params.append('ssMonthlyBenefit', document.getElementById('ssMonthlyBenefit').value);
@@ -1642,6 +1640,7 @@
                     params.append('stockAllocation', document.getElementById('stockAllocation').value);
                     params.append('incomeGrowth', document.getElementById('incomeGrowth').value);
                     params.append('savingsSimulationCount', document.getElementById('savingsSimulationCount').value);
+                    params.append('savingsReturnMode', document.getElementById('savingsReturnMode').value);
                 }
                 
                 return `${url.origin}${url.pathname}?${params.toString()}`;
@@ -1899,7 +1898,7 @@
                 
                 // Create row
                 row.innerHTML = `
-                    <td>${originalIndex + 1}</td>
+                    <td>${sim.startYear ? sim.startYear : originalIndex + 1}</td>
                     <td>${sim.yearsToTarget !== null ? sim.yearsToTarget : 'Not reached'}</td>
                     <td>$${sim.finalBalance.toLocaleString()}</td>
                     <td>${(avgReturn * 100).toFixed(1)}%</td>
@@ -1951,7 +1950,10 @@
         }
 
         // Initialize the column sorting
+        let tableSortingBound = false;
         function initializeTableSorting() {
+            if (tableSortingBound) return;
+            tableSortingBound = true;
             const headers = document.querySelectorAll('.simulation-table th');
             
             // Add data-sort attributes to headers
@@ -2303,411 +2305,6 @@
             });
             console.log("Chart created for canvas:", canvasId);
         }
-
-        // Add these AI Analysis related functions
-        
-        // Function to open the AI Analysis modal
-        function openAiAnalysisModal(simulator) {
-            activeSimulator = simulator;
-            document.getElementById('aiAnalysisModal').style.display = 'block';
-            document.getElementById('apiKeySection').style.display = 'none';
-            document.getElementById('aiAnalysisResults').style.display = 'none';
-        }
-        
-        // Function to close the AI Analysis modal
-        function closeAiAnalysisModal() {
-            document.getElementById('aiAnalysisModal').style.display = 'none';
-        }
-        
-        // Function to handle the Export Data option
-        async function handleExportData() {
-            try {
-                // 1. Generate the JSON data to export based on active simulator
-                const jsonData = generateExportData();
-                
-                // 2. Create screenshot that includes both inputs and results
-                // Get the tab content which contains both inputs and results
-                const tabElement = document.getElementById(
-                    activeSimulator === 'accumulation' ? 'accumulation-tab' : 'retirement-tab'
-                );
-                
-                // Show toast indicating that capture is in progress
-                const toast = document.getElementById('toast');
-                toast.textContent = 'Capturing screenshot...';
-                toast.classList.add('visible');
-                
-                try {
-                    // Load html2canvas library if not already loaded
-                    if (!window.html2canvas) {
-                        await loadHtml2Canvas();
-                    }
-                    
-                    // Create screenshot of the entire tab (inputs + results)
-                    const screenshotBlob = await html2canvas(tabElement, {
-                        scrollX: 0,
-                        scrollY: -window.scrollY,
-                        windowWidth: document.documentElement.offsetWidth,
-                        windowHeight: document.documentElement.offsetHeight,
-                        scale: 1.5,
-                        logging: false,
-                        allowTaint: true,
-                        useCORS: true,
-                        onclone: function(clonedDoc) {
-                            // Make sure both input and results sections are visible in the clone
-                            const clonedTab = clonedDoc.getElementById(
-                                activeSimulator === 'accumulation' ? 'accumulation-tab' : 'retirement-tab'
-                            );
-                            const clonedResults = clonedDoc.getElementById(
-                                activeSimulator === 'accumulation' ? 'results' : 'retirement-results'
-                            );
-                            
-                            if (clonedTab && clonedResults) {
-                                clonedResults.style.display = 'flex';
-                                clonedResults.style.flexDirection = 'column';
-                                
-                                // Adjust styles for screenshot - we need to make it more compact
-                                const inputSection = clonedTab.querySelector('.input-section');
-                                if (inputSection) {
-                                    inputSection.style.padding = '15px';
-                                    inputSection.style.marginBottom = '10px';
-                                }
-                            }
-                        }
-                    }).then(canvas => {
-                        return new Promise(resolve => {
-                            canvas.toBlob(blob => {
-                                resolve(blob);
-                            }, 'image/png');
-                        });
-                    });
-                    
-                    // Create a download link for the screenshot
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = URL.createObjectURL(screenshotBlob);
-                    downloadLink.download = `financial-future-${activeSimulator}-${new Date().toISOString().split('T')[0]}.png`;
-                    downloadLink.click();
-                    
-                    // Copy JSON to clipboard
-                    await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2));
-                    
-                    // Update toast to indicate completion
-                    toast.textContent = 'Screenshot saved and data copied to clipboard!';
-                    setTimeout(() => {
-                        toast.classList.remove('visible');
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Screenshot error:', error);
-                    toast.textContent = 'Error capturing screenshot. JSON copied to clipboard.';
-                    
-                    // Still copy JSON even if screenshot fails
-                    await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2));
-                    
-                    setTimeout(() => {
-                        toast.classList.remove('visible');
-                    }, 3000);
-                }
-                
-            } catch (error) {
-                console.error('Export error:', error);
-                
-                const toast = document.getElementById('toast');
-                toast.textContent = 'Error exporting data. Try again.';
-                toast.classList.add('visible');
-                setTimeout(() => {
-                    toast.classList.remove('visible');
-                }, 3000);
-            }
-            
-            // Close the modal
-            closeAiAnalysisModal();
-        }
-        
-        // Function to generate the export data based on the active simulator
-        function generateExportData() {
-            let data = {
-                simulator: activeSimulator,
-                date: new Date().toISOString(),
-                inputs: {},
-                results: {}
-            };
-            
-            if (activeSimulator === 'accumulation') {
-                // Gather accumulation inputs
-                data.inputs = {
-                    currentAge: parseInt(document.getElementById('currentAge').value),
-                    currentSavings: parseFloat(document.getElementById('currentSavings').value.replace(/[^0-9.]/g, '')),
-                    income: parseFloat(document.getElementById('income').value.replace(/[^0-9.]/g, '')),
-                    expenses: parseFloat(document.getElementById('expenses').value.replace(/[^0-9.]/g, '')),
-                    targetAmount: parseFloat(document.getElementById('targetAmount').value.replace(/[^0-9.]/g, '')),
-                    stockAllocation: parseInt(document.getElementById('stockAllocation').value),
-                    incomeGrowth: parseFloat(document.getElementById('incomeGrowth').value)
-                };
-                
-                // Gather accumulation results
-                data.results = {
-                    yearsToGoal: document.getElementById('yearsToGoal').textContent,
-                    milestones: {
-                        milestone25: document.getElementById('milestone25').textContent,
-                        milestone50: document.getElementById('milestone50').textContent,
-                        milestone75: document.getElementById('milestone75').textContent,
-                        milestone100: document.getElementById('milestone100').textContent,
-                    },
-                    simulationCount: allSimulations.length,
-                    // Get summary of simulations
-                    simulationSummary: {
-                        reachedGoalCount: allSimulations.filter(sim => sim.reachedGoal).length,
-                        medianYearsToGoal: window.medianSimulation?.yearsToTarget || null,
-                        averageFinalBalance: allSimulations.reduce((sum, sim) => sum + sim.finalBalance, 0) / allSimulations.length,
-                    }
-                };
-                
-            } else {
-                // Gather retirement inputs
-                data.inputs = {
-                    retirementAge: parseInt(document.getElementById('retirementAge').value),
-                    retirementSavings: parseFloat(document.getElementById('retirementSavings').value.replace(/[^0-9.]/g, '')),
-                    annualWithdrawal: parseFloat(document.getElementById('annualWithdrawal').value.replace(/[^0-9.]/g, '')),
-                    withdrawalAdjustment: document.getElementById('withdrawalAdjustment').checked,
-                    taxRate: parseFloat(document.getElementById('taxRate').value),
-                    stockAllocation: parseInt(document.getElementById('retirementStockAllocation').value),
-                    lifeExpectancy: parseInt(document.getElementById('retirementLifeExpectancy').value),
-                    includeSS: document.getElementById('includeSS').checked,
-                    ssMonthlyBenefit: parseFloat((document.getElementById('ssMonthlyBenefit').value || '0').replace(/[^0-9.]/g, '')) || 0,
-                    ssClaimingAge: parseInt(document.getElementById('ssClaimingAge').value),
-                    includeSpouseSS: document.getElementById('includeSpouseSS').checked,
-                    includeOtherIncome: document.getElementById('includeOtherIncome').checked
-                };
-                
-                // Gather retirement results
-                data.results = {
-                    successRate: document.getElementById('successRate').textContent,
-                    medianEndingBalance: document.getElementById('medianEndingBalance').textContent,
-                    avgReturn: document.getElementById('retirementAvgReturn').textContent,
-                    totalWithdrawals: document.getElementById('totalWithdrawals').textContent,
-                    worstCaseAge: document.getElementById('worstCaseAge').textContent,
-                    simulationCount: allSimulations.length,
-                    simulationSummary: {
-                        successfulCount: allSimulations.filter(sim => !sim.ranOutOfMoney).length,
-                        failedCount: allSimulations.filter(sim => sim.ranOutOfMoney).length,
-                        medianYearsLasted: allSimulations.sort((a, b) => a.yearsLasted - b.yearsLasted)[Math.floor(allSimulations.length / 2)]?.yearsLasted || 0
-                    }
-                };
-            }
-            
-            return data;
-        }
-        
-        // Function to handle the AI Analysis option
-        function handleAiAnalysisOption() {
-            // document.getElementById('apiKeySection').style.display = 'block'; // Old behavior
-            handleSubmitApiKey(); // New: Directly proceed to analysis
-        }
-        
-        // Function to handle sending data to OpenAI API
-        async function handleSubmitApiKey() {
-            // const apiKey = document.getElementById('openaiApiKey').value.trim(); // REMOVED: No longer read from input
-
-            // REMOVED: API key validation is now server-side implicitly by using the stored key
-            // if (!apiKey || !apiKey.startsWith('sk-')) { 
-            //     alert('Please enter a valid OpenAI API key');
-            //     return;
-            // }
-
-            // Ensure the modal sections are correctly shown/hidden
-            if(document.getElementById('apiKeySection')) { // Defensively hide if it somehow still exists
-                document.getElementById('apiKeySection').style.display = 'none'; 
-            }
-            document.getElementById('aiAnalysisResults').style.display = 'block';
-            document.getElementById('aiAnalysisContent').innerHTML = `
-                <div class="ai-loading">
-                    <div class="spinner"></div>
-                    <p>Analyzing your financial scenario...</p>
-                </div>
-            `;
-
-            try {
-                const promptData = generateExportData();
-                const prompt = generateOpenAIPrompt(promptData);
-                // The first argument to fetchOpenAIResponse (apiKey) is no longer used by the function when calling the proxy.
-                const response = await fetchOpenAIResponse(null, prompt); 
-
-                document.getElementById('aiAnalysisContent').innerHTML = `
-                    <div class="ai-response">
-                        ${marked.parse(response)}
-                    </div>
-                `;
-            } catch (error) {
-                console.error('AI Analysis error in handleSubmitApiKey:', error);
-                document.getElementById('aiAnalysisContent').innerHTML = `
-                    <div class="ai-error">
-                        <h4>Error</h4>
-                        <p>${error.message || 'Failed to get analysis. Please try again.'}</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Function to generate a prompt for OpenAI based on the simulation data
-        function generateOpenAIPrompt(data) {
-            let prompt = '';
-            
-            if (data.simulator === 'accumulation') {
-                prompt = `
-                    Provide a comprehensive financial analysis and advice based on the following retirement savings simulation:
-                    
-                    Current Situation:
-                    - Age: ${data.inputs.currentAge}
-                    - Current Savings: $${data.inputs.currentSavings.toLocaleString()}
-                    - Annual Income: $${data.inputs.income.toLocaleString()}
-                    - Annual Expenses: $${data.inputs.expenses.toLocaleString()}
-                    - Annual Savings (Income - Expenses): $${(data.inputs.income - data.inputs.expenses).toLocaleString()}
-                    - Target Retirement Amount: $${data.inputs.targetAmount.toLocaleString()}
-                    - Stock Allocation: ${data.inputs.stockAllocation}%
-                    - Annual Income Growth: ${data.inputs.incomeGrowth}%
-                    
-                    Simulation Results:
-                    - Median Years to Reach Goal: ${data.results.yearsToGoal}
-                    - Age at 25% of Goal: ${data.results.milestones.milestone25}
-                    - Age at 50% of Goal: ${data.results.milestones.milestone50}
-                    - Age at 75% of Goal: ${data.results.milestones.milestone75}
-                    - Age at 100% of Goal: ${data.results.milestones.milestone100}
-                    - Success Rate: ${data.results.simulationSummary.reachedGoalCount / data.results.simulationCount * 100}%
-                    
-                    Please provide:
-                    1. A brief overall assessment of the savings plan
-                    2. Key insights about the timeline to reach the goal
-                    3. Specific recommendations to improve the plan (asset allocation, savings rate, etc.)
-                    4. Notable risks and how to mitigate them
-                    5. Any other important observations
-                    
-                    Format your response in a clear, friendly tone with markdown formatting.
-                `;
-            } else {
-                prompt = `
-                    Provide a comprehensive financial analysis and advice based on the following retirement simulation:
-                    
-                    Retirement Situation:
-                    - Retirement Age: ${data.inputs.retirementAge}
-                    - Retirement Savings: $${data.inputs.retirementSavings.toLocaleString()}
-                    - Annual Withdrawal: $${data.inputs.annualWithdrawal.toLocaleString()}
-                    - Withdrawal Rate: ${(data.inputs.annualWithdrawal / data.inputs.retirementSavings * 100).toFixed(2)}%
-                    - Adjusting for Inflation: ${data.inputs.withdrawalAdjustment ? 'Yes' : 'No'}
-                    - Tax Rate: ${data.inputs.taxRate}%
-                    - Stock Allocation: ${data.inputs.stockAllocation}%
-                    - Expected Retirement Length: ${data.inputs.lifeExpectancy} years
-                    
-                    Simulation Results:
-                    - Success Rate: ${data.results.successRate}
-                    - Median Ending Balance: ${data.results.medianEndingBalance}
-                    - Average Annual Return: ${data.results.avgReturn}
-                    - Total Withdrawals (Median): ${data.results.totalWithdrawals}
-                    - Worst Case Funds Depleted: ${data.results.worstCaseAge}
-                    
-                    Please provide:
-                    1. A brief overall assessment of the retirement plan
-                    2. Analysis of the withdrawal rate sustainability
-                    3. Specific recommendations to improve the plan (asset allocation, withdrawal amount, etc.)
-                    4. Notable risks and how to mitigate them
-                    5. Any other important observations
-                    
-                    Format your response in a clear, friendly tone with markdown formatting.
-                `;
-            }
-            
-            return prompt.trim();
-        }
-        
-        // Function to call the OpenAI API with the given API key and prompt
-        async function fetchOpenAIResponse(apiKey, prompt) { // apiKey is no longer used client-side
-            // The URL will be your Pages site URL + /functions_file_name (without .js)
-            // e.g., if your site is myapp.pages.dev and file is functions/openai-proxy.js,
-            // URL is '/openai-proxy' relative to your site, or full URL: 'https://myapp.pages.dev/openai-proxy'
-            const workerUrl = '/openai-proxy'; // Relative path to the function
-
-            try {
-                const response = await fetch(workerUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // The API key is now handled by the Cloudflare Worker, not sent from client
-                    },
-                    body: JSON.stringify({
-                        prompt: prompt // Send the prompt in the body
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    // Display a more user-friendly error, details are logged in the worker
-                    console.error(`AI Analysis Service Error (${response.status}): ${errorText}`);
-                    throw new Error(`Failed to get analysis. The AI service returned an error.`);
-                }
-
-                const data = await response.json();
-                if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
-                    return data.choices[0].message.content;
-                } else {
-                    console.error('Unexpected response structure from AI service:', data);
-                    throw new Error('Received an unexpected response from the AI analysis service.');
-                }
-            } catch (error) {
-                console.error('Error in fetchOpenAIResponse:', error);
-                // Re-throw or handle as appropriate for your UI
-                throw error; // This will allow the handleSubmitApiKey function to catch it
-            }
-        }
-        
-        // Function to load html2canvas library dynamically when needed
-        function loadHtml2Canvas() {
-            return new Promise((resolve, reject) => {
-                if (window.html2canvas) {
-                    resolve(window.html2canvas);
-                    return;
-                }
-                
-                const script = document.createElement('script');
-                script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
-                script.onload = () => resolve(window.html2canvas);
-                script.onerror = () => reject(new Error('Failed to load html2canvas library'));
-                document.head.appendChild(script);
-            });
-        }
-        
-        // Function to set up AI Analysis event listeners
-        function setupAiAnalysis() {
-            // Load html2canvas library in advance
-            loadHtml2Canvas().catch(error => console.warn('Failed to preload html2canvas:', error));
-            
-            // Set up button click handlers
-            document.getElementById('aiAnalysisBtn').addEventListener('click', () => openAiAnalysisModal('accumulation'));
-            document.getElementById('retirementAiAnalysisBtn').addEventListener('click', () => openAiAnalysisModal('retirement'));
-            document.getElementById('closeAiAnalysisModal').addEventListener('click', closeAiAnalysisModal);
-            
-            // Window click to close modal
-            window.addEventListener('click', (event) => {
-                if (event.target === document.getElementById('aiAnalysisModal')) {
-                    closeAiAnalysisModal();
-                }
-            });
-            
-            // Set up option handlers
-            document.getElementById('exportDataOption').addEventListener('click', handleExportData);
-            document.getElementById('aiAnalysisOption').addEventListener('click', handleAiAnalysisOption);
-            // const submitApiKeyButton = document.getElementById('submitApiKey'); // REMOVED: Button will be gone
-            // if (submitApiKeyButton) submitApiKeyButton.addEventListener('click', handleSubmitApiKey);
-            
-            // const apiKeyInput = document.getElementById('openaiApiKey'); // REMOVED: Input will be gone
-            // if (apiKeyInput) {
-            //     apiKeyInput.addEventListener('keypress', (event) => {
-            //         if (event.key === 'Enter') {
-            //             handleSubmitApiKey();
-            //         }
-            //     });
-            // }
-        }
-        
-        // setupAiAnalysis moved to consolidated DOMContentLoaded
 
 // Service Worker Registration
   if ('serviceWorker' in navigator) {
