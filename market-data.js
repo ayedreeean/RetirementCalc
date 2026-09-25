@@ -66,7 +66,21 @@
         return (year.marketReturn * stockAllocation) + (bond * (1 - stockAllocation));
     }
 
-    function buildSequences(data, mode, maxYears, simCount, requireFullWindow) {
+    // Small seeded PRNG (mulberry32). Same seed + same inputs = same shuffled paths,
+    // so a change in the result comes from the change in the inputs, not from new draws.
+    function seededRandom(seed) {
+        let a = (seed >>> 0) || 1;
+        return function () {
+            a = (a + 0x6D2B79F5) >>> 0;
+            let t = a;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    function buildSequences(data, mode, maxYears, simCount, requireFullWindow, rng) {
+        const random = typeof rng === 'function' ? rng : Math.random;
         const series = data || historicalData;
         const horizon = Math.max(1, maxYears | 0);
         if (mode === 'historical') {
@@ -88,7 +102,7 @@
         for (let i = 0; i < n; i++) {
             const seq = [];
             for (let y = 0; y < horizon; y++) {
-                seq.push(series[Math.floor(Math.random() * series.length)]);
+                seq.push(series[Math.floor(random() * series.length)]);
             }
             seqs.push(seq);
         }
@@ -166,10 +180,110 @@
         };
     }
 
+    // Retirement path. Return is applied first, then the year's withdrawal.
+    // Balances are future (nominal) dollars. preTaxFn(afterTaxSpend, incomeBreakdown)
+    // returns the pre-tax draw; without it, spending is grossed up by 1 / (1 - taxRate).
+    function runRetirementTrial(input, sequence, preTaxFn) {
+        let portfolio = input.retirementSavings;
+        let years = 0;
+        let ranOutOfMoney = false;
+        const yearlyData = [];
+        let currentWithdrawal = input.annualWithdrawal;
+        let totalWithdrawn = 0;
+        let totalIncomeReceived = 0;
+        let cpi = 1;
+
+        let currentSSBenefit = input.ssAnnualBase || 0;
+        let currentSpouseSSBenefit = input.spouseSSAnnualBase || 0;
+        let yearsWithOtherIncome = 0;
+
+        while (years < sequence.length && !ranOutOfMoney) {
+            const yearData = sequence[years];
+            const currentAge = input.retirementAge + years;
+            const ret = portfolioReturn(yearData, input.stockAllocation);
+
+            portfolio = portfolio * (1 + ret);
+            cpi = cpi * (1 + yearData.inflation);
+
+            if (input.adjustForInflation && years > 0) {
+                currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
+            }
+
+            if (years > 0) {
+                currentSSBenefit = currentSSBenefit * (1 + yearData.inflation);
+                currentSpouseSSBenefit = currentSpouseSSBenefit * (1 + yearData.inflation);
+            }
+
+            let ssIncome = 0;
+            if (input.includeSS && currentAge >= input.ssClaimingAge) {
+                ssIncome += currentSSBenefit;
+            }
+            if (input.includeSpouseSS && currentAge >= input.spouseSSClaimingAge) {
+                ssIncome += currentSpouseSSBenefit;
+            }
+
+            let pensionInc = 0;
+            let otherInc = 0;
+            if (input.includeOtherIncome) {
+                if (currentAge >= input.pensionStartAge) {
+                    pensionInc = input.annualPension;
+                }
+                if (input.otherIncomeDuration === 0 || yearsWithOtherIncome < input.otherIncomeDuration) {
+                    otherInc = input.annualOtherIncome;
+                    if (input.annualOtherIncome > 0) yearsWithOtherIncome++;
+                }
+            }
+
+            const totalIncome = ssIncome + pensionInc + otherInc;
+            totalIncomeReceived += totalIncome;
+
+            const preTaxWithdrawal = typeof preTaxFn === 'function'
+                ? preTaxFn(currentWithdrawal, { socialSecurity: ssIncome, pension: pensionInc, otherOrdinary: otherInc })
+                : currentWithdrawal / (1 - input.taxRate);
+
+            const neededFromPortfolio = Math.max(0, preTaxWithdrawal - totalIncome);
+            portfolio -= neededFromPortfolio;
+            totalWithdrawn += currentWithdrawal;
+
+            yearlyData.push({
+                age: currentAge,
+                calendarYear: yearData.year,
+                balance: Math.max(0, portfolio),
+                cpi: cpi,
+                return: ret,
+                inflation: yearData.inflation,
+                withdrawal: neededFromPortfolio,
+                afterTaxWithdrawal: currentWithdrawal,
+                ssIncome: ssIncome,
+                otherIncome: pensionInc + otherInc,
+                totalIncome: totalIncome
+            });
+
+            if (portfolio <= 0) {
+                ranOutOfMoney = true;
+                portfolio = 0;
+            }
+            years++;
+        }
+
+        return {
+            ranOutOfMoney: ranOutOfMoney,
+            yearsLasted: ranOutOfMoney ? years : input.lifeExpectancy,
+            finalBalance: portfolio,
+            finalRealBalance: portfolio / cpi,
+            yearlyData: yearlyData,
+            totalWithdrawn: totalWithdrawn,
+            totalIncomeReceived: totalIncomeReceived,
+            startYear: sequence[0] ? sequence[0].year : null
+        };
+    }
+
     root.FIRECALC_HISTORICAL = historicalData;
     root.FirecalcSim = {
         portfolioReturn: portfolioReturn,
         buildSequences: buildSequences,
-        runAccumulationTrial: runAccumulationTrial
+        seededRandom: seededRandom,
+        runAccumulationTrial: runAccumulationTrial,
+        runRetirementTrial: runRetirementTrial
     };
 })(typeof window !== "undefined" ? window : globalThis);
