@@ -3,7 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIREcalc</title>
+    <title>FIREcalc — free FIRE and retirement calculator</title>
+    <link rel="canonical" href="https://firecalc.ai/">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Free FIRE and retirement calculator. Test a savings goal in today’s dollars and a withdrawal plan against US stock and Treasury history from 1975 to 2024. No account.">
+    <meta property="og:title" content="FIREcalc — free FIRE and retirement calculator">
+    <meta property="og:description" content="Free browser calculator for financial independence and retirement. Savings goals are in today’s dollars. Retirement trials use US stock and 10-year Treasury history from 1975 to 2024. No account.">
+    <meta property="og:url" content="https://firecalc.ai/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="FIREcalc — free FIRE and retirement calculator">
+    <meta name="twitter:description" content="Free FIRE and retirement calculator. Today’s-dollar savings goals and historical retirement trials from 1975 to 2024. No account.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FIREcalc",
+        "url": "https://firecalc.ai/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "browserRequirements": "Requires JavaScript. Calculations run in the browser.",
+        "isAccessibleForFree": true,
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "description": "Free calculator for a savings goal in today's dollars and for retirement withdrawals tested on US large-cap and 10-year Treasury returns from 1975 through 2024. No account. Social Security is off unless you turn it on. The sample does not include 1966 or 1973-74."
+    }
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
     <script>
@@ -765,17 +794,19 @@
             </div>
         </div>
         
-        <!-- Add share button here -->
-        <div class="share-container" id="shareContainer" style="display: none;">
-            <button class="share-button" id="shareScenarioButton">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
-                </svg>
-                Share This Scenario
-            </button>
-        </div>
     </div>
-    
+
+    <div class="share-container" id="shareContainer">
+        <button class="share-button" id="shareScenarioButton" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+            </svg>
+            Share This Scenario
+        </button>
+    </div>
+    <footer class="site-footer">
+        <a href="/privacy-policy.html">Privacy policy</a>
+    </footer>
     </main>
     <!-- Help Modal -->
     <div id="helpModal" class="modal">

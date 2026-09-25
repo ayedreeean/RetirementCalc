@@ -1,0 +1,5 @@
+# agents.txt
+# Standard: https://agents-txt.com
+# JSON: https://firecalc.ai/agents.json
+# Content: https://firecalc.ai/llms.txt
+# FIREcalc is a public free calculator. No account, no payment, and no MCP server.

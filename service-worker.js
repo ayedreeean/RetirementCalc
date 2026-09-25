@@ -1,68 +1,43 @@
-const CACHE_NAME = 'firecalc-v5';
-const urlsToCache = [
-  '/index.html',
-  '/' // Cache the root as well, which often resolves to index.html
-];
+const CACHE_NAME = 'firecalc-v6';
 
-// Install event: Cache essential assets
+function isHtmlRequest(request) {
+  if (request.method !== 'GET') return false;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return false;
+  if (request.mode === 'navigate') return true;
+  return url.pathname === '/' || url.pathname.endsWith('.html');
+}
+
+// Do not precache HTML. A cache-first shell can show Google a stale page.
 self.addEventListener('install', event => {
-  console.log('[Service Worker] Attempting to install version:', CACHE_NAME);
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[Service Worker] Cache opened:', CACHE_NAME);
-        return cache.addAll(urlsToCache)
-          .then(() => {
-            console.log('[Service Worker] All URLs successfully cached:', urlsToCache);
-          })
-          .catch(error => {
-            console.error('[Service Worker] Failed to cache URLs:', urlsToCache, error);
-          });
-      })
-      .then(() => {
-        console.log('[Service Worker] Installation complete for version:', CACHE_NAME);
-        return self.skipWaiting(); // Force activation of new SW
-      })
-      .catch(error => {
-        console.error('[Service Worker] Cache open/addAll failed during install:', error);
-      })
-  );
+  event.waitUntil(self.skipWaiting());
 });
 
-// Fetch event: Serve cached assets if available, otherwise fetch from network
+// HTML is network-first, with the last good copy kept only as an offline fallback.
+// Scripts, styles, and other assets are not intercepted.
 self.addEventListener('fetch', event => {
-  console.log('[Service Worker] Fetching:', event.request.url);
+  if (!isHtmlRequest(event.request)) return;
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        if (response) {
-          console.log('[Service Worker] Serving from cache:', event.request.url);
-          return response;
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request.url, copy)).catch(() => {});
         }
-        console.log('[Service Worker] Serving from network:', event.request.url);
-        return fetch(event.request).catch(error => {
-          console.error('[Service Worker] Fetch failed from network:', event.request.url, error);
-        });
+        return response;
       })
+      .catch(() => caches.match(event.request).then(cached => cached || Response.error()))
   );
 });
 
-// Activate event: Clean up old caches (optional for now, but good practice)
 self.addEventListener('activate', event => {
-  console.log('[Service Worker] Activating version:', CACHE_NAME);
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
+          if (cacheName !== CACHE_NAME) return caches.delete(cacheName);
         })
       );
-    }).then(() => {
-      console.log('[Service Worker] Old caches deleted, new version active.');
-      return self.clients.claim(); // Ensure new SW takes control immediately
-    })
+    }).then(() => self.clients.claim())
   );
-}); 
+});
