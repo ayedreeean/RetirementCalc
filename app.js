@@ -210,6 +210,12 @@
             tab.setAttribute('aria-selected', on ? 'true' : 'false');
             tab.tabIndex = on ? 0 : -1;
         });
+        const shareText = $('shareText');
+        if (shareText) {
+            shareText.textContent = tabId === 'retirement-tab'
+                ? 'Copies a link to the retirement plan with your inputs, including Social Security and tax settings, and the random seed, so the same paths open for whoever you send it to. Anyone with the link can see those numbers.'
+                : 'Copies a link to the savings plan with your inputs and random seed, so the same paths open for whoever you send it to. Anyone with the link can see those numbers.';
+        }
         // Charts drawn while hidden have zero size; resize once visible.
         requestAnimationFrame(() => Object.values(state.charts).forEach(ch => { try { ch.resize(); } catch (e) {} }));
         updatePeek();
@@ -2206,7 +2212,16 @@
         document.querySelectorAll('[data-share]').forEach(btn => {
             btn.addEventListener('click', () => {
                 copyText(getShareableUrl())
-                    .then(() => showToast('Link copied. It includes your inputs, so share it with care.'))
+                    .then(() => {
+                        showToast('Link copied. It includes your inputs, so share it with care.');
+                        const label = btn.querySelector('.share-label');
+                        if (!label) return;
+                        if (!btn.dataset.label) btn.dataset.label = label.textContent;
+                        label.textContent = 'Link copied';
+                        btn.classList.add('is-copied');
+                        clearTimeout(btn._copiedTimer);
+                        btn._copiedTimer = setTimeout(() => { label.textContent = btn.dataset.label; btn.classList.remove('is-copied'); }, 2200);
+                    })
                     .catch(err => { console.error('Could not copy text: ', err); showToast('Could not copy the link.', true); });
             });
         });

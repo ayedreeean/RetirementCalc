@@ -62,7 +62,9 @@
 - `tax-engine.js` — unchanged. The UI still uses its element ids (`taxStrategyBody`, `taxSimpleSection`, `accountMixBar`, …).
 - `app.js` — UI only, one IIFE. Reads the form, calls the engine, draws results. Sections: formatting, storage (+ legacy Social Security migration), tabs, form controls, presets/handoff, chart theme (Chart.js defaults + two small plugins: `fcRefLines` for goal/start/median lines, `fcCrosshair`), savings, retirement, compare, tables, detail dialog, share.
 - `styles.css` — full rewrite. Design tokens at the top (`--teal`, `--sun`, `--sky`, `--coral`, neutrals, radii, shadows); chart colors in `app.js` (`C`) mirror them.
-- `service-worker.js` — network-first with cache fallback, `firecalc-v6`. Bump `CACHE_NAME` and the `?v=` query strings in `index.html` together.
+- `service-worker.js` — from the SEO PR: HTML is network-first with the last good copy as the offline fallback; assets are not intercepted and nothing is precached. Now `firecalc-v7`. Bump `CACHE_NAME` and the `?v=` query strings in `index.html` together whenever HTML, CSS, or JS changes.
+- SEO/agent files (`llms.txt`, `llms-full.txt`, `agents.txt`, `agents.json`, `robots.txt`, `sitemap.xml`, JSON-LD and OG tags) come from the SEO PR. `llms-full.txt` mirrors the in-app help; update both together. `og-image.png` (1200×630) is the share card.
+- The always-visible `.share-container` band sits at the end of `<main>`; results toolbars have their own share buttons. All use `[data-share]`.
 
 ## Behavior worth knowing
 - After the first run, edits re-run silently (450 ms debounce). Silent runs never toast; invalid input marks the result stale instead.

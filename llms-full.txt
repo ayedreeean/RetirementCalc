@@ -1,0 +1,48 @@
+# FIREcalc methodology
+
+> Distilled from the in-app help. This matches the calculator that runs in the browser. It is a planning sketch, not a full-history Trinity or Bengen study.
+
+## What it does
+
+FIREcalc runs a savings calculator and a retirement calculator locally. Inputs are not sent to a server to compute the result. There is no account.
+
+## Data, 1975–2024
+
+- Stocks: S&P 500 total return, including dividends. 1975–2020 is the series the app already used. 2021–2024 are Damodaran S&P 500 total returns: 28.47%, −18.04%, 26.06%, and 24.88%.
+- Non-stock sleeve: that year’s 10-year US Treasury total return, from Aswath Damodaran, NYU Stern, “Historical Returns on Stocks, Bonds and Bills” (January 2026). This is not the Bloomberg US Aggregate. Treasury returns can be negative. In 2022 Treasuries were −17.83% and stocks were −18.04%. The series is more volatile than a total-bond fund.
+- Inflation: the CPI rate stored on each row, paired with that year’s stock return.
+
+The table starts in 1975. It does not include 1966 or 1973–74.
+
+## Two ways to use the table
+
+- Shuffled years: each simulated year is drawn at random from the 50 rows. Stock return, Treasury return, and inflation stay together. The next year is independent.
+- Historical cycles: the model walks through the years that followed a start year. Retirement keeps only complete windows. A 30-year retirement has 21 windows. A 40-year retirement has 11. A 50-year retirement has one. Savings uses every start year from 1975 until the goal or until 2024, so a late start has only a few years of data.
+
+Shuffled paths use a fixed random seed until the user presses Reshuffle, so the same inputs give the same result. A share link carries the seed.
+
+## Savings goal
+
+The typed goal is today’s purchasing power. Each year the portfolio earns that year’s stock and Treasury return, income and spending rise with that year’s inflation, and the contribution is income minus spending (never below zero). The model compares portfolio divided by cumulative inflation to the goal. A nominal balance can pass the goal number before purchasing power does. The savings headline is the median number of years, with the 10th percentile (the faster 10% of paths) and the 90th percentile (the slower 10%) beside it, and the share of paths that reach the goal within 50 years.
+
+## Retirement success
+
+Success means the portfolio is still above zero at the end of every year of the chosen horizon. The year’s return is applied before the withdrawal. If withdrawals are adjusted for inflation, spending rises with inflation starting in the second year. Simple taxes gross spending up by 1 / (1 − tax rate). There is no fee, no glide path, and no separate cash bucket.
+
+Social Security is off unless the user turns it on. When it is on, the result states the monthly benefit, the claiming age, and that the income is inside the success rate. That rate is then not a portfolio-only withdrawal test.
+
+The retirement range chart shows, at each age, the 10th, 25th, 50th, 75th, and 90th percentile of balance across all paths. A path that ran out counts as $0 from then on. The chart starts in today’s dollars (each path’s balance divided by its own cumulative inflation) and can switch to future dollars. The median line is the middle balance at each age, not one path.
+
+## The 4% rule
+
+The published 4% rule measured an inflation-adjusted withdrawal over historical retirement cohorts. This tool can run a similar question only in Historical cycles mode, and only inside 1975–2024. Shuffled years are a different statistic. A tax rate makes the portfolio draw larger than the after-tax spending that was typed. Social Security, if turned on, lowers the portfolio withdrawal.
+
+## Taxes and other income
+
+Simple mode applies one rate. Detailed mode uses 2025 federal brackets, the standard deduction, and long-term gains on half of taxable-account withdrawals. Brackets are not inflation-indexed. Social Security taxability uses married-filing-jointly thresholds even if filing status is single. “Optimize withdrawal order” does not change the result, because separate account balances are not tracked. The model does not include early-withdrawal penalties, RMDs, NIIT, IRMAA, or ACA premiums.
+
+Part-time work, a pension, or Social Security belong in the “Social Security & other income” section. Subtracting that income from the withdrawal as well counts it twice. Social Security uses the benefit at full retirement age (67) and scales it for the claiming age. It receives a cost-of-living adjustment. A pension stays flat in nominal dollars.
+
+## Limits
+
+The calculators replay or reshuffle one 50-year US large-cap and Treasury sample. They leave out fees, returns before 1975, and markets outside this table.

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agents-txt.com/schema/agents-json/v1.0.json",
+  "version": "1.0",
+  "standard": "https://agents-txt.com",
+  "site": {
+    "name": "FIREcalc",
+    "url": "https://firecalc.ai/",
+    "description": "Public free retirement and financial-independence calculator. No account, no payment, and no MCP or other agent API. Read https://firecalc.ai/llms.txt for what the tool does and how the model works."
+  }
+}
