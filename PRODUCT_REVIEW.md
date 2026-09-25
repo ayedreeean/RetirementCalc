@@ -1,8 +1,18 @@
 # FIREcalc.ai — product and engineering review
 
-Reviewed from this repo (`main` at the time of writing) and checked against the live site on 25 Sep 2026. Production `https://firecalc.ai/app.js` is the same byte length as `app.js` in this repo (139,112). The live HTML still contains the help sentences and defaults cited below. There is no `market-data.js`; the return series lives inline in `app.js` (about lines 104–155) and is copied again in `tests.html`.
+## Implementation status (25 Sep 2026)
 
-No calculator behavior was changed in this PR. The model fixes below change the numbers users see, so they should land as their own small patches with a before/after check, not as a drive-by refactor.
+The sections below are the review as written, against the live site and `main` at that time. The P0 items in that review are now implemented on this branch. OpenAI was removed, not rate-limited.
+
+| Trust item | Before | After |
+| --- | --- | --- |
+| Savings goal | Income and expenses inflated. The typed goal did not. The loop stopped when the nominal balance crossed the target, and the help text called those balances today’s dollars. On the old flat-3% path, the default chronological case crossed $1,000,000 nominal at year index 10 (about $535,000 of starting purchasing power) and reached $1,000,000 real at year index 16. | The typed goal is purchasing power. The loop stops when `portfolio / cumulative CPI` reaches it. The growth chart is labeled today’s dollars. On the new series (Treasury returns, and 2021–2024 stock total returns), the same default inputs in calendar order cross $1,000,000 nominal in year 11 (nominal $1,307,788, real $607,696, CPI 2.15×) and reach the real goal in year 15 (nominal $2,913,955). |
+| Social Security default | `includeSS` was checked, $2,000/month, claiming age 67, behind a collapsed panel. Confetti said the plan looked very secure. The AI prompt called the case a 4% withdrawal. | The checkbox starts off. A saved untouched default ($2,000 at age 67) is turned off once. When Social Security is on, the note under the success rate states the monthly amount, the claiming age, and that the income is inside the success rate. The high-success banner repeats that note. |
+| Help text | Bloomberg aggregate bonds, 1975–2020, today’s dollars for every balance, and percentile planning advice the screen did not show. | Help describes the 1975–2024 table, Damodaran 10-year Treasury total returns (not the Bloomberg Aggregate), shuffled years versus historical cycles (21 / 11 / 1 complete windows), a real savings goal, and success as a positive balance at every year. It says 1966 and 1973–74 are missing, and that the balance chart’s lines are sample paths ranked by ending value. |
+
+Historical cycles sit beside shuffled years. The non-stock sleeve uses that year’s 10-year Treasury total return and can be negative (2022 was −17.83% in the same year stocks were −18.04%). `functions/openai-proxy.js`, the AI buttons, and `index_original.html` are gone. P1 and P2 items below are still open, including a true percentile fan, fees, and a network-first service worker. The service-worker cache name was bumped to `firecalc-v5` so the next visit does not keep the old page.
+
+Reviewed from this repo (`main` at the time of writing) and checked against the live site on 25 Sep 2026. Production `https://firecalc.ai/app.js` was the same byte length as `app.js` in the repo then (139,112). The live HTML contained the help sentences and defaults cited below. There was no `market-data.js`; the return series lived inline in `app.js` and was copied again in `tests.html`.
 
 ## Verdict
 

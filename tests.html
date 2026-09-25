@@ -40,40 +40,12 @@
         <tbody id="results"></tbody>
     </table>
 
+    <script src="market-data.js"></script>
     <script>
         // ============================================
         // Import constants & data from app.js context
         // ============================================
-        const DEFAULT_BOND_RETURN = 0.03;
-
-        // Historical data (copied from app.js)
-        const historicalData = [
-            {year:1975,marketReturn:0.371,inflation:0.070},{year:1976,marketReturn:0.238,inflation:0.048},
-            {year:1977,marketReturn:-0.071,inflation:0.067},{year:1978,marketReturn:0.064,inflation:0.090},
-            {year:1979,marketReturn:0.184,inflation:0.113},{year:1980,marketReturn:0.323,inflation:0.135},
-            {year:1981,marketReturn:-0.049,inflation:0.103},{year:1982,marketReturn:0.215,inflation:0.062},
-            {year:1983,marketReturn:0.224,inflation:0.032},{year:1984,marketReturn:0.063,inflation:0.043},
-            {year:1985,marketReturn:0.318,inflation:0.036},{year:1986,marketReturn:0.186,inflation:0.019},
-            {year:1987,marketReturn:0.056,inflation:0.036},{year:1988,marketReturn:0.167,inflation:0.041},
-            {year:1989,marketReturn:0.315,inflation:0.047},{year:1990,marketReturn:-0.032,inflation:0.054},
-            {year:1991,marketReturn:0.304,inflation:0.042},{year:1992,marketReturn:0.076,inflation:0.030},
-            {year:1993,marketReturn:0.100,inflation:0.030},{year:1994,marketReturn:0.013,inflation:0.026},
-            {year:1995,marketReturn:0.373,inflation:0.028},{year:1996,marketReturn:0.229,inflation:0.030},
-            {year:1997,marketReturn:0.333,inflation:0.023},{year:1998,marketReturn:0.286,inflation:0.016},
-            {year:1999,marketReturn:0.211,inflation:0.022},{year:2000,marketReturn:-0.091,inflation:0.034},
-            {year:2001,marketReturn:-0.119,inflation:0.028},{year:2002,marketReturn:-0.220,inflation:0.016},
-            {year:2003,marketReturn:0.287,inflation:0.023},{year:2004,marketReturn:0.109,inflation:0.027},
-            {year:2005,marketReturn:0.049,inflation:0.034},{year:2006,marketReturn:0.156,inflation:0.032},
-            {year:2007,marketReturn:0.055,inflation:0.028},{year:2008,marketReturn:-0.370,inflation:0.038},
-            {year:2009,marketReturn:0.266,inflation:-0.004},{year:2010,marketReturn:0.153,inflation:0.016},
-            {year:2011,marketReturn:0.021,inflation:0.032},{year:2012,marketReturn:0.160,inflation:0.021},
-            {year:2013,marketReturn:0.323,inflation:0.015},{year:2014,marketReturn:0.136,inflation:0.016},
-            {year:2015,marketReturn:0.015,inflation:0.001},{year:2016,marketReturn:0.119,inflation:0.013},
-            {year:2017,marketReturn:0.218,inflation:0.021},{year:2018,marketReturn:-0.043,inflation:0.024},
-            {year:2019,marketReturn:0.315,inflation:0.018},{year:2020,marketReturn:0.184,inflation:0.012},
-            {year:2021,marketReturn:0.269,inflation:0.047},{year:2022,marketReturn:-0.194,inflation:0.080},
-            {year:2023,marketReturn:0.242,inflation:0.034},{year:2024,marketReturn:0.233,inflation:0.029}
-        ];
+        const historicalData = window.FIRECALC_HISTORICAL;
 
         // ============================================
         // Simulation functions (extracted logic)
@@ -88,7 +60,7 @@
                 let reachedGoal = false;
                 while (years < maxYears && !reachedGoal) {
                     const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
-                    const portfolioReturn = (yearData.marketReturn * stockAllocation) + (DEFAULT_BOND_RETURN * (1 - stockAllocation));
+                    const portfolioReturn = window.FirecalcSim.portfolioReturn(yearData, stockAllocation);
                     portfolio = portfolio * (1 + portfolioReturn);
                     currentExpenses = currentExpenses * (1 + yearData.inflation);
                     currentIncome = currentIncome * (1 + incomeGrowth) * (1 + yearData.inflation);
@@ -111,7 +83,7 @@
                 let years = 0;
                 while (years < maxYears && !ranOutOfMoney) {
                     const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
-                    const portfolioReturn = (yearData.marketReturn * stockAllocation) + (DEFAULT_BOND_RETURN * (1 - stockAllocation));
+                    const portfolioReturn = window.FirecalcSim.portfolioReturn(yearData, stockAllocation);
                     portfolio = portfolio * (1 + portfolioReturn);
                     if (adjustForInflation && years > 0) {
                         currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
@@ -184,38 +156,33 @@
         // --- Zero Growth Test ---
         addCategory('Accumulation Simulation Math');
 
-        // Zero growth: $100K, 0% stock, 0 income, 0 expenses, 10 years
-        // With 0% stock allocation, return = 3% bonds only. To get true zero growth,
-        // we need 0% stock and the sim uses historical data. Let's test with a deterministic check.
-        // Actually, with 0 income and 0 expenses, portfolio just grows by bond return.
-        // For a true zero test, let's check that with zero allocation and zero bond return concept:
-        // We'll accept ~100K * (1.03)^10 ≈ $134,392 with 0% stock (all bonds at 3%)
+        // $10k, 0% stocks, no contributions: compounds the Treasury return of each year.
         {
-            const results = runAccumulationSim(100000, 0, 0, 10000000, 0, 0, 10, 100);
-            const medianBalance = results.map(r => r.finalBalance).sort((a,b) => a-b)[50];
-            const expected = 100000 * Math.pow(1.03, 10); // ~134,392
-            const withinRange = Math.abs(medianBalance - expected) / expected < 0.05;
-            test('$100K, 0% stock (3% bonds), 10yr',
-                `~${formatCurrency(Math.round(expected))}`,
-                formatCurrency(Math.round(medianBalance)),
-                withinRange,
-                'All-bond portfolio should compound at ~3%');
+            const seq = historicalData.slice(0, 10);
+            let expected = 10000;
+            for (const year of seq) expected *= (1 + year.bondReturn);
+            const trial = window.FirecalcSim.runAccumulationTrial({
+                currentAge: 30, currentSavings: 10000, income: 0, expenses: 0,
+                targetAmount: 1e15, stockAllocation: 0, incomeGrowth: 0, maxYears: 10
+            }, seq);
+            test('Known compound: $10K, 0% stock, first 10 Treasury years',
+                `$${expected.toFixed(0)}`,
+                `$${trial.finalBalance.toFixed(0)}`,
+                Math.abs(trial.finalBalance - expected) < 1,
+                'Non-stock sleeve compounds the Treasury series, not a flat 3%');
         }
 
-        // Known compound growth: $10K, 100% stock, but we need deterministic.
-        // We'll use many sims and check the median is in a reasonable range.
-        // Historical avg nominal return ~10.7%, so $10K over 10 years should be much higher.
-        // Instead, let's verify the math by checking with 0% stock = 3% bonds exactly.
         {
-            const results = runAccumulationSim(10000, 0, 0, 99999999, 0, 0, 10, 1);
-            const balance = results[0].finalBalance;
-            const expected = 10000 * Math.pow(1.03, 10); // $13,439.16
-            const withinRange = Math.abs(balance - expected) < 1;
-            test('Known compound: $10K, 3% bonds, 10yr',
-                `$${expected.toFixed(0)}`,
-                `$${balance.toFixed(0)}`,
-                withinRange,
-                'Deterministic with 0% stock allocation');
+            const trial = window.FirecalcSim.runAccumulationTrial({
+                currentAge: 30, currentSavings: 50000, income: 90000, expenses: 70000,
+                targetAmount: 1000000, stockAllocation: 0.7, incomeGrowth: 0.02, maxYears: 50
+            }, historicalData);
+            const atNominal = trial.yearlyData[trial.nominalCrossYear - 1];
+            test('Chronological path: nominal goal crosses before real goal',
+                `nominal year ${trial.nominalCrossYear} then real year ${trial.yearsToTarget}`,
+                `nominal ${trial.nominalCrossYear}, real ${trial.yearsToTarget}, real balance $${Math.round(atNominal.realBalance).toLocaleString()}`,
+                trial.nominalCrossYear != null && trial.yearsToTarget != null && trial.nominalCrossYear < trial.yearsToTarget && atNominal.realBalance < 1000000,
+                'Default savings inputs, 1975–2024 in order, 70% stocks');
         }
 
         // --- Median Return Range ---
@@ -239,15 +206,26 @@
         addCategory('Retirement Simulation Math');
 
         {
-            const simCount = 1000;
-            const results = runRetirementSim(1000000, 40000, 0.6, 0, false, 30, simCount);
-            const successRate = results.filter(r => !r.ranOutOfMoney).length / simCount * 100;
-            const passes = successRate > 90;
-            test('4% rule: $1M, $40K/yr, 30yr survival >90%',
-                '>90%',
-                `${successRate.toFixed(1)}%`,
-                passes,
-                `${results.filter(r => !r.ranOutOfMoney).length}/${simCount} survived`);
+            const windows30 = window.FirecalcSim.buildSequences(historicalData, 'historical', 30, 1000, true);
+            const windows40 = window.FirecalcSim.buildSequences(historicalData, 'historical', 40, 1000, true);
+            const windows50 = window.FirecalcSim.buildSequences(historicalData, 'historical', 50, 1000, true);
+            test('Historical retirement windows',
+                '21 / 11 / 1',
+                `${windows30.length} / ${windows40.length} / ${windows50.length}`,
+                windows30.length === 21 && windows40.length === 11 && windows50.length === 1,
+                '30-year, 40-year, and 50-year complete windows in 1975–2024');
+            const y2022 = historicalData.find(d => d.year === 2022);
+            test('2022 stocks and Treasuries both fall',
+                'both negative',
+                `stock ${(y2022.marketReturn*100).toFixed(2)}%, bond ${(y2022.bondReturn*100).toFixed(2)}%`,
+                y2022.marketReturn < 0 && y2022.bondReturn < 0,
+                'Flat 3% bonds could not do this');
+            const y2024 = historicalData.find(d => d.year === 2024);
+            test('2024 stock row is total return, not the old price return',
+                '24.88%',
+                `${(y2024.marketReturn*100).toFixed(2)}%`,
+                Math.abs(y2024.marketReturn - 0.2488) < 1e-9,
+                'Replaces the previous 23.3% price return');
         }
 
         {
@@ -357,7 +335,7 @@
                 let years = 0;
                 while (years < 30 && !ranOutOfMoney) {
                     const yearData = historicalData[Math.floor(Math.random() * historicalData.length)];
-                    const ret = (yearData.marketReturn * 0.6) + (DEFAULT_BOND_RETURN * 0.4);
+                    const ret = window.FirecalcSim.portfolioReturn(yearData, 0.6);
                     portfolio = portfolio * (1 + ret);
                     if (years > 0) {
                         currentWithdrawal *= (1 + yearData.inflation);
@@ -573,14 +551,62 @@
                 `Tax: $${tax.toFixed(0)} on $${gross}`);
         }
 
-        // --- Summary ---
-        const total = passed + failed;
-        document.getElementById('summary').innerHTML = `
-            <div class="summary-box summary-total">Total: ${total}</div>
-            <div class="summary-box summary-pass">Passed: ${passed}</div>
-            <div class="summary-box summary-fail">Failed: ${failed}</div>
-        `;
-        document.title = `FIRECalc Tests — ${failed === 0 ? 'ALL PASS ✅' : failed + ' FAILED ❌'}`;
+        function writeSummary() {
+            const total = passed + failed;
+            document.getElementById('summary').innerHTML = `
+                <div class="summary-box summary-total">Total: ${total}</div>
+                <div class="summary-box summary-pass">Passed: ${passed}</div>
+                <div class="summary-box summary-fail">Failed: ${failed}</div>
+            `;
+            document.title = `FIRECalc Tests — ${failed === 0 ? 'ALL PASS ✅' : failed + ' FAILED ❌'}`;
+        }
+
+        addCategory('Page contract');
+        (async function checkShippedPages() {
+            try {
+                const indexHtml = await (await fetch('index.html')).text();
+                const ssTag = (indexHtml.match(/<input[^>]*id="includeSS"[^>]*>/) || [''])[0];
+                test('Social Security checkbox defaults off',
+                    'unchecked',
+                    ssTag && /\schecked[\s=>]/.test(ssTag) ? 'checked' : (ssTag ? 'unchecked' : 'missing'),
+                    ssTag && !/\schecked[\s=>]/.test(ssTag),
+                    'Stock retirement case is not subsidized until the box is turned on');
+                const aiHit = /aiAnalysis|openai-proxy|AI Analysis|openaiApiKey/.test(indexHtml);
+                test('Calculator page has no AI Analysis UI',
+                    'absent',
+                    aiHit ? 'present' : 'absent',
+                    !aiHit);
+                test('Help describes Treasuries, 1975–2024, and historical cycles',
+                    'present',
+                    indexHtml.includes('10-year US Treasury') && indexHtml.includes('Historical cycles') ? 'present' : 'missing',
+                    indexHtml.includes('10-year US Treasury') && indexHtml.includes('1975') && indexHtml.includes('Historical cycles') && indexHtml.includes("today's purchasing power"));
+                test('Help does not claim a Bloomberg bond index or a 1975–2020 sample',
+                    'not claimed',
+                    /Bloomberg US Aggregate bond index,|1975–2020 returns|1975-2020/.test(indexHtml) ? 'claimed' : 'not claimed',
+                    !/uses the Bloomberg|Bloomberg aggregate|1975–2020 returns|1975-2020/.test(indexHtml));
+
+                const privacy = await (await fetch('privacy-policy.html')).text();
+                test('Privacy policy does not mention OpenAI or AI Analysis',
+                    'absent',
+                    /OpenAI|AI Analysis|openai/i.test(privacy) ? 'present' : 'absent',
+                    !/OpenAI|AI Analysis|openai/i.test(privacy));
+
+                const proxy = await fetch('functions/openai-proxy.js');
+                test('OpenAI proxy is not a shipped file',
+                    '404',
+                    String(proxy.status),
+                    proxy.status === 404);
+
+                const appJs = await (await fetch('app.js')).text();
+                test('Client does not call the OpenAI proxy',
+                    'absent',
+                    /openai-proxy|api\.openai\.com/.test(appJs) ? 'present' : 'absent',
+                    !/openai-proxy|api\.openai\.com/.test(appJs));
+            } catch (err) {
+                test('Page contract fetch', 'pages load', String(err), false, 'Serve the site over HTTP so these checks can read sibling files');
+            }
+            writeSummary();
+        })();
     </script>
 </body>
 </html>
