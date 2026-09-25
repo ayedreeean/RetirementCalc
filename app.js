@@ -1421,6 +1421,14 @@
         }, silent ? 0 : 40);
     }
 
+    // Plain rounding would print 100% while a path failed (or 0% while one lasted).
+    function formatSuccess(rate, successes, n) {
+        const r = Math.round(rate);
+        if (r === 100 && successes < n) return `${Math.min(99.9, Math.floor(rate * 10) / 10).toFixed(1)}%`;
+        if (r === 0 && successes > 0) return `${Math.max(0.1, Math.ceil(rate * 10) / 10).toFixed(1)}%`;
+        return `${r}%`;
+    }
+
     function successLevel(rate) { return rate >= 85 ? 'high' : rate >= 65 ? 'mid' : 'low'; }
 
     function renderRetirement(res) {
@@ -1432,7 +1440,7 @@
             ? `${summary.n} complete ${inp.lifeExpectancy}-year windows, 1975–2024`
             : `${fmtInt(summary.n)} shuffled paths · seed ${res.seed}`;
 
-        $('successRate').textContent = `${Math.round(summary.successRate)}%`;
+        $('successRate').textContent = formatSuccess(summary.successRate, summary.successes, summary.n);
         const ring = $('successRing');
         const level = successLevel(summary.successRate);
         ring.classList.toggle('level-mid', level === 'mid');
@@ -2302,7 +2310,7 @@
             dot.className = 'peek-dot';
         } else {
             const r = res.summary.successRate;
-            $('peekText').textContent = `${Math.round(r)}% of paths lasted`;
+            $('peekText').textContent = `${formatSuccess(r, res.summary.successes, res.summary.n)} of paths lasted`;
             const level = successLevel(r);
             dot.className = `peek-dot${level === 'high' ? '' : ` level-${level}`}`;
         }

@@ -473,7 +473,7 @@ input:disabled, select:disabled { background: var(--surface-2); color: var(--fai
 .ring-fill.level-low { stroke: var(--coral); }
 .ring-number {
     position: absolute; inset: 0; display: grid; place-items: center;
-    font-family: var(--font-display); font-weight: 540; font-size: 2.9rem; letter-spacing: -.03em; font-variant-numeric: tabular-nums; font-variation-settings: "opsz" 144;
+    font-family: var(--font-display); font-weight: 540; font-size: clamp(2.2rem, 3.4vw, 2.9rem); letter-spacing: -.03em; font-variant-numeric: tabular-nums; font-variation-settings: "opsz" 144;
 }
 .hero-headline { font-family: var(--font-display); font-size: clamp(1.25rem, 2.3vw, 1.6rem); font-weight: 480; line-height: 1.25; margin-top: 8px; letter-spacing: -.01em; font-variation-settings: "opsz" 48; }
 .hero-headline strong { font-weight: 620; }
