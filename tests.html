@@ -590,6 +590,14 @@
                     'absent',
                     /OpenAI|AI Analysis|openai/i.test(privacy) ? 'present' : 'absent',
                     !/OpenAI|AI Analysis|openai/i.test(privacy));
+                test('Privacy policy discloses GA4 and Cloudflare Web Analytics',
+                    'both disclosed',
+                    (privacy.includes('Google Analytics 4') ? 'GA4 ' : '') + (privacy.includes('Cloudflare Web Analytics') ? 'Cloudflare' : ''),
+                    privacy.includes('Google Analytics 4') && privacy.includes('Cloudflare Web Analytics'));
+                test('Public page includes the GA4 tag',
+                    'G-57CCGCXNJT',
+                    indexHtml.includes('G-57CCGCXNJT') ? 'G-57CCGCXNJT' : 'missing',
+                    indexHtml.includes("gtag/js?id=G-57CCGCXNJT") && indexHtml.includes("gtag('config', 'G-57CCGCXNJT')"));
 
                 const proxy = await fetch('functions/openai-proxy.js');
                 test('OpenAI proxy is not a shipped file',
