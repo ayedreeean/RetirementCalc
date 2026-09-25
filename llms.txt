@@ -1,0 +1,15 @@
+# FIREcalc
+
+> Free retirement and financial-independence calculator at https://firecalc.ai/. Calculations run in the browser. No account and no fee. Social Security is off unless the user turns it on.
+
+FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a goal in today’s purchasing power. Retirement asks what share of paths still have money at the end of every year of a chosen horizon. The embedded sample is US large-cap stocks and 10-year Treasury total returns for 1975–2024, with each year’s inflation kept on the same row. It does not include 1966 or 1973–74.
+
+## Pages
+
+- [Calculator](https://firecalc.ai/): The savings and retirement tools
+- [Privacy policy](https://firecalc.ai/privacy-policy.html): Local calculations, Google Analytics 4, and Cloudflare Web Analytics
+- [Methodology](https://firecalc.ai/llms-full.txt): How success, returns, inflation, taxes, and Social Security are defined
+
+## Optional
+
+- [agents.txt](https://firecalc.ai/agents.txt): This site has no agent payments, account, or MCP server

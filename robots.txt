@@ -1,0 +1,16 @@
+# FIREcalc is a public calculator. Index the site, including the agent files.
+User-agent: *
+Allow: /
+Allow: /agents.txt
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /sitemap.xml
+Allow: /app.js
+Allow: /market-data.js
+Allow: /tax-engine.js
+Allow: /styles.css
+
+# Developer test page, not a public calculator.
+Disallow: /tests.html
+
+Sitemap: https://firecalc.ai/sitemap.xml

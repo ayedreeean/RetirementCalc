@@ -598,6 +598,40 @@
                     'G-57CCGCXNJT',
                     indexHtml.includes('G-57CCGCXNJT') ? 'G-57CCGCXNJT' : 'missing',
                     indexHtml.includes("gtag/js?id=G-57CCGCXNJT") && indexHtml.includes("gtag('config', 'G-57CCGCXNJT')"));
+                test('Homepage title and description name the calculator',
+                    'title and description',
+                    indexHtml.includes('free FIRE and retirement calculator') && indexHtml.includes('name="description"') ? 'present' : 'missing',
+                    indexHtml.includes('<title>FIREcalc — free FIRE and retirement calculator</title>') && indexHtml.includes('today’s dollars'));
+                const shareTag = (indexHtml.match(/<div class="share-container"[^>]*>/) || [''])[0];
+                test('Share button is not hidden',
+                    'visible',
+                    /display:\s*none/.test(shareTag) ? 'hidden' : 'visible',
+                    shareTag && !/display:\s*none/.test(shareTag));
+                test('JSON-LD is a free WebApplication and does not mention OpenAI',
+                    'WebApplication',
+                    /"@type": "WebApplication"/.test(indexHtml) && !/OpenAI|AI Analysis/i.test(indexHtml) ? 'WebApplication' : 'mismatch',
+                    /"@type": "WebApplication"/.test(indexHtml) && indexHtml.includes('"price": "0"') && !/OpenAI|AI Analysis/i.test(indexHtml));
+
+                const robots = await (await fetch('robots.txt')).text();
+                test('robots.txt allows the agent files and does not block app.js',
+                    'allowed',
+                    robots.includes('Allow: /agents.txt') && robots.includes('Allow: /llms.txt') && robots.includes('Allow: /sitemap.xml') && robots.includes('Allow: /app.js') ? 'allowed' : 'missing',
+                    robots.includes('Allow: /agents.txt') && robots.includes('Allow: /llms.txt') && robots.includes('Allow: /sitemap.xml') && robots.includes('Allow: /app.js') && !/Disallow:\s*\/app\.js/.test(robots));
+                const sitemap = await (await fetch('sitemap.xml')).text();
+                test('Sitemap lists the calculator and the privacy policy',
+                    'both',
+                    (sitemap.includes('https://firecalc.ai/</loc>') || sitemap.includes('https://firecalc.ai/</loc>')) && sitemap.includes('privacy-policy.html') ? 'both' : 'missing',
+                    sitemap.includes('<loc>https://firecalc.ai/</loc>') && sitemap.includes('<loc>https://firecalc.ai/privacy-policy.html</loc>') && sitemap.includes('<lastmod>2026-09-25</lastmod>'));
+                const llms = await (await fetch('llms.txt')).text();
+                test('llms.txt matches the engine and does not mention OpenAI',
+                    'present',
+                    llms.includes('1975') && llms.includes('Treasury') && !/OpenAI/i.test(llms) ? 'present' : 'mismatch',
+                    llms.includes('today’s purchasing power') && llms.includes('10-year Treasury') && llms.includes('privacy-policy.html') && !/OpenAI/i.test(llms));
+                const agents = await (await fetch('agents.txt')).text();
+                test('agents.txt declares no payment or MCP server',
+                    'no MCP or payment',
+                    /Protocols:|MCP:|Payments:/.test(agents) ? 'capability declared' : 'none declared',
+                    agents.includes('https://agents-txt.com') && agents.includes('/llms.txt') && !/Protocols:|MCP:|Payments:/.test(agents));
 
                 const proxy = await fetch('functions/openai-proxy.js');
                 test('OpenAI proxy is not a shipped file',
