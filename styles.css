@@ -150,8 +150,8 @@ main { max-width: 1320px; margin: 0 auto; padding: 36px 24px 56px; outline: none
 .eyebrow-dot-sun { background: var(--sun); box-shadow: 0 0 0 4px var(--sun-wash); }
 .display {
     margin-top: 12px;
-    font-family: var(--font-display); font-weight: 520; font-size: clamp(2rem, 4.2vw, 3.1rem);
-    line-height: 1.06; letter-spacing: -.02em; font-variation-settings: "opsz" 96;
+    font-family: var(--font-sans); font-weight: 700; font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+    line-height: 1.12; letter-spacing: -.025em;
 }
 .lede { margin-top: 14px; font-size: 1.06rem; color: var(--ink-2); max-width: 680px; }
 .lede em { font-style: normal; background: linear-gradient(transparent 62%, var(--sun-soft) 62%); }
@@ -450,11 +450,11 @@ input:disabled, select:disabled { background: var(--surface-2); color: var(--fai
 .hero-savings { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px 28px; align-items: center; }
 .hero-eyebrow { font-size: .8rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .hero-number {
-    font-family: var(--font-display); font-weight: 520; font-size: clamp(3rem, 7vw, 4.6rem); line-height: 1; letter-spacing: -.03em;
-    margin-top: 10px; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; font-variation-settings: "opsz" 144;
+    font-family: var(--font-sans); font-weight: 700; font-size: clamp(2.8rem, 6vw, 4rem); line-height: 1; letter-spacing: -.035em;
+    margin-top: 10px; color: var(--ink); font-variant-numeric: lining-nums tabular-nums;
 }
 .hero-number.hero-number-text { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; }
-.hero-number .unit { font-size: .42em; letter-spacing: -.01em; color: var(--ink-2); margin-left: .18em; font-weight: 480; }
+.hero-number .unit { font-size: .4em; letter-spacing: -.01em; color: var(--ink-2); margin-left: .22em; font-weight: 600; }
 .hero-sub { margin-top: 10px; font-size: 1.02rem; color: var(--ink-2); }
 .hero-sub strong { color: var(--teal-strong); }
 .hero-stats { margin: 0; display: grid; gap: 10px; }
@@ -473,10 +473,10 @@ input:disabled, select:disabled { background: var(--surface-2); color: var(--fai
 .ring-fill.level-low { stroke: var(--coral); }
 .ring-number {
     position: absolute; inset: 0; display: grid; place-items: center;
-    font-family: var(--font-display); font-weight: 540; font-size: clamp(2.2rem, 3.4vw, 2.9rem); letter-spacing: -.03em; font-variant-numeric: tabular-nums; font-variation-settings: "opsz" 144;
+    font-family: var(--font-sans); font-weight: 700; font-size: clamp(2rem, 3vw, 2.5rem); letter-spacing: -.035em; font-variant-numeric: tabular-nums;
 }
-.hero-headline { font-family: var(--font-display); font-size: clamp(1.25rem, 2.3vw, 1.6rem); font-weight: 480; line-height: 1.25; margin-top: 8px; letter-spacing: -.01em; font-variation-settings: "opsz" 48; }
-.hero-headline strong { font-weight: 620; }
+.hero-headline { font-family: var(--font-sans); font-size: clamp(1.15rem, 2vw, 1.4rem); font-weight: 500; line-height: 1.35; margin-top: 8px; letter-spacing: -.012em; }
+.hero-headline strong { font-weight: 700; }
 .assumption-chips { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .a-chip { display: inline-flex; align-items: center; gap: 7px; font-size: .8rem; font-weight: 550; padding: 6px 10px; border-radius: var(--radius-pill); background: rgba(255,255,255,.85); border: 1px solid var(--line); color: var(--ink-2); }
 .a-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
