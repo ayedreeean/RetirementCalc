@@ -52,3 +52,23 @@
 - `index.html` — Added skip-to-content link, ARIA roles/attributes, semantic elements
 - `styles.css` — Appended ~150 lines of UX improvements at bottom of file
 - `ux-report.md` — This file
+
+---
+
+# Redesign notes — Sep 2026
+
+## Structure
+- `market-data.js` — the 1975–2024 table and the engine. `FirecalcSim.runRetirementTrial` is the retirement loop that used to be inline in `app.js`, moved without changing the arithmetic (`tests.html` checks it against a copy of the old loop). `buildSequences` accepts an optional RNG; `seededRandom(seed)` makes shuffled paths repeatable.
+- `tax-engine.js` — unchanged. The UI still uses its element ids (`taxStrategyBody`, `taxSimpleSection`, `accountMixBar`, …).
+- `app.js` — UI only, one IIFE. Reads the form, calls the engine, draws results. Sections: formatting, storage (+ legacy Social Security migration), tabs, form controls, presets/handoff, chart theme (Chart.js defaults + two small plugins: `fcRefLines` for goal/start/median lines, `fcCrosshair`), savings, retirement, compare, tables, detail dialog, share.
+- `styles.css` — full rewrite. Design tokens at the top (`--teal`, `--sun`, `--sky`, `--coral`, neutrals, radii, shadows); chart colors in `app.js` (`C`) mirror them.
+- `service-worker.js` — from the SEO PR: HTML is network-first with the last good copy as the offline fallback; assets are not intercepted and nothing is precached. Now `firecalc-v7`. Bump `CACHE_NAME` and the `?v=` query strings in `index.html` together whenever HTML, CSS, or JS changes.
+- SEO/agent files (`llms.txt`, `llms-full.txt`, `agents.txt`, `agents.json`, `robots.txt`, `sitemap.xml`, JSON-LD and OG tags) come from the SEO PR. `llms-full.txt` mirrors the in-app help; update both together. `og-image.png` (1200×630) is the share card.
+- The always-visible `.share-container` band sits at the end of `<main>`; results toolbars have their own share buttons. All use `[data-share]`.
+
+## Behavior worth knowing
+- After the first run, edits re-run silently (450 ms debounce). Silent runs never toast; invalid input marks the result stale instead.
+- Shuffled paths keep one seed per tab until **Reshuffle**; share links carry `seed`.
+- Sensitivity charts rerun the first ≤1,000 of the same paths per point; clicking a point applies it.
+- Pinned scenarios are in memory only.
+- Confetti and the high-success banner are gone; the assumption chips and note under the success rate carry the disclosure.

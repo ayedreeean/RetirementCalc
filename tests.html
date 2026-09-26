@@ -228,6 +228,111 @@
                 'Replaces the previous 23.3% price return');
         }
 
+        // Reference: the retirement loop exactly as it was inline in app.js before the redesign
+        // moved it to FirecalcSim.runRetirementTrial. Both must agree to the cent.
+        function legacyRetirementTrial(o, sequence) {
+            let portfolio = o.retirementSavings, years = 0, ranOutOfMoney = false;
+            let currentWithdrawal = o.annualWithdrawal, totalWithdrawn = 0, totalIncomeReceived = 0;
+            let currentSSBenefit = o.ssAnnualBase, currentSpouseSSBenefit = o.spouseSSAnnualBase, yearsWithOtherIncome = 0;
+            while (years < sequence.length && !ranOutOfMoney) {
+                const yearData = sequence[years];
+                const currentAge = o.retirementAge + years;
+                const portfolioReturn = window.FirecalcSim.portfolioReturn(yearData, o.stockAllocation);
+                portfolio = portfolio * (1 + portfolioReturn);
+                if (o.adjustForInflation && years > 0) currentWithdrawal = currentWithdrawal * (1 + yearData.inflation);
+                if (years > 0) {
+                    currentSSBenefit = currentSSBenefit * (1 + yearData.inflation);
+                    currentSpouseSSBenefit = currentSpouseSSBenefit * (1 + yearData.inflation);
+                }
+                let ssIncome = 0;
+                if (o.includeSS && currentAge >= o.ssClaimingAge) ssIncome += currentSSBenefit;
+                if (o.includeSpouseSS && currentAge >= o.spouseSSClaimingAge) ssIncome += currentSpouseSSBenefit;
+                let pensionInc = 0, otherInc = 0;
+                if (o.includeOtherIncome) {
+                    if (currentAge >= o.pensionStartAge) pensionInc = o.annualPension;
+                    if (o.otherIncomeDuration === 0 || yearsWithOtherIncome < o.otherIncomeDuration) {
+                        otherInc = o.annualOtherIncome;
+                        if (o.annualOtherIncome > 0) yearsWithOtherIncome++;
+                    }
+                }
+                const totalIncome = ssIncome + pensionInc + otherInc;
+                totalIncomeReceived += totalIncome;
+                const preTaxWithdrawal = currentWithdrawal / (1 - o.taxRate);
+                const neededFromPortfolio = Math.max(0, preTaxWithdrawal - totalIncome);
+                portfolio -= neededFromPortfolio;
+                totalWithdrawn += currentWithdrawal;
+                if (portfolio <= 0) { ranOutOfMoney = true; portfolio = 0; }
+                years++;
+            }
+            return { ranOutOfMoney, yearsLasted: ranOutOfMoney ? years : o.lifeExpectancy, finalBalance: portfolio, totalWithdrawn, totalIncomeReceived };
+        }
+
+        {
+            const base = {
+                retirementAge: 60, retirementSavings: 1000000, annualWithdrawal: 45000, adjustForInflation: true, taxRate: 0.15,
+                stockAllocation: 0.6, lifeExpectancy: 30, includeSS: false, ssAnnualBase: 24000, ssClaimingAge: 67,
+                includeSpouseSS: false, spouseSSAnnualBase: 18000, spouseSSClaimingAge: 65, includeOtherIncome: false,
+                annualPension: 12000, pensionStartAge: 62, annualOtherIncome: 6000, otherIncomeDuration: 5
+            };
+            const variants = [
+                {}, { adjustForInflation: false }, { taxRate: 0 }, { includeSS: true }, { includeSS: true, includeSpouseSS: true },
+                { includeOtherIncome: true }, { includeOtherIncome: true, otherIncomeDuration: 0 }, { stockAllocation: 1 },
+                { stockAllocation: 0 }, { annualWithdrawal: 90000 }
+            ];
+            const seqs = window.FirecalcSim.buildSequences(historicalData, 'historical', 30, 0, true)
+                .concat(window.FirecalcSim.buildSequences(historicalData, 'shuffled', 30, 200, true, window.FirecalcSim.seededRandom(7)));
+            let checked = 0, mismatches = 0;
+            variants.forEach(v => {
+                const o = Object.assign({}, base, v);
+                seqs.forEach(seq => {
+                    const a = legacyRetirementTrial(o, seq);
+                    const b = window.FirecalcSim.runRetirementTrial(o, seq);
+                    checked++;
+                    if (a.ranOutOfMoney !== b.ranOutOfMoney || a.yearsLasted !== b.yearsLasted ||
+                        Math.abs(a.finalBalance - b.finalBalance) > 1e-6 || Math.abs(a.totalWithdrawn - b.totalWithdrawn) > 1e-6 ||
+                        Math.abs(a.totalIncomeReceived - b.totalIncomeReceived) > 1e-6) mismatches++;
+                });
+            });
+            test('Retirement engine matches the pre-redesign loop',
+                '0 mismatches',
+                `${mismatches} mismatches in ${checked} paths`,
+                mismatches === 0,
+                'SS, spouse, pension, side income, inflation on/off, 0–100% stocks, historical and shuffled');
+        }
+
+        {
+            const seq = historicalData.slice(10, 13);
+            const r = window.FirecalcSim.runRetirementTrial({
+                retirementAge: 65, retirementSavings: 1e7, annualWithdrawal: 40000, adjustForInflation: true, taxRate: 0,
+                stockAllocation: 0.6, lifeExpectancy: 3, includeSS: false, includeSpouseSS: false, includeOtherIncome: false
+            }, seq);
+            const expected2 = 40000 * (1 + seq[1].inflation);
+            const expected3 = expected2 * (1 + seq[2].inflation);
+            test('Inflation-adjusted spending rises from year 2',
+                `$40,000 → $${Math.round(expected2).toLocaleString()} → $${Math.round(expected3).toLocaleString()}`,
+                r.yearlyData.map(y => '$' + Math.round(y.afterTaxWithdrawal).toLocaleString()).join(' → '),
+                r.yearlyData[0].afterTaxWithdrawal === 40000 && Math.abs(r.yearlyData[1].afterTaxWithdrawal - expected2) < 1e-6 && Math.abs(r.yearlyData[2].afterTaxWithdrawal - expected3) < 1e-6,
+                'First year uses the typed amount; later years use that path’s inflation');
+            const cpi3 = (1 + seq[0].inflation) * (1 + seq[1].inflation) * (1 + seq[2].inflation);
+            test('Retirement real balance = nominal ÷ path CPI',
+                `$${Math.round(r.finalBalance / cpi3).toLocaleString()}`,
+                `$${Math.round(r.finalRealBalance).toLocaleString()}`,
+                Math.abs(r.finalRealBalance - r.finalBalance / cpi3) < 1e-6,
+                'Used by the today’s-dollars range chart');
+        }
+
+        {
+            const years = rng => window.FirecalcSim.buildSequences(historicalData, 'shuffled', 30, 50, true, rng).map(s => s.map(y => y.year).join(',')).join(';');
+            const a = years(window.FirecalcSim.seededRandom(1234));
+            const b = years(window.FirecalcSim.seededRandom(1234));
+            const c = years(window.FirecalcSim.seededRandom(1235));
+            test('Seeded shuffles repeat for the same seed',
+                'same seed equal, new seed differs',
+                a === b && a !== c ? 'same seed equal, new seed differs' : 'unexpected',
+                a === b && a !== c,
+                'Live updates compare inputs on identical paths until Reshuffle');
+        }
+
         {
             // With high withdrawal rate, should mostly fail
             const results = runRetirementSim(100000, 50000, 0.6, 0, false, 30, 500);
@@ -632,6 +737,30 @@
                     'no MCP or payment',
                     /Protocols:|MCP:|Payments:/.test(agents) ? 'capability declared' : 'none declared',
                     agents.includes('https://agents-txt.com') && agents.includes('/llms.txt') && !/Protocols:|MCP:|Payments:/.test(agents));
+
+                test('Confetti is not loaded',
+                    'absent',
+                    /confetti/i.test(indexHtml) ? 'present' : 'absent',
+                    !/confetti/i.test(indexHtml),
+                    'A high shuffled success rate is not a celebration');
+                test('Chart.js is version-pinned with an integrity hash',
+                    'pinned + SRI',
+                    /chart\.js@\d+\.\d+\.\d+[^"]*"\s+integrity="sha384-/.test(indexHtml) ? 'pinned + SRI' : 'unpinned',
+                    /chart\.js@\d+\.\d+\.\d+[^"]*"\s+integrity="sha384-/.test(indexHtml));
+                const sw = await (await fetch('service-worker.js')).text();
+                const cacheName = (sw.match(/CACHE_NAME\s*=\s*'([^']+)'/) || [])[1] || 'missing';
+                test('Service worker cache bumped past v6 for the redesign',
+                    'firecalc-v7 or later',
+                    cacheName,
+                    /^firecalc-v(\d+)$/.test(cacheName) && parseInt(cacheName.split('-v')[1], 10) >= 7);
+                test('Service worker stays network-first for HTML and does not precache the shell',
+                    'network-first, no addAll',
+                    /fetch\(event\.request\)/.test(sw) && !/addAll/.test(sw) ? 'network-first, no addAll' : 'changed',
+                    /fetch\(event\.request\)/.test(sw) && !/addAll/.test(sw));
+                test('Asset URLs carry a cache-busting version',
+                    '?v= on styles and scripts',
+                    /styles\.css\?v=\d+/.test(indexHtml) && /app\.js\?v=\d+/.test(indexHtml) ? 'present' : 'missing',
+                    /styles\.css\?v=\d+/.test(indexHtml) && /app\.js\?v=\d+/.test(indexHtml) && /market-data\.js\?v=\d+/.test(indexHtml));
 
                 const proxy = await fetch('functions/openai-proxy.js');
                 test('OpenAI proxy is not a shipped file',
