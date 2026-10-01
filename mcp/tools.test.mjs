@@ -410,7 +410,9 @@ test('the package stays local and the static site has no root package.json', () 
     assert.match(ai, /id="mcp"[\s\S]*status-live">Live/);
     assert.match(ai, /mcp\/server\.mjs/);
     assert.match(ai, /Not published/);
-    assert.doesNotMatch(ai, /\/api\/simulate|wrangler|openai-proxy|workers\.dev/i);
+    assert.doesNotMatch(ai, /\/api\/simulate|wrangler|openai-proxy/i);
+    assert.match(ai, /https:\/\/firecalc-link-mcp\.aye-dreee-an\.workers\.dev\/mcp/);
+    assert.match(ai, /Not in the directory/);
     const agents = readFileSync(join(root, 'agents.txt'), 'utf8');
     assert.doesNotMatch(agents, /Protocols:|MCP:|Payments:/);
     assert.match(agents, /no public compute API/);

@@ -301,5 +301,7 @@ test('worker sources do not import the simulator', () => {
     assert.match(ai, /id="mcp"[\s\S]*status-live">Live/);
     assert.match(ai, /id="mcp-hosted"[\s\S]*status-draft">Draft/);
     assert.match(ai, /Not published/);
-    assert.doesNotMatch(ai, /\/api\/simulate|wrangler|openai-proxy|workers\.dev/i);
+    assert.doesNotMatch(ai, /\/api\/simulate|wrangler|openai-proxy/i);
+    assert.match(ai, /https:\/\/firecalc-link-mcp\.aye-dreee-an\.workers\.dev\/mcp/);
+    assert.match(ai, /Not in the app directory/);
 });
