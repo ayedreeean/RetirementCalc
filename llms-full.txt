@@ -43,6 +43,23 @@ Simple mode applies one rate. Detailed mode uses 2025 federal brackets, the stan
 
 Part-time work, a pension, or Social Security belong in the “Social Security & other income” section. Subtracting that income from the withdrawal as well counts it twice. Social Security uses the benefit at full retirement age (67) and scales it for the claiming age. It receives a cost-of-living adjustment. A pension stays flat in nominal dollars.
 
+## Named stress packs
+
+The retirement results include six named stress packs. Each runs the plan through one real stretch of the table, in the order the years happened, with the same engine as the main result (spending, stock mix, taxes, Social Security, and other income all apply). A pack is one path. It is not a success rate.
+
+A pack starts in its first villain year and runs for the plan’s length, but never past 2024. If the villain stretch is longer than the plan, the whole stretch runs. The result states the exact years used.
+
+- stagflation: Stagflation squeeze. Villain years 1977–1981. Starts 1977.
+- rate-wall-81: Rate wall of ’81. Villain year 1981. Starts 1981.
+- bond-rout-94: Bond rout of ’94. Villain year 1994. Starts 1994.
+- dotcom: Dot-com hangover. Villain years 2000–2002. Starts 2000. A 30-year plan is clipped to 2000–2024, 25 years.
+- gfc: GFC crash. Villain year 2008. Starts 2008.
+- rate-shock-22: 2022 rate shock. Villain year 2022. Starts 2022. At most 3 years, 2022–2024.
+
+There is no pack for 1966 or 1973–74, which are before the table. There is none for Black Monday or the COVID crash: stocks returned +5.6% in 1987 and +18.4% in 2020 in this annual table, so those drops do not appear as down years.
+
+Links: https://firecalc.ai/?pack=dotcom opens the retirement calculator with that pack selected and the visitor’s own saved inputs (a challenge link, with no one else’s numbers). Adding pack=<id> to a full retirement share link opens that pack with the link’s inputs. An unknown id is refused. The share card is drawn in the browser. It shows ratios and rates, not dollar amounts.
+
 ## Limits
 
 The calculators replay or reshuffle one 50-year US large-cap and Treasury sample. They leave out fees, returns before 1975, and markets outside this table.
