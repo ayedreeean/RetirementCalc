@@ -4,6 +4,7 @@ Allow: /
 Allow: /agents.txt
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /ai
 Allow: /sitemap.xml
 Allow: /app.js
 Allow: /market-data.js

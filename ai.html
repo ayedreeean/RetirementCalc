@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FIRE calculator for ChatGPT, MCP, and AI agents — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/ai">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="FIREcalc is a free FIRE calculator for ChatGPT, MCP, and other AI agents. Build a share link; savings and retirement math runs in the browser. No public compute API.">
+    <meta property="og:title" content="FIRE calculator for ChatGPT, MCP, and AI agents — FIREcalc">
+    <meta property="og:description" content="Suite home for ChatGPT, MCP, and other AI agents. Share links open the FIREcalc retirement and savings calculator in the browser. No public compute API.">
+    <meta property="og:url" content="https://firecalc.ai/ai">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="FIRE calculator for ChatGPT, MCP, and AI agents — FIREcalc">
+    <meta name="twitter:description" content="Free FIRE calculator for ChatGPT, MCP, and AI agents. Share links run in the browser. No public compute API.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "FIRE calculator for ChatGPT, MCP, and AI agents",
+        "url": "https://firecalc.ai/ai",
+        "description": "Static suite home. ChatGPT, MCP, and other agents should build a FIREcalc share link. Savings and retirement math runs in the browser. No public compute API.",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "FIREcalc",
+            "url": "https://firecalc.ai/"
+        }
+    }
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css?v=9">
+</head>
+<body>
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home">
+                <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="brand-name">FIREcalc</span>
+            </a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab active" href="/ai" aria-current="page">Agent &amp; plugins</a>
+            </nav>
+            <div class="header-actions">
+                <a class="header-link" href="/llms-full.txt">Methodology</a>
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="hub" tabindex="-1">
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Suite home</p>
+            <h1 class="display">Agents can set up a plan. Your browser runs it.</h1>
+            <p class="lede">This page is the front door for people and for chat tools. It does not calculate. A configured link opens the savings or retirement calculator, and the math stays on your device.</p>
+        </div>
+
+        <div class="hub-stack">
+            <section class="callout callout-privacy" id="privacy" aria-labelledby="privacy-title">
+                <p class="hub-kicker">Privacy</p>
+                <h2 id="privacy-title">Browser first. No public compute API.</h2>
+                <p>FIREcalc does not accept calculator inputs on a server. There is no unauthenticated API, no remote MCP server, and no model call from this site. <a href="/agents.txt">agents.txt</a> and <a href="/agents.json">agents.json</a> still say that.</p>
+                <p>A share link puts the inputs in the URL. That URL can sit in browser history, a chat log, or ordinary hosting logs. Treat it like a note that contains the numbers.</p>
+                <p>A hosted calculator would be a later, explicit opt-in, with the privacy policy updated first. It is not offered here. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+            </section>
+
+            <section class="hub-card" id="links" aria-labelledby="links-title">
+                <p class="hub-kicker">Deep links</p>
+                <h2 id="links-title">Open a configured plan</h2>
+                <p>These are ordinary calculator URLs. Opening one runs that plan in your browser. The seed makes shuffled paths repeat.</p>
+
+                <h3>Savings, shuffled years</h3>
+                <p>Age 35, $180,000 saved, $95,000 income, $55,000 spending, a $1,200,000 goal in today’s dollars, 70% stocks, 2% real income growth, 1,000 paths, seed 246813.</p>
+                <a class="recipe" href="/?tab=accumulation&amp;currentAge=35&amp;currentSavings=180000&amp;income=95000&amp;expenses=55000&amp;targetAmount=1200000&amp;stockAllocation=70&amp;incomeGrowth=2&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">Open this savings plan</a>
+
+                <h3>Retirement, historical cycles</h3>
+                <p>Retire at 55 with $1,200,000, spend $48,000 a year with inflation, 60% stocks, 35-year horizon, flat 15% tax, Social Security off. Historical cycles ignore the path count. The sample is 1975–2024, so this is not a 1966 test. Seed 246813 is stored on the link and does not change historical windows.</p>
+                <a class="recipe" href="/?tab=retirement&amp;retirementAge=55&amp;retirementSavings=1200000&amp;annualWithdrawal=48000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=15&amp;taxMode=simple&amp;retirementLifeExpectancy=35&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open this retirement plan</a>
+                <p class="hub-note">The same keys are what the in-app Share button writes. <code>firecalc-io.js</code> builds and reads them without the page.</p>
+                <div class="link-row">
+                    <a class="btn btn-primary" href="/">Open the calculator</a>
+                    <a class="btn btn-ghost" href="/privacy-policy.html">Privacy policy</a>
+                </div>
+            </section>
+
+            <section class="hub-card" id="assistants" aria-labelledby="assistants-title">
+                <p class="hub-kicker">For a chat assistant</p>
+                <h2 id="assistants-title">Ask for the real knobs, then hand back a link</h2>
+                <ul>
+                    <li>Ask which calculator, the return path (shuffled years or historical cycles), the stock mix, taxes, and whether Social Security is on. Do not invent a 7% return.</li>
+                    <li>Build a <code>https://firecalc.ai/</code> URL with the share keys. Do not send the numbers to a FIREcalc server. There isn’t one.</li>
+                    <li>Say the sample is US large-cap stocks and 10-year Treasuries from 1975 through 2024. It does not include 1966 or 1973–74. This is an illustration, not advice.</li>
+                    <li>Send the person here for charts, the path table, and editing. Chat is a poor place to scrub a plan.</li>
+                </ul>
+            </section>
+
+            <section class="hub-card" id="suite" aria-labelledby="suite-title">
+                <p class="hub-kicker">Suite map</p>
+                <h2 id="suite-title">What exists, and what does not</h2>
+                <p>One engine, several questions. Only the first rows are on the site tonight.</p>
+                <div class="hub-table-wrap">
+                    <table class="hub-table">
+                        <thead>
+                            <tr><th scope="col">Surface</th><th scope="col">Tonight</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Years to a savings goal</td><td>On the calculator. Goal is today’s purchasing power. Contributions are income minus spending, and never below zero.</td></tr>
+                            <tr><td>Retirement survival</td><td>On the calculator. Success means the portfolio is above zero at the end of every year of the horizon.</td></tr>
+                            <tr><td>Share link</td><td>On the calculator. <code>firecalc-io.js</code> encodes and decodes the same query keys.</td></tr>
+                            <tr><td>Spending or stock-mix stress</td><td>A chart after you run retirement or savings. Not a separate tool.</td></tr>
+                            <tr><td>Social Security claiming</td><td>An input (62–70), off unless you turn it on. No side-by-side 62 vs 70 tool.</td></tr>
+                            <tr><td>Coast, barista, sabbatical</td><td>Not built. Coast is not “set spending equal to income”; the savings model does not solve for a coast number.</td></tr>
+                            <tr><td>Named historical stress packs</td><td>Not built. Any pack has to stay inside 1975–2024.</td></tr>
+                            <tr><td>Chat plugin, skills, MCP</td><td>Not published. Placeholders are below. They are not install buttons.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="hub-card" id="knobs" aria-labelledby="knobs-title">
+                <p class="hub-kicker">Deep config</p>
+                <h2 id="knobs-title">The knobs are specific. A toy summary is not.</h2>
+                <p>A useful assistant uses the controls the site already has. Hiding them, or substituting a generic Monte Carlo, will not match FIREcalc.</p>
+                <div class="hub-grid">
+                    <div>
+                        <h3>Returns</h3>
+                        <p>Shuffled years draw each year independently from 1975–2024. Historical cycles walk the years that actually followed. There is no custom mean, volatility, or fee. “Monte Carlo” here means that shuffle, not a normal distribution.</p>
+                    </div>
+                    <div>
+                        <h3>Mix</h3>
+                        <p>One allocation: S&amp;P 500 total return versus that year’s 10-year Treasury total return. Treasuries can be negative. There is no international sleeve, cash bucket, or glide path.</p>
+                    </div>
+                    <div>
+                        <h3>Taxes</h3>
+                        <p>Flat rate, or 2025 federal brackets with an account mix and a state rate. The “optimize withdrawal order” switch does not change results, because separate account balances are not tracked.</p>
+                    </div>
+                    <div>
+                        <h3>Social Security and other income</h3>
+                        <p>Off by default. Benefit at age 67, claiming age 62–70, optional spouse, a nominal pension, and other income with a duration. Turning them on raises the success rate. Say so.</p>
+                    </div>
+                    <div>
+                        <h3>Inflation and horizon</h3>
+                        <p>Inflation is the CPI on each historical row. Retirement can raise spending with that CPI. You cannot type a flat 3% inflation rate. Retirement length is 5–50 years. The savings search stops at 50 years.</p>
+                    </div>
+                    <div>
+                        <h3>Seed</h3>
+                        <p>Shuffled paths keep a seed until you reshuffle. The share URL carries it, so two people opening the same link see the same paths. Historical cycles do not use the seed.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="discover" aria-labelledby="discover-title">
+                <h2 id="discover-title" class="sr-only">Plugin, MCP, and skills</h2>
+                <div class="hub-grid">
+                    <article class="hub-card" id="chatgpt">
+                        <p class="hub-kicker later">Not published</p>
+                        <h2>ChatGPT</h2>
+                        <p>FIREcalc is not in the plugin directory. A later listing, if it exists, should be skills that build share links. It should not be a server that runs the simulation, and it should not sell anything inside the chat.</p>
+                        <p><a href="https://chatgpt.com/plugins" rel="noopener noreferrer">ChatGPT plugin directory</a> is only the directory. It is not a FIREcalc install.</p>
+                    </article>
+                    <article class="hub-card" id="mcp">
+                        <p class="hub-kicker later">Not published</p>
+                        <h2>MCP</h2>
+                        <p>There is no MCP server to add. <a href="/agents.json">agents.json</a> is the machine-readable statement. A future MCP, if built, would be local to the person’s own computer unless a separate opt-in says otherwise.</p>
+                        <p>No install command is provided, because none should be run.</p>
+                    </article>
+                    <article class="hub-card" id="skills">
+                        <p class="hub-kicker later">Not published</p>
+                        <h2>Skills</h2>
+                        <p>There is no skill pack to download. A skill for this site should refuse advice, disclose the 1975–2024 sample, and return a firecalc.ai share URL.</p>
+                        <p>Read <a href="/llms.txt">llms.txt</a> before writing that skill.</p>
+                    </article>
+                    <article class="hub-card" id="methodology">
+                        <p class="hub-kicker">Live now</p>
+                        <h2>Methodology</h2>
+                        <p>Success, returns, inflation, taxes, and Social Security are defined in the long methodology note. <a href="/llms.txt">llms.txt</a>, <a href="/agents.txt">agents.txt</a>, and <a href="/agents.json">agents.json</a> name this page as the suite home. They still say there is no MCP server and no public compute API.</p>
+                        <ul>
+                            <li><a href="/llms.txt">llms.txt</a></li>
+                            <li><a href="/llms-full.txt">llms-full.txt</a></li>
+                            <li><a href="/agents.txt">agents.txt</a></li>
+                            <li><a href="/agents.json">agents.json</a></li>
+                        </ul>
+                    </article>
+                </div>
+            </section>
+
+            <section class="callout callout-later" id="later" aria-labelledby="later-title">
+                <h2 id="later-title">Nothing on this page is for sale</h2>
+                <p>Scenario packs, if they are ever offered, would be sold on firecalc.ai. They would not be unlocked inside ChatGPT. This page does not take payment.</p>
+            </section>
+        </div>
+
+        <footer class="hub-footer">
+            <nav aria-label="Footer">
+                <a href="/">Calculator</a>
+                <a href="/ai">Agent &amp; plugins</a>
+                <a href="/llms-full.txt">Methodology</a>
+                <a href="/privacy-policy.html">Privacy</a>
+            </nav>
+        </footer>
+    </main>
+</body>
+</html>

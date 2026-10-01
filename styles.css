@@ -121,7 +121,7 @@ strong { font-weight: 600; }
 .tab {
     display: inline-flex; align-items: center; gap: 7px;
     border: 0; background: transparent; color: var(--muted);
-    font: 600 .92rem/1 var(--font-sans); padding: 9px 16px; border-radius: var(--radius-pill);
+    font: 600 .92rem/1 var(--font-sans); padding: 9px 16px; border-radius: var(--radius-pill); text-decoration: none;
     cursor: pointer; transition: background .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease);
 }
 .tab:hover { color: var(--ink); }
@@ -129,6 +129,9 @@ strong { font-weight: 600; }
 .tab.active svg { color: var(--teal); }
 .tab:focus-visible { border-radius: var(--radius-pill); }
 
+.header-actions { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; }
+.header-actions .header-link { margin-left: 0; }
+.header-link.is-current { background: var(--surface); border-color: var(--line); color: var(--ink); }
 .header-link {
     margin-left: auto;
     display: inline-flex; align-items: center; gap: 7px;
@@ -691,7 +694,7 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
     .tab { padding: 8px 12px; font-size: .86rem; }
     .tab svg { display: none; }
     .header-link { padding: 8px; margin-left: 0; }
-    .header-link-text { display: none; }
+    .header-link:has(svg) .header-link-text { display: none; }
     main { padding: 22px 14px 90px; }
     .intro { margin-bottom: 20px; }
     .lede { font-size: .98rem; }
@@ -746,4 +749,54 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
 
 @media (max-width: 980px) {
     .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
+
+/* ------------------------------------------------------------------ Agent hub (/ai) */
+.hub { max-width: 860px; }
+.hub-stack { display: grid; gap: 16px; margin-top: 8px; }
+.hub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.hub-card, .callout {
+    background: rgba(255, 255, 255, .86);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 18px 18px 16px;
+}
+.hub-card h2, .callout h2 {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 560;
+    letter-spacing: -.01em;
+    margin-bottom: 8px;
+}
+.hub-card h3 { font-size: 1rem; margin: 14px 0 4px; }
+.hub-card p, .callout p { color: var(--ink-2); }
+.hub-card p + p, .callout p + p { margin-top: 8px; }
+.hub-card ul, .callout ul { margin: 8px 0 0; padding-left: 1.15rem; color: var(--ink-2); }
+.hub-card li + li, .callout li + li { margin-top: 6px; }
+.callout-privacy { background: var(--teal-wash); border-color: var(--teal-soft); }
+.callout-later { background: var(--sun-wash); border-color: var(--sun-soft); }
+.hub-kicker {
+    font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--teal-strong);
+}
+.hub-kicker.later { color: var(--sun-strong); }
+.hub-table-wrap { overflow-x: auto; margin-top: 8px; }
+.hub-table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.hub-table th, .hub-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.hub-table th { font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.hub-table td:first-child { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.recipe {
+    display: block; margin-top: 10px; padding: 10px 12px;
+    background: var(--surface-2); border-radius: var(--radius-sm);
+    color: var(--ink-2); font-size: .78rem; line-height: 1.45;
+    overflow-wrap: anywhere; text-decoration: none;
+}
+.recipe:hover { color: var(--teal-strong); }
+.link-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.hub-note { font-size: .82rem; color: var(--muted); margin-top: 8px; }
+.hub-footer { max-width: 860px; margin: 28px auto 0; color: var(--muted); font-size: .88rem; }
+.hub-footer nav { display: flex; flex-wrap: wrap; gap: 14px; }
+@media (max-width: 720px) {
+    .hub-grid { grid-template-columns: 1fr; }
+    .hub-table td:first-child { white-space: normal; }
 }
