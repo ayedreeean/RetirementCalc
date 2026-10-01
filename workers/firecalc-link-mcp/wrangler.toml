@@ -1,0 +1,12 @@
+# Link-only FIREcalc MCP. Separate from the Cloudflare Pages site.
+# Do not set a route on firecalc.ai. Do not point the Pages project at this folder.
+name = "firecalc-link-mcp"
+main = "src/index.js"
+compatibility_date = "2026-09-25"
+workers_dev = true
+
+# Invocation logs are optional. This worker never prints request bodies or
+# tool arguments. Do not add a logpush job that stores HTTP bodies.
+[observability.logs]
+enabled = true
+invocation_logs = true

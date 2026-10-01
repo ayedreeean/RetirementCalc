@@ -73,3 +73,7 @@ Tools: `retirement_success`, `years_to_target`, `run_stress_pack`, `build_fireca
 Not in this server: a withdrawal that targets a success rate, a Social Security claiming sweep, and moving the page's input assembly in `app.js` onto the same adapter. Shuffled paths already use `FirecalcSim.seededRandom`.
 
 This is an illustration, not advice. There is no public compute API.
+
+## Hosted link-only MCP (draft)
+
+`workers/firecalc-link-mcp/` is a separate Cloudflare Worker for a ChatGPT Developer Mode connector test. It is not published in the ChatGPT app directory. Tools build a firecalc.ai share URL, describe this methodology, list stress-pack ids with challenge links, and read an existing share URL. They do not run `FirecalcSim`, do not replay a stress pack, and do not return a success rate. Request bodies are not logged. The calculator on this website still runs in the browser.

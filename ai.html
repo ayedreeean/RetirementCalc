@@ -48,7 +48,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body class="hub-page">
     <a href="#main" class="skip-to-content">Skip to content</a>
@@ -87,7 +87,7 @@
                 <ol class="flow">
                     <li><div><strong>Ask for the real knobs</strong><span>Return path, stock mix, taxes, Social Security, horizon.</span></div></li>
                     <li><div><strong>Build a firecalc.ai link</strong><span>The share keys, plus a seed so shuffled paths repeat.</span></div></li>
-                    <li><div><strong>Your browser runs it</strong><span>No FIREcalc server sees the numbers. There isn’t one.</span></div></li>
+                    <li><div><strong>Your browser runs it</strong><span>The math stays on this page. A draft link builder only writes the URL.</span></div></li>
                 </ol>
                 <p class="flow-foot">Charts, the path table, and editing stay on the calculator.</p>
             </aside>
@@ -106,9 +106,9 @@
             <div>
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Privacy</p>
                 <h2 class="section-title" id="privacy-title">Browser first. No public compute API.</h2>
-                <p>FIREcalc does not accept calculator inputs on a server. There is no unauthenticated API, no remote MCP server, and no model call from this site. A local MCP runs on your computer and does not send the plan here. <a href="/agents.txt">agents.txt</a> and <a href="/agents.json">agents.json</a> still say there is no hosted agent API.</p>
+                <p>The calculator does not run on a server, and this site does not call a model. The local MCP runs on your computer and does not send the plan here. A draft hosted MCP can build a share link. If you use it, the numbers you asked to put in the URL are sent to that worker so it can write the link. It is written not to log those request bodies, and it does not run a trial. It is not in the ChatGPT directory. There is still no public compute API. <a href="/agents.txt">agents.txt</a> and <a href="/agents.json">agents.json</a> say the same.</p>
                 <p>A share link puts the inputs in the URL. That URL can sit in browser history, a chat log, or ordinary hosting logs. Treat it like a note that contains the numbers.</p>
-                <p>A hosted calculator would be a later, explicit opt-in, with the privacy policy updated first. It is not offered here. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+                <p>A hosted calculator that returns success rates is not offered. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
             </div>
         </section>
 
@@ -116,14 +116,14 @@
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Connect</p>
                 <h2 class="section-title" id="discover-title">ChatGPT, Claude, MCP, and skills</h2>
-                <p class="section-sub">ChatGPT, a hosted MCP, and skills are not published. The local MCP is a program you run on your own computer. None of these cards is a remote install.</p>
+                <p class="section-sub">The local MCP is live on your computer. The hosted MCP is a draft for a connector test and is not in the ChatGPT directory. None of these cards is an install button.</p>
             </div>
             <div class="tile-grid">
                 <article class="tile" id="chatgpt">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5h14a1 1 0 011 1v9a1 1 0 01-1 1h-8l-4 3v-3H5a1 1 0 01-1-1v-9a1 1 0 011-1z"/></svg></span><span class="badge status-off">Not published</span></div>
                     <h3 class="tile-title">ChatGPT</h3>
-                    <p class="tile-lead">Not in the plugin directory.</p>
-                    <p class="tile-body">A later listing, if it exists, should be skills that build share links. It should not be a server that runs the simulation, and it should not sell anything inside the chat.</p>
+                    <p class="tile-lead">Custom GPT, or the Apps connector path.</p>
+                    <p class="tile-body">Not in the plugin directory. A Custom GPT should return a firecalc.ai link and should not invent a success rate. The Apps path is the draft hosted MCP in Developer Mode: it only builds links. Neither one is a directory listing, and neither one runs the simulation inside ChatGPT.</p>
                     <div class="tile-cta">
                         <a class="text-cta" href="#scenarios">Use a share link instead</a>
                     </div>
@@ -139,7 +139,7 @@
                 <article class="tile" id="mcp">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 10l3 2.5-3 2.5M13 15h4"/></svg></span><span class="badge status-live">Live</span></div>
                     <h3 class="tile-title">Local MCP</h3>
-                    <p class="tile-lead">Runs on your computer. Nothing is hosted.</p>
+                    <p class="tile-lead">Runs on your computer.</p>
                     <p class="tile-body">The <code>mcp/</code> directory in the RetirementCalc repository speaks MCP over stdio and calls the same <code>FirecalcSim</code> engine as this site. It does not open a port. FIREcalc never sees the numbers.</p>
                     <p class="tile-body">Tools: <code>retirement_success</code>, <code>years_to_target</code>, <code>run_stress_pack</code>, <code>build_firecalc_link</code>, and <code>describe_methodology</code>. An illustration, not advice.</p>
                     <details class="disclose">
@@ -159,6 +159,14 @@
                     </details>
                     <div class="tile-cta"><a class="text-cta" href="https://github.com/ayedreeean/RetirementCalc/blob/main/mcp/README.md">Read the local MCP notes</a></div>
                 </article>
+                <article class="tile" id="mcp-hosted">
+                    <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7h8M8 12h8M8 17h5"/><rect x="3.5" y="3.5" width="17" height="17" rx="2"/></svg></span><span class="badge status-draft">Draft</span></div>
+                    <h3 class="tile-title">Hosted MCP</h3>
+                    <p class="tile-lead">Ready for a ChatGPT connector test. Not in the directory.</p>
+                    <p class="tile-body">A separate link-only server can be pasted into ChatGPT Developer Mode. It returns firecalc.ai share URLs, methodology, and stress-pack challenge links. It does not run a retirement trial, and it does not take a portfolio and hand back a success rate. This page is not that server.</p>
+                    <p class="tile-body">Tools: <code>build_firecalc_link</code>, <code>describe_methodology</code>, <code>list_stress_packs</code>, <code>challenge_link</code>, and <code>validate_share_params</code>.</p>
+                    <div class="tile-cta"><a class="text-cta" href="https://github.com/ayedreeean/RetirementCalc/blob/main/workers/firecalc-link-mcp/README.md">Read the connector notes</a></div>
+                </article>
                 <article class="tile" id="skills">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A1.5 1.5 0 016.5 4H19v14H6.5A1.5 1.5 0 005 19.5v-14zM5 19.5A1.5 1.5 0 006.5 21H19"/></svg></span><span class="badge status-off">Not published</span></div>
                     <h3 class="tile-title">Skills</h3>
@@ -167,7 +175,7 @@
                     <div class="tile-cta"><a class="text-cta" href="/llms-full.txt">Read the methodology</a></div>
                 </article>
             </div>
-            <p class="hub-line">None of these sends your numbers to FIREcalc. There is no public, unauthenticated compute API. A hosted calculator would need an explicit opt-in first.</p>
+            <p class="hub-line">There is no public compute API. The local MCP stays on your computer. The draft hosted MCP only builds links. A server that returns success rates is not offered.</p>
         </section>
 
         <section class="hub-section" id="scenarios" aria-labelledby="scenarios-title">
@@ -262,7 +270,7 @@
             </div>
             <ol class="steps">
                 <li><strong>Ask first</strong>Ask which calculator, the return path (shuffled years or historical cycles), the stock mix, taxes, and whether Social Security is on. Do not invent a 7% return.</li>
-                <li><strong>Build the link</strong>Build a <code>https://firecalc.ai/</code> URL with the share keys. Do not send the numbers to a FIREcalc server. There isn’t one.</li>
+                <li><strong>Build the link</strong>Build a <code>https://firecalc.ai/</code> URL with the share keys. Do not send the numbers anywhere to compute a result. The draft hosted MCP only writes the link.</li>
                 <li><strong>Disclose the sample</strong>Say the sample is US large-cap stocks and 10-year Treasuries from 1975 through 2024. It does not include 1966 or 1973–74. This is an illustration, not advice.</li>
                 <li><strong>Hand off</strong>Send the person here for charts, the path table, and editing. Chat is a poor place to scrub a plan.</li>
             </ol>
@@ -299,7 +307,7 @@
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Suite map</p>
                 <h2 class="section-title" id="suite-title">What exists, and what does not</h2>
-                <p class="section-sub">One engine, several questions. Only the rows marked Live are on the site.</p>
+                <p class="section-sub">One engine, several questions. Rows marked Live are what you can use today. Draft is a connector test, not a directory listing.</p>
             </div>
             <ul class="status-list">
                 <li><span class="status-name">Years to a savings goal</span><span class="badge status status-live">Live</span><span class="status-note">On the calculator. Goal is today’s purchasing power. Contributions are income minus spending, and never below zero.</span></li>
@@ -310,7 +318,8 @@
                 <li><span class="status-name">Coast, barista, sabbatical</span><span class="badge status status-off">Not built</span><span class="status-note">Coast is not “set spending equal to income”; the savings model does not solve for a coast number.</span></li>
                 <li><span class="status-name">Named historical stress packs</span><span class="badge status status-live">Live</span><span class="status-note">On the retirement results. Six named stretches inside 1975–2024, each with its exact years and a share card drawn in the browser. See <a href="#packs">the pack list</a>.</span></li>
                 <li><span class="status-name">Local MCP</span><span class="badge status status-live">Live</span><span class="status-note">In the repository as <code>mcp/server.mjs</code>. Stdio on your machine, same engine as the site. Not a server FIREcalc hosts. See the <a href="#mcp">Local MCP card</a>.</span></li>
-                <li><span class="status-name">Chat plugin, hosted MCP, skills</span><span class="badge status status-off">Not published</span><span class="status-note">Not in the ChatGPT directory. No remote MCP URL. Skills are not a download.</span></li>
+                <li><span class="status-name">Hosted link-only MCP</span><span class="badge status status-draft">Draft</span><span class="status-note">Ready for a ChatGPT Developer Mode connector test. Not in the app directory. Builds share URLs. No trial math. See the <a href="#mcp-hosted">Hosted MCP card</a>.</span></li>
+                <li><span class="status-name">Chat plugin and skills</span><span class="badge status status-off">Not published</span><span class="status-note">Not in the ChatGPT directory. A Custom GPT can still follow the link-only rules. Skills are not a download.</span></li>
             </ul>
         </section>
 
@@ -318,7 +327,7 @@
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Methodology</p>
                 <h2 class="section-title" id="methodology-title">Files for people and agents</h2>
-                <p class="section-sub">Success, returns, inflation, taxes, and Social Security are defined in the long methodology note. <a href="/llms.txt">llms.txt</a>, <a href="/agents.txt">agents.txt</a>, and <a href="/agents.json">agents.json</a> name this page as the suite home. They still say there is no hosted MCP and no public compute API. The local MCP is a program you run yourself.</p>
+                <p class="section-sub">Success, returns, inflation, taxes, and Social Security are defined in the long methodology note. <a href="/llms.txt">llms.txt</a>, <a href="/agents.txt">agents.txt</a>, and <a href="/agents.json">agents.json</a> name this page as the suite home. They say there is no public compute API. The local MCP is a program you run yourself. The hosted MCP is a draft link builder, not a calculator.</p>
             </div>
             <ul class="file-links">
                 <li><a href="/llms.txt"><span class="file-name">llms.txt</span><span class="file-desc">Short index for agents</span></a></li>

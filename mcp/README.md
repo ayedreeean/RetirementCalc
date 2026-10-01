@@ -2,7 +2,9 @@
 
 A [Model Context Protocol](https://modelcontextprotocol.io) server for [FIREcalc](https://firecalc.ai). It speaks MCP over **stdio** and runs the calculator on **your machine**.
 
-FIREcalc does not host this process. There is no public compute API, no Cloudflare Worker, and no remote URL to paste into a client. The strongest privacy claim is the plain one: this process never sends your numbers anywhere, because it never opens a network connection.
+FIREcalc does not host this process. There is no public compute API on this stdio server, and no remote URL for this process. The strongest privacy claim is the plain one: this process never sends your numbers anywhere, because it never opens a network connection.
+
+A separate link-only Worker lives in `workers/firecalc-link-mcp/`. It builds share URLs and does not run these tools. It is a draft for a ChatGPT connector test, not a directory listing, and it is not this process.
 
 This is an illustration, not advice, and not a forecast.
 
@@ -121,7 +123,7 @@ US large-cap stocks (S&P 500 total return) and 10-year Treasury total returns, 1
 
 Do **not** give Pages a build command because this folder exists. The site is the repository root: HTML, CSS, and the browser scripts, with no root `package.json`.
 
-If the Pages project is ever pointed at a Node build, set the build command to empty and the output directory to the repository root. Do not set the root to `mcp/`. Do not add a Worker route that runs these tools. This package is `private` and is not a deploy target.
+If the Pages project is ever pointed at a Node build, set the build command to empty and the output directory to the repository root. Do not set the root to `mcp/` or to `workers/firecalc-link-mcp/`. Do not add a Worker route that runs these tools. This package is `private` and is not a deploy target. The link-only Worker is a different folder and does not call `FirecalcSim`.
 
 ## Tests
 
@@ -147,6 +149,6 @@ The browser suite is `tests.html`, served over HTTP.
 - A Social Security claiming sweep (62 versus 70 side by side).
 - Moving `app.js` onto this adapter. The page still assembles its own inputs and calls `FirecalcSim` directly. The adapter mirrors that assembly so the two cannot quietly use different trial code. Wiring the page through the adapter is a follow-up.
 - Coast, barista, or sabbatical math.
-- Any hosted or authenticated compute API.
+- Any hosted compute API. A link-only Worker in `workers/firecalc-link-mcp/` builds URLs and does not run trials.
 
 Shuffled paths already use `FirecalcSim.seededRandom`. Pass `seed` to repeat them.

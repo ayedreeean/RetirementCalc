@@ -983,6 +983,7 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
 .status-live { background: var(--teal-wash); color: var(--teal-strong); }
 .status-partial { background: var(--sky-wash); color: #2F6FA6; }
 .status-off { background: var(--surface-2); color: var(--muted); }
+.status-draft { background: var(--sun-wash); color: var(--sun-strong); }
 
 .file-links { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .file-links a {
