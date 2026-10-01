@@ -413,5 +413,7 @@ test('the package stays local and the static site has no root package.json', () 
     assert.doesNotMatch(ai, /\/api\/simulate|wrangler|openai-proxy|workers\.dev/i);
     const agents = readFileSync(join(root, 'agents.txt'), 'utf8');
     assert.doesNotMatch(agents, /Protocols:|MCP:|Payments:/);
-    assert.match(agents, /no hosted agent API/);
+    assert.match(agents, /no public compute API/);
+    assert.match(ai, /id="mcp-hosted"/);
+    assert.match(ai, /status-draft">Draft/);
 });

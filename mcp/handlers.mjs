@@ -1,129 +1,29 @@
 // MCP tool handlers. They shape inputs the way app.js does, then call the
 // shared engine. They do not contain a second copy of the trial loop.
+// Share URLs are built in share-link.mjs, which does not load FirecalcSim.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { engine, repoRootPath } from './engine.mjs';
+import {
+    DISCLAIMER,
+    InputError,
+    ORIGIN,
+    buildShareLink,
+    resolveRetirement,
+    resolveSavings,
+    retirementAssumptions,
+    savingsAssumptions,
+    shareConfig
+} from './share-link.mjs';
+
+export { DISCLAIMER, InputError, ORIGIN };
 
 const Sim = engine.FirecalcSim;
 const IO = engine.FirecalcIO;
 const Packs = engine.FirecalcPacks;
 const history = engine.FIRECALC_HISTORICAL;
-
-export const ORIGIN = 'https://firecalc.ai';
-export const DISCLAIMER = 'Illustration, not advice. This replays or reshuffles the 1975–2024 US large-cap and 10-year Treasury sample. It is not a forecast and not a recommendation.';
-
-// Form defaults from index.html. Dollar amounts are never defaulted: a share
-// link must not invent a portfolio, a withdrawal, or a Social Security benefit
-// that changes the result.
-export const SITE_DEFAULTS = {
-    retirementAge: 65,
-    horizonYears: 30,
-    stockAllocationPercentRetirement: 60,
-    stockAllocationPercentSavings: 70,
-    taxRatePercent: 15,
-    adjustForInflation: true,
-    returnMode: 'shuffled',
-    simulationCount: 1000,
-    seed: 246813,
-    currentAge: 30,
-    incomeGrowthPercent: 2,
-    ssClaimingAge: 67,
-    spouseSSClaimingAge: 67,
-    ssMonthlyBenefitOnLinkWhenOff: 2000,
-    spouseSSMonthlyBenefitOnLinkWhenOff: 1500,
-    pensionStartAge: 65,
-    monthlyPension: 0,
-    monthlyOtherIncome: 0,
-    otherIncomeDuration: 0,
-    taxMode: 'simple',
-    taxFilingStatus: 'mfj',
-    preTaxPercent: 60,
-    rothPercent: 20,
-    taxablePercent: 20,
-    optimizeOrder: true,
-    stateTaxPercent: 0,
-    maxInput: 999999999,
-    maxAge: 90
-};
-
 const DATA_FIRST = history[0].year;
 const DATA_LAST = history[history.length - 1].year;
-
-export class InputError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'InputError';
-    }
-}
-
-function rejectUnknown(args, allowed) {
-    const extra = Object.keys(args || {}).filter(k => !allowed.has(k));
-    if (extra.length) throw new InputError(`Unknown field: ${extra.join(', ')}.`);
-}
-
-function finiteNumber(value, name, { min, max, integer } = {}) {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-        throw new InputError(`${name} must be a finite number.`);
-    }
-    if (integer && !Number.isInteger(value)) throw new InputError(`${name} must be an integer.`);
-    if (min != null && value < min) throw new InputError(`${name} must be at least ${min}.`);
-    if (max != null && value > max) throw new InputError(`${name} must be at most ${max}.`);
-    return value;
-}
-
-function optNumber(args, key, fallback, bounds, applied) {
-    if (args[key] == null) {
-        applied.push(key);
-        return fallback;
-    }
-    return finiteNumber(args[key], key, bounds);
-}
-
-function optBool(args, key, fallback, applied) {
-    if (args[key] == null) {
-        applied.push(key);
-        return fallback;
-    }
-    if (typeof args[key] !== 'boolean') throw new InputError(`${key} must be true or false.`);
-    return args[key];
-}
-
-function money(value, name) {
-    return finiteNumber(value, name, { min: 0, max: SITE_DEFAULTS.maxInput });
-}
-
-function requireMoney(args, key) {
-    if (args[key] == null) throw new InputError(`${key} is required. This tool does not invent dollar amounts.`);
-    return money(args[key], key);
-}
-
-function returnModeOf(args, applied) {
-    if (args.returnMode == null) {
-        applied.push('returnMode');
-        return SITE_DEFAULTS.returnMode;
-    }
-    if (args.returnMode !== 'shuffled' && args.returnMode !== 'historical') {
-        throw new InputError('returnMode must be "shuffled" or "historical".');
-    }
-    return args.returnMode;
-}
-
-function claimingAge(args, key, fallback, applied) {
-    const age = optNumber(args, key, fallback, { integer: true }, applied);
-    if (IO.SS_AGE_FACTORS[age] == null) {
-        throw new InputError(`${key} must be one of ${Object.keys(IO.SS_AGE_FACTORS).join(', ')}.`);
-    }
-    return age;
-}
-
-const sampleAssumptions = () => ({
-    dataWindow: `${DATA_FIRST}–${DATA_LAST}`,
-    rows: history.length,
-    assets: 'S&P 500 total return (dividends included) and that year’s 10-year US Treasury total return. CPI is on the same row. Treasuries can be negative. This is not the Bloomberg US Aggregate.',
-    notInSample: '1966 and 1973–74 are before the table. There is no pack for those years.',
-    engine: 'FirecalcSim (market-data.js), FirecalcIO (firecalc-io.js), FirecalcPacks (stress-packs.js), calculateWithdrawalTax (tax-engine.js)',
-    disclaimer: DISCLAIMER
-});
 
 function taxSettingsOf(resolved) {
     if (resolved.taxMode === 'simple') {
@@ -145,267 +45,6 @@ function preTaxFnFor(resolved) {
     return (spend, income) => engine.calculateWithdrawalTax(spend, income, settings).preTaxWithdrawal;
 }
 
-function resolveTax(args, applied) {
-    const taxMode = args.taxMode == null ? (applied.push('taxMode'), SITE_DEFAULTS.taxMode) : args.taxMode;
-    if (taxMode !== 'simple' && taxMode !== 'detailed') {
-        throw new InputError('taxMode must be "simple" or "detailed".');
-    }
-    const taxRatePercent = optNumber(args, 'taxRatePercent', SITE_DEFAULTS.taxRatePercent, { min: 0, max: 99 }, applied);
-    const detailed = taxMode === 'detailed';
-    const filingFallback = SITE_DEFAULTS.taxFilingStatus;
-    let taxFilingStatus = filingFallback;
-    if (args.taxFilingStatus == null) {
-        if (detailed) applied.push('taxFilingStatus');
-    } else {
-        taxFilingStatus = args.taxFilingStatus;
-    }
-    if (taxFilingStatus !== 'mfj' && taxFilingStatus !== 'single') {
-        throw new InputError('taxFilingStatus must be "mfj" or "single".');
-    }
-    const preTaxPercent = args.preTaxPercent == null
-        ? (detailed && applied.push('preTaxPercent'), SITE_DEFAULTS.preTaxPercent)
-        : finiteNumber(args.preTaxPercent, 'preTaxPercent', { min: 0, max: 100 });
-    const rothPercent = args.rothPercent == null
-        ? (detailed && applied.push('rothPercent'), SITE_DEFAULTS.rothPercent)
-        : finiteNumber(args.rothPercent, 'rothPercent', { min: 0, max: 100 });
-    const taxablePercent = args.taxablePercent == null
-        ? (detailed && applied.push('taxablePercent'), SITE_DEFAULTS.taxablePercent)
-        : finiteNumber(args.taxablePercent, 'taxablePercent', { min: 0, max: 100 });
-    const optimizeOrder = args.optimizeOrder == null
-        ? (detailed && applied.push('optimizeOrder'), SITE_DEFAULTS.optimizeOrder)
-        : args.optimizeOrder;
-    if (typeof optimizeOrder !== 'boolean') throw new InputError('optimizeOrder must be true or false.');
-    const stateTaxPercent = args.stateTaxPercent == null
-        ? (detailed && applied.push('stateTaxPercent'), SITE_DEFAULTS.stateTaxPercent)
-        : finiteNumber(args.stateTaxPercent, 'stateTaxPercent', { min: 0, max: 15 });
-    if (detailed) {
-        const mix = preTaxPercent + rothPercent + taxablePercent;
-        if (Math.abs(mix - 100) > 0.001) {
-            throw new InputError(`preTaxPercent, rothPercent, and taxablePercent must sum to 100 (got ${mix}).`);
-        }
-    }
-    return { taxMode, taxRatePercent, taxFilingStatus, preTaxPercent, rothPercent, taxablePercent, optimizeOrder, stateTaxPercent };
-}
-
-function resolveRetirement(args, { allowPack = false } = {}) {
-    const allowed = new Set([
-        'retirementAge', 'retirementSavings', 'annualWithdrawal', 'horizonYears',
-        'stockAllocationPercent', 'taxRatePercent', 'adjustForInflation', 'returnMode',
-        'simulationCount', 'seed', 'includeSS', 'ssMonthlyBenefit', 'ssClaimingAge',
-        'includeSpouseSS', 'spouseSSMonthlyBenefit', 'spouseSSClaimingAge',
-        'includeOtherIncome', 'monthlyPension', 'pensionStartAge', 'monthlyOtherIncome',
-        'otherIncomeDuration', 'taxMode', 'taxFilingStatus', 'preTaxPercent', 'rothPercent',
-        'taxablePercent', 'optimizeOrder', 'stateTaxPercent'
-    ]);
-    if (allowPack) allowed.add('pack');
-    rejectUnknown(args, allowed);
-
-    const applied = [];
-    const retirementSavings = requireMoney(args, 'retirementSavings');
-    const annualWithdrawal = requireMoney(args, 'annualWithdrawal');
-    const retirementAge = optNumber(args, 'retirementAge', SITE_DEFAULTS.retirementAge, { integer: true, min: 30, max: SITE_DEFAULTS.maxAge }, applied);
-    const horizonYears = optNumber(args, 'horizonYears', SITE_DEFAULTS.horizonYears, { integer: true, min: 5, max: 50 }, applied);
-    const stockAllocationPercent = optNumber(args, 'stockAllocationPercent', SITE_DEFAULTS.stockAllocationPercentRetirement, { min: 0, max: 100 }, applied);
-    const adjustForInflation = optBool(args, 'adjustForInflation', SITE_DEFAULTS.adjustForInflation, applied);
-    const returnMode = returnModeOf(args, applied);
-    const simulationCount = optNumber(args, 'simulationCount', SITE_DEFAULTS.simulationCount, { integer: true, min: 1, max: 5000 }, applied);
-    const seed = optNumber(args, 'seed', SITE_DEFAULTS.seed, { integer: true, min: 1, max: 2147483647 }, applied);
-    const includeSS = optBool(args, 'includeSS', false, applied);
-    const includeSpouseSS = optBool(args, 'includeSpouseSS', false, applied);
-    const includeOtherIncome = optBool(args, 'includeOtherIncome', false, applied);
-
-    let ssMonthlyBenefit;
-    if (includeSS) {
-        if (args.ssMonthlyBenefit == null) {
-            throw new InputError('ssMonthlyBenefit is required when includeSS is true. This tool does not invent a benefit.');
-        }
-        ssMonthlyBenefit = money(args.ssMonthlyBenefit, 'ssMonthlyBenefit');
-    } else if (args.ssMonthlyBenefit == null) {
-        applied.push('ssMonthlyBenefit');
-        ssMonthlyBenefit = SITE_DEFAULTS.ssMonthlyBenefitOnLinkWhenOff;
-    } else {
-        ssMonthlyBenefit = money(args.ssMonthlyBenefit, 'ssMonthlyBenefit');
-    }
-
-    let spouseSSMonthlyBenefit;
-    if (includeSpouseSS) {
-        if (args.spouseSSMonthlyBenefit == null) {
-            throw new InputError('spouseSSMonthlyBenefit is required when includeSpouseSS is true. This tool does not invent a benefit.');
-        }
-        spouseSSMonthlyBenefit = money(args.spouseSSMonthlyBenefit, 'spouseSSMonthlyBenefit');
-    } else if (args.spouseSSMonthlyBenefit == null) {
-        applied.push('spouseSSMonthlyBenefit');
-        spouseSSMonthlyBenefit = SITE_DEFAULTS.spouseSSMonthlyBenefitOnLinkWhenOff;
-    } else {
-        spouseSSMonthlyBenefit = money(args.spouseSSMonthlyBenefit, 'spouseSSMonthlyBenefit');
-    }
-
-    const ssClaimingAge = claimingAge(args, 'ssClaimingAge', SITE_DEFAULTS.ssClaimingAge, applied);
-    const spouseSSClaimingAge = claimingAge(args, 'spouseSSClaimingAge', SITE_DEFAULTS.spouseSSClaimingAge, applied);
-    const monthlyPension = optNumber(args, 'monthlyPension', SITE_DEFAULTS.monthlyPension, { min: 0, max: SITE_DEFAULTS.maxInput }, applied);
-    const pensionStartAge = optNumber(args, 'pensionStartAge', SITE_DEFAULTS.pensionStartAge, { integer: true, min: 40, max: SITE_DEFAULTS.maxAge }, applied);
-    const monthlyOtherIncome = optNumber(args, 'monthlyOtherIncome', SITE_DEFAULTS.monthlyOtherIncome, { min: 0, max: SITE_DEFAULTS.maxInput }, applied);
-    const otherIncomeDuration = optNumber(args, 'otherIncomeDuration', SITE_DEFAULTS.otherIncomeDuration, { integer: true, min: 0, max: 50 }, applied);
-    const tax = resolveTax(args, applied);
-
-    let pack = null;
-    if (allowPack && args.pack != null) {
-        if (typeof args.pack !== 'string') throw new InputError('pack must be a string.');
-        pack = requirePack(args.pack);
-    }
-
-    const trialInput = {
-        retirementAge,
-        retirementSavings,
-        annualWithdrawal,
-        adjustForInflation,
-        taxRate: tax.taxRatePercent / 100,
-        stockAllocation: stockAllocationPercent / 100,
-        simulationCount,
-        lifeExpectancy: horizonYears,
-        returnMode,
-        includeSS,
-        ssMonthlyBenefit,
-        ssClaimingAge,
-        includeSpouseSS,
-        spouseSSMonthlyBenefit,
-        spouseSSClaimingAge,
-        includeOtherIncome,
-        monthlyPension,
-        pensionStartAge,
-        monthlyOtherIncome,
-        otherIncomeDuration,
-        ssAnnualBase: ssMonthlyBenefit * (IO.SS_AGE_FACTORS[ssClaimingAge] || 1) * 12,
-        spouseSSAnnualBase: spouseSSMonthlyBenefit * (IO.SS_AGE_FACTORS[spouseSSClaimingAge] || 1) * 12,
-        annualPension: monthlyPension * 12,
-        annualOtherIncome: monthlyOtherIncome * 12
-    };
-
-    return {
-        applied,
-        pack,
-        trialInput,
-        retirementAge,
-        retirementSavings,
-        annualWithdrawal,
-        horizonYears,
-        stockAllocationPercent,
-        adjustForInflation,
-        returnMode,
-        simulationCount,
-        seed,
-        includeSS,
-        ssMonthlyBenefit,
-        ssClaimingAge,
-        includeSpouseSS,
-        spouseSSMonthlyBenefit,
-        spouseSSClaimingAge,
-        includeOtherIncome,
-        monthlyPension,
-        pensionStartAge,
-        monthlyOtherIncome,
-        otherIncomeDuration,
-        ...tax
-    };
-}
-
-function shareConfig(resolved) {
-    return {
-        retirementAge: resolved.retirementAge,
-        retirementSavings: resolved.retirementSavings,
-        annualWithdrawal: resolved.annualWithdrawal,
-        stockAllocationPercent: resolved.stockAllocationPercent,
-        adjustForInflation: resolved.adjustForInflation,
-        taxRatePercent: resolved.taxRatePercent,
-        taxMode: resolved.taxMode,
-        taxFilingStatus: resolved.taxFilingStatus,
-        preTaxPercent: resolved.preTaxPercent,
-        rothPercent: resolved.rothPercent,
-        taxablePercent: resolved.taxablePercent,
-        optimizeOrder: resolved.optimizeOrder,
-        stateTaxPercent: resolved.stateTaxPercent,
-        horizonYears: resolved.horizonYears,
-        simulationCount: resolved.simulationCount,
-        returnMode: resolved.returnMode,
-        includeSS: resolved.includeSS,
-        ssMonthlyBenefit: resolved.ssMonthlyBenefit,
-        ssClaimingAge: resolved.ssClaimingAge,
-        includeSpouseSS: resolved.includeSpouseSS,
-        spouseSSMonthlyBenefit: resolved.spouseSSMonthlyBenefit,
-        spouseSSClaimingAge: resolved.spouseSSClaimingAge,
-        includeOtherIncome: resolved.includeOtherIncome,
-        monthlyPension: resolved.monthlyPension,
-        pensionStartAge: resolved.pensionStartAge,
-        monthlyOtherIncome: resolved.monthlyOtherIncome,
-        otherIncomeDuration: resolved.otherIncomeDuration,
-        seed: resolved.seed,
-        pack: resolved.pack ? resolved.pack.id : undefined
-    };
-}
-
-function retirementAssumptions(resolved, extra) {
-    const notes = [];
-    if (resolved.returnMode === 'historical') {
-        notes.push('Historical cycles use only complete windows inside the sample. The seed is stored on the link and does not change those windows.');
-    } else {
-        notes.push('Shuffled years draw each year independently from the sample. That is not a historical sequence and not a normal-distribution Monte Carlo. The seed repeats the draws.');
-    }
-    if (resolved.includeSS) {
-        notes.push(`Social Security is on: ${resolved.ssMonthlyBenefit} per month at full retirement age 67, claimed at ${resolved.ssClaimingAge}. That income is inside the success rate.`);
-    } else {
-        notes.push('Social Security is off. ssMonthlyBenefit is stored on the share link and is not used.');
-    }
-    if (resolved.includeSpouseSS) {
-        notes.push(`Spouse Social Security is on: ${resolved.spouseSSMonthlyBenefit} per month at 67, claimed at ${resolved.spouseSSClaimingAge}.`);
-    }
-    if (resolved.includeOtherIncome && (resolved.monthlyPension > 0 || resolved.monthlyOtherIncome > 0)) {
-        notes.push('Pension or other income is on. A pension stays flat in nominal dollars.');
-    }
-    if (resolved.taxMode === 'detailed') {
-        notes.push('Taxes use 2025 federal brackets via calculateWithdrawalTax. optimizeOrder does not change the result, because separate account balances are not tracked.');
-    } else {
-        notes.push(`Taxes are a flat ${resolved.taxRatePercent}% gross-up: pre-tax draw = spending / (1 − rate).`);
-    }
-    if (!resolved.adjustForInflation) notes.push('Spending stays fixed in future dollars.');
-    return {
-        ...sampleAssumptions(),
-        ...extra,
-        defaultsApplied: resolved.applied,
-        retirementAge: resolved.retirementAge,
-        retirementSavings: resolved.retirementSavings,
-        annualWithdrawal: resolved.annualWithdrawal,
-        horizonYears: resolved.horizonYears,
-        stockAllocationPercent: resolved.stockAllocationPercent,
-        adjustForInflation: resolved.adjustForInflation,
-        returnMode: resolved.returnMode,
-        simulationCount: resolved.simulationCount,
-        simulationCountUsed: resolved.returnMode === 'historical' ? false : true,
-        seed: resolved.seed,
-        includeSS: resolved.includeSS,
-        ssMonthlyBenefit: resolved.ssMonthlyBenefit,
-        ssClaimingAge: resolved.ssClaimingAge,
-        includeSpouseSS: resolved.includeSpouseSS,
-        spouseSSMonthlyBenefit: resolved.spouseSSMonthlyBenefit,
-        spouseSSClaimingAge: resolved.spouseSSClaimingAge,
-        includeOtherIncome: resolved.includeOtherIncome,
-        monthlyPension: resolved.monthlyPension,
-        pensionStartAge: resolved.pensionStartAge,
-        monthlyOtherIncome: resolved.monthlyOtherIncome,
-        otherIncomeDuration: resolved.otherIncomeDuration,
-        taxMode: resolved.taxMode,
-        taxRatePercent: resolved.taxRatePercent,
-        taxFilingStatus: resolved.taxFilingStatus,
-        preTaxPercent: resolved.preTaxPercent,
-        rothPercent: resolved.rothPercent,
-        taxablePercent: resolved.taxablePercent,
-        optimizeOrder: resolved.optimizeOrder,
-        stateTaxPercent: resolved.stateTaxPercent,
-        pack: resolved.pack ? resolved.pack.id : null,
-        notes
-    };
-}
-
-// Same display rule as app.js formatSuccess: do not print 100% when a path failed.
 function formatSuccess(rate, successes, n) {
     const r = Math.round(rate);
     if (r === 100 && successes < n) return `${Math.min(99.9, Math.floor(rate * 10) / 10).toFixed(1)}%`;
@@ -469,65 +108,6 @@ function retirementSuccess(args) {
         },
         toughestStartYear: summary.toughest ? summary.toughest.startYear : null,
         toughestRanOut: summary.toughest ? summary.toughest.ranOutOfMoney : null
-    };
-}
-
-function resolveSavings(args) {
-    rejectUnknown(args, new Set([
-        'currentAge', 'currentSavings', 'income', 'expenses', 'targetAmount',
-        'stockAllocationPercent', 'incomeGrowthPercent', 'returnMode', 'simulationCount', 'seed'
-    ]));
-    const applied = [];
-    const currentSavings = requireMoney(args, 'currentSavings');
-    const income = requireMoney(args, 'income');
-    const expenses = requireMoney(args, 'expenses');
-    const targetAmount = requireMoney(args, 'targetAmount');
-    const currentAge = optNumber(args, 'currentAge', SITE_DEFAULTS.currentAge, { integer: true, min: 18, max: SITE_DEFAULTS.maxAge }, applied);
-    const stockAllocationPercent = optNumber(args, 'stockAllocationPercent', SITE_DEFAULTS.stockAllocationPercentSavings, { min: 0, max: 100 }, applied);
-    const incomeGrowthPercent = optNumber(args, 'incomeGrowthPercent', SITE_DEFAULTS.incomeGrowthPercent, { min: 0, max: 10 }, applied);
-    const returnMode = returnModeOf(args, applied);
-    const simulationCount = optNumber(args, 'simulationCount', SITE_DEFAULTS.simulationCount, { integer: true, min: 1, max: 5000 }, applied);
-    const seed = optNumber(args, 'seed', SITE_DEFAULTS.seed, { integer: true, min: 1, max: 2147483647 }, applied);
-    return {
-        applied, currentAge, currentSavings, income, expenses, targetAmount,
-        stockAllocationPercent, incomeGrowthPercent, returnMode, simulationCount, seed,
-        trialInput: {
-            currentAge,
-            currentSavings,
-            income,
-            expenses,
-            targetAmount,
-            stockAllocation: stockAllocationPercent / 100,
-            incomeGrowth: incomeGrowthPercent / 100,
-            maxYears: IO.MAX_ACCUMULATION_YEARS
-        }
-    };
-}
-
-function savingsAssumptions(resolved) {
-    const notes = [
-        'The goal is today’s purchasing power: nominal balance divided by cumulative CPI since the start.',
-        'The contribution is income minus spending, and never below zero. Income and spending rise with that year’s inflation. Real raises are incomeGrowthPercent on top of inflation.',
-        resolved.returnMode === 'historical'
-            ? 'Historical mode uses every start year from the first row until the goal or until the sample ends, so a late start is a short window.'
-            : 'Shuffled years are independent draws. The search stops at 50 years.'
-    ];
-    return {
-        ...sampleAssumptions(),
-        defaultsApplied: resolved.applied,
-        currentAge: resolved.currentAge,
-        currentSavings: resolved.currentSavings,
-        income: resolved.income,
-        expenses: resolved.expenses,
-        targetAmount: resolved.targetAmount,
-        stockAllocationPercent: resolved.stockAllocationPercent,
-        incomeGrowthPercent: resolved.incomeGrowthPercent,
-        returnMode: resolved.returnMode,
-        simulationCount: resolved.simulationCount,
-        simulationCountUsed: resolved.returnMode === 'historical' ? false : true,
-        seed: resolved.seed,
-        maxYears: IO.MAX_ACCUMULATION_YEARS,
-        notes
     };
 }
 
@@ -672,78 +252,42 @@ function runStressPack(args) {
     };
 }
 
-const LINK_KINDS = new Set(['retirement', 'accumulation', 'challenge']);
 
 function buildFirecalcLink(args) {
-    const input = args || {};
-    if (!LINK_KINDS.has(input.kind)) {
-        throw new InputError('kind must be "retirement", "accumulation", or "challenge".');
-    }
-    if (input.kind === 'challenge') {
-        const extra = Object.keys(input).filter(key => key !== 'kind' && key !== 'pack');
-        if (extra.length) throw new InputError('A challenge link carries only the pack id. Omit plan numbers.');
-        if (input.pack == null) throw new InputError('pack is required for a challenge link.');
-        const pack = requirePack(input.pack);
-        const url = IO.challengeUrl(pack.id, ORIGIN);
-        return {
-            disclaimer: DISCLAIMER,
-            modeUsed: null,
-            scenarioCount: null,
-            firecalc_url: url,
-            assumptions: {
-                ...sampleAssumptions(),
-                defaultsApplied: [],
-                kind: 'challenge',
-                pack: pack.id,
-                carriesPlanNumbers: false,
-                notes: ['A challenge link names the pack and nothing else, so it contains no portfolio or spending figures.']
-            }
-        };
-    }
-    if (input.kind === 'accumulation') {
-        const { kind, ...rest } = input;
-        if (rest.pack != null) throw new InputError('pack is only valid on a retirement or challenge link.');
-        const resolved = resolveSavings(rest);
-        const scenarioCount = resolved.returnMode === 'historical'
+    const built = buildShareLink(args);
+    const kind = args && args.kind;
+    if (kind === 'challenge') return built;
+    if (kind === 'accumulation') {
+        built.scenarioCount = built.modeUsed === 'historical'
             ? Sim.buildSequences(history, 'historical', IO.MAX_ACCUMULATION_YEARS, 1, false).length
-            : resolved.simulationCount;
-        const url = IO.savingsShareUrl({
-            currentAge: resolved.currentAge,
-            currentSavings: resolved.currentSavings,
-            income: resolved.income,
-            expenses: resolved.expenses,
-            targetAmount: resolved.targetAmount,
-            stockAllocationPercent: resolved.stockAllocationPercent,
-            incomeGrowthPercent: resolved.incomeGrowthPercent,
-            simulationCount: resolved.simulationCount,
-            returnMode: resolved.returnMode,
-            seed: resolved.seed
-        }, ORIGIN);
-        return {
-            disclaimer: DISCLAIMER,
-            modeUsed: resolved.returnMode,
-            scenarioCount,
-            firecalc_url: url,
-            assumptions: savingsAssumptions(resolved)
-        };
+            : built.assumptions.simulationCount;
+        return built;
     }
-    const { kind, ...rest } = input;
-    const resolved = resolveRetirement(rest, { allowPack: true });
-    const windows = resolved.returnMode === 'historical'
-        ? Sim.buildSequences(history, 'historical', resolved.horizonYears, 1, true)
-        : null;
-    if (windows && !windows.length) {
-        throw new InputError(`The ${DATA_FIRST}–${DATA_LAST} sample has no complete ${resolved.horizonYears}-year window.`);
+    if (built.modeUsed === 'historical') {
+        const windows = Sim.buildSequences(history, 'historical', built.assumptions.horizonYears, 1, true);
+        if (!windows.length) {
+            throw new InputError(`The ${DATA_FIRST}–${DATA_LAST} sample has no complete ${built.assumptions.horizonYears}-year window.`);
+        }
+        built.scenarioCount = windows.length;
+    } else {
+        built.scenarioCount = built.assumptions.simulationCount;
     }
-    const url = IO.retirementShareUrl(shareConfig(resolved), ORIGIN);
+    return built;
+}
+
+function rejectUnknown(args, allowed) {
+    const extra = Object.keys(args || {}).filter(k => !allowed.has(k));
+    if (extra.length) throw new InputError(`Unknown field: ${extra.join(', ')}.`);
+}
+
+function sampleAssumptions() {
     return {
-        disclaimer: DISCLAIMER,
-        modeUsed: resolved.returnMode,
-        scenarioCount: windows ? windows.length : resolved.simulationCount,
-        firecalc_url: url,
-        assumptions: retirementAssumptions(resolved, {
-            carriesPlanNumbers: true
-        })
+        dataWindow: `${DATA_FIRST}–${DATA_LAST}`,
+        rows: history.length,
+        assets: 'S&P 500 total return (dividends included) and that year’s 10-year US Treasury total return. CPI is on the same row. Treasuries can be negative. This is not the Bloomberg US Aggregate.',
+        notInSample: '1966 and 1973–74 are before the table. There is no pack for those years.',
+        engine: 'FirecalcSim (market-data.js), FirecalcIO (firecalc-io.js), FirecalcPacks (stress-packs.js), calculateWithdrawalTax (tax-engine.js)',
+        disclaimer: DISCLAIMER
     };
 }
 

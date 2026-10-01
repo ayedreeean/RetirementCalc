@@ -6,7 +6,7 @@ FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a
 
 Retirement results also include six named stress packs (for example https://firecalc.ai/?pack=dotcom). Each replays one real stretch inside 1975–2024 and states the exact years used.
 
-A local MCP package in the repository (`mcp/server.mjs`) runs that same engine on the user's computer over stdio. It is not hosted on firecalc.ai and it is not a public compute API. Install notes are on the suite page. The ChatGPT directory and a hosted MCP are not published.
+A local MCP package in the repository (`mcp/server.mjs`) runs that same engine on the user's computer over stdio. It is not a public compute API. Install notes are on the suite page. A separate link-only MCP (`workers/firecalc-link-mcp/`) is a draft for a ChatGPT connector test. It builds share URLs and does not run trials. It is not in the ChatGPT directory.
 
 ## Pages
 
@@ -17,4 +17,4 @@ A local MCP package in the repository (`mcp/server.mjs`) runs that same engine o
 
 ## Optional
 
-- [agents.txt](https://firecalc.ai/agents.txt): This site has no agent payments, account, or MCP server
+- [agents.txt](https://firecalc.ai/agents.txt): No account, no payment, and no public compute API. Local MCP on your computer. Draft link-only MCP is not a calculator.

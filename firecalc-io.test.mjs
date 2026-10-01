@@ -195,7 +195,8 @@ test('the AI hub is static and points at the codec links', () => {
     assert.match(agents, /https:\/\/firecalc\.ai\/ai/);
     assert.doesNotMatch(agents, /Protocols:|MCP:|Payments:/);
     assert.match(agentsJson.site.description, /https:\/\/firecalc\.ai\/ai/);
-    assert.match(agentsJson.site.description, /no hosted MCP or other agent API/);
+    assert.match(agentsJson.site.description, /no public compute API/);
+    assert.match(agentsJson.site.description, /link-only MCP/);
     assert.match(llms, /https:\/\/firecalc\.ai\/ai/);
     assert.doesNotMatch(llms, /OpenAI/i);
     assert.match(sitemap, /<loc>https:\/\/firecalc\.ai\/ai<\/loc>/);
