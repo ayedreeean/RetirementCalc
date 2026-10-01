@@ -84,7 +84,7 @@ This worker is not the Pages site. The site is the repository root (static HTML,
 npx wrangler deploy
 ```
 
-Wrangler prints a `*.workers.dev` host. Use `https://<that-host>/mcp` for the connector. A custom name such as `mcp.firecalc.ai` is a separate DNS route you add in the Cloudflare dashboard after you are ready. It is not configured in this repo. Until that exists, the connector URL is the workers host from the deploy, and https://firecalc.ai/ai still calls the listing **Draft**.
+Wrangler prints a `*.workers.dev` host. The current host is `https://firecalc-link-mcp.aye-dreee-an.workers.dev` (connector URL `https://firecalc-link-mcp.aye-dreee-an.workers.dev/mcp`). That host can change if the Cloudflare account subdomain changes. A custom name such as `mcp.firecalc.ai` is a separate DNS route you add in the Cloudflare dashboard after you are ready. It is not configured in this repo. Until that exists, the connector URL is the workers.dev host above, and https://firecalc.ai/ai still calls the listing **Draft**.
 
 No secrets. Do not put API keys in `wrangler.toml` or `.dev.vars`. This server does not call OpenAI.
 

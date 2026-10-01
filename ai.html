@@ -162,8 +162,10 @@
                 <article class="tile" id="mcp-hosted">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7h8M8 12h8M8 17h5"/><rect x="3.5" y="3.5" width="17" height="17" rx="2"/></svg></span><span class="badge status-draft">Draft</span></div>
                     <h3 class="tile-title">Hosted MCP</h3>
-                    <p class="tile-lead">Ready for a ChatGPT connector test. Not in the directory.</p>
-                    <p class="tile-body">A separate link-only server can be pasted into ChatGPT Developer Mode. It returns firecalc.ai share URLs, methodology, and stress-pack challenge links. It does not run a retirement trial, and it does not take a portfolio and hand back a success rate. This page is not that server.</p>
+                    <p class="tile-lead">Draft connector for ChatGPT Developer Mode. Not in the directory.</p>
+                    <p class="tile-body">Paste this URL in ChatGPT under Settings → Apps &amp; Connectors, with Developer Mode on and authentication set to none. It returns firecalc.ai share URLs, methodology, and stress-pack challenge links. It does not run a retirement trial, and it does not take a portfolio and hand back a success rate. This page is not that server, and this URL is not a ChatGPT directory listing.</p>
+                    <p class="tile-body">Connector URL:</p>
+                    <pre class="install"><code>https://firecalc-link-mcp.aye-dreee-an.workers.dev/mcp</code></pre>
                     <p class="tile-body">Tools: <code>build_firecalc_link</code>, <code>describe_methodology</code>, <code>list_stress_packs</code>, <code>challenge_link</code>, and <code>validate_share_params</code>.</p>
                     <div class="tile-cta"><a class="text-cta" href="https://github.com/ayedreeean/RetirementCalc/blob/main/workers/firecalc-link-mcp/README.md">Read the connector notes</a></div>
                 </article>
@@ -318,7 +320,7 @@
                 <li><span class="status-name">Coast, barista, sabbatical</span><span class="badge status status-off">Not built</span><span class="status-note">Coast is not “set spending equal to income”; the savings model does not solve for a coast number.</span></li>
                 <li><span class="status-name">Named historical stress packs</span><span class="badge status status-live">Live</span><span class="status-note">On the retirement results. Six named stretches inside 1975–2024, each with its exact years and a share card drawn in the browser. See <a href="#packs">the pack list</a>.</span></li>
                 <li><span class="status-name">Local MCP</span><span class="badge status status-live">Live</span><span class="status-note">In the repository as <code>mcp/server.mjs</code>. Stdio on your machine, same engine as the site. Not a server FIREcalc hosts. See the <a href="#mcp">Local MCP card</a>.</span></li>
-                <li><span class="status-name">Hosted link-only MCP</span><span class="badge status status-draft">Draft</span><span class="status-note">Ready for a ChatGPT Developer Mode connector test. Not in the app directory. Builds share URLs. No trial math. See the <a href="#mcp-hosted">Hosted MCP card</a>.</span></li>
+                <li><span class="status-name">Hosted link-only MCP</span><span class="badge status status-draft">Draft</span><span class="status-note">Developer Mode URL: <code>https://firecalc-link-mcp.aye-dreee-an.workers.dev/mcp</code>. Not in the app directory. Builds share URLs. No trial math. See the <a href="#mcp-hosted">Hosted MCP card</a>.</span></li>
                 <li><span class="status-name">Chat plugin and skills</span><span class="badge status status-off">Not published</span><span class="status-note">Not in the ChatGPT directory. A Custom GPT can still follow the link-only rules. Skills are not a download.</span></li>
             </ul>
         </section>
