@@ -63,3 +63,13 @@ Links: https://firecalc.ai/?pack=dotcom opens the retirement calculator with tha
 ## Limits
 
 The calculators replay or reshuffle one 50-year US large-cap and Treasury sample. They leave out fees, returns before 1975, and markets outside this table.
+
+## Local MCP
+
+The repository includes a local MCP server at `mcp/server.mjs`. It calls `FirecalcSim`, `FirecalcIO`, `FirecalcPacks`, and `calculateWithdrawalTax` in-process. It speaks stdio. It does not open a network port and it does not send inputs anywhere.
+
+Tools: `retirement_success`, `years_to_target`, `run_stress_pack`, `build_firecalc_link`, `describe_methodology`. A short methodology resource and this file are exposed as MCP resources. Install notes are in `mcp/README.md` and on https://firecalc.ai/ai.
+
+Not in this server: a withdrawal that targets a success rate, a Social Security claiming sweep, and moving the page's input assembly in `app.js` onto the same adapter. Shuffled paths already use `FirecalcSim.seededRandom`.
+
+This is an illustration, not advice. There is no public compute API.

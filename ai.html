@@ -48,7 +48,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css?v=11">
+    <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body class="hub-page">
     <a href="#main" class="skip-to-content">Skip to content</a>
@@ -106,7 +106,7 @@
             <div>
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Privacy</p>
                 <h2 class="section-title" id="privacy-title">Browser first. No public compute API.</h2>
-                <p>FIREcalc does not accept calculator inputs on a server. There is no unauthenticated API, no remote MCP server, and no model call from this site. <a href="/agents.txt">agents.txt</a> and <a href="/agents.json">agents.json</a> still say that.</p>
+                <p>FIREcalc does not accept calculator inputs on a server. There is no unauthenticated API, no remote MCP server, and no model call from this site. A local MCP runs on your computer and does not send the plan here. <a href="/agents.txt">agents.txt</a> and <a href="/agents.json">agents.json</a> still say there is no hosted agent API.</p>
                 <p>A share link puts the inputs in the URL. That URL can sit in browser history, a chat log, or ordinary hosting logs. Treat it like a note that contains the numbers.</p>
                 <p>A hosted calculator would be a later, explicit opt-in, with the privacy policy updated first. It is not offered here. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
             </div>
@@ -116,7 +116,7 @@
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Connect</p>
                 <h2 class="section-title" id="discover-title">ChatGPT, Claude, MCP, and skills</h2>
-                <p class="section-sub">Nothing is published yet. Each card says what exists today and what to use instead. None of these is an install button.</p>
+                <p class="section-sub">ChatGPT, a hosted MCP, and skills are not published. The local MCP is a program you run on your own computer. None of these cards is a remote install.</p>
             </div>
             <div class="tile-grid">
                 <article class="tile" id="chatgpt">
@@ -132,16 +132,32 @@
                 <article class="tile" id="claude">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v4.5M12 16v4.5M3.5 12H8M16 12h4.5M6 6l3 3M15 15l3 3M6 18l3-3M15 9l3-3"/></svg></span><span class="badge status-off">Not published</span></div>
                     <h3 class="tile-title">Claude</h3>
-                    <p class="tile-lead">No connector or skill to add.</p>
-                    <p class="tile-body">Paste a firecalc.ai share link into the chat, or point Claude at llms.txt. FIREcalc does not run a server for it.</p>
+                    <p class="tile-lead">No published connector.</p>
+                    <p class="tile-body">There is no Claude directory listing. You can add the local MCP on your own computer, using the config on the Local MCP card. Pasting a firecalc.ai share link still works, and FIREcalc does not run a server for Claude.</p>
                     <div class="tile-cta"><a class="text-cta" href="/llms.txt">Read llms.txt</a></div>
                 </article>
                 <article class="tile" id="mcp">
-                    <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 10l3 2.5-3 2.5M13 15h4"/></svg></span><span class="badge status-off">Not published</span></div>
+                    <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="M7.5 10l3 2.5-3 2.5M13 15h4"/></svg></span><span class="badge status-live">Live</span></div>
                     <h3 class="tile-title">Local MCP</h3>
-                    <p class="tile-lead">There is no MCP server to add.</p>
-                    <p class="tile-body">A future MCP, if built, would be local to the person’s own computer unless a separate opt-in says otherwise. No install command is provided, because none should be run.</p>
-                    <div class="tile-cta"><a class="text-cta" href="/agents.json">Read agents.json</a></div>
+                    <p class="tile-lead">Runs on your computer. Nothing is hosted.</p>
+                    <p class="tile-body">The <code>mcp/</code> directory in the RetirementCalc repository speaks MCP over stdio and calls the same <code>FirecalcSim</code> engine as this site. It does not open a port. FIREcalc never sees the numbers.</p>
+                    <p class="tile-body">Tools: <code>retirement_success</code>, <code>years_to_target</code>, <code>run_stress_pack</code>, <code>build_firecalc_link</code>, and <code>describe_methodology</code>. An illustration, not advice.</p>
+                    <details class="disclose">
+                        <summary>Claude Desktop and Cursor config</summary>
+                        <div class="disclose-body">
+                            <p>Node 18 or newer. No package install. Point the command at <code>mcp/server.mjs</code> in your clone. There is no remote URL.</p>
+                            <pre class="install"><code>{
+  "mcpServers": {
+    "firecalc": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/RetirementCalc/mcp/server.mjs"]
+    }
+  }
+}</code></pre>
+                            <p>Claude Desktop reads <code>claude_desktop_config.json</code>. Cursor reads <code>.cursor/mcp.json</code> or the user MCP settings. Same snippet.</p>
+                        </div>
+                    </details>
+                    <div class="tile-cta"><a class="text-cta" href="https://github.com/ayedreeean/RetirementCalc/blob/main/mcp/README.md">Read the local MCP notes</a></div>
                 </article>
                 <article class="tile" id="skills">
                     <div class="tile-top"><span class="hub-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A1.5 1.5 0 016.5 4H19v14H6.5A1.5 1.5 0 005 19.5v-14zM5 19.5A1.5 1.5 0 006.5 21H19"/></svg></span><span class="badge status-off">Not published</span></div>
@@ -293,7 +309,8 @@
                 <li><span class="status-name">Social Security claiming</span><span class="badge status status-partial">Input only</span><span class="status-note">An input (62–70), off unless you turn it on. No side-by-side 62 vs 70 tool.</span></li>
                 <li><span class="status-name">Coast, barista, sabbatical</span><span class="badge status status-off">Not built</span><span class="status-note">Coast is not “set spending equal to income”; the savings model does not solve for a coast number.</span></li>
                 <li><span class="status-name">Named historical stress packs</span><span class="badge status status-live">Live</span><span class="status-note">On the retirement results. Six named stretches inside 1975–2024, each with its exact years and a share card drawn in the browser. See <a href="#packs">the pack list</a>.</span></li>
-                <li><span class="status-name">Chat plugin, skills, MCP</span><span class="badge status status-off">Not published</span><span class="status-note">See the cards above. They are not install buttons.</span></li>
+                <li><span class="status-name">Local MCP</span><span class="badge status status-live">Live</span><span class="status-note">In the repository as <code>mcp/server.mjs</code>. Stdio on your machine, same engine as the site. Not a server FIREcalc hosts. See the <a href="#mcp">Local MCP card</a>.</span></li>
+                <li><span class="status-name">Chat plugin, hosted MCP, skills</span><span class="badge status status-off">Not published</span><span class="status-note">Not in the ChatGPT directory. No remote MCP URL. Skills are not a download.</span></li>
             </ul>
         </section>
 
@@ -301,12 +318,12 @@
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>Methodology</p>
                 <h2 class="section-title" id="methodology-title">Files for people and agents</h2>
-                <p class="section-sub">Success, returns, inflation, taxes, and Social Security are defined in the long methodology note. <a href="/llms.txt">llms.txt</a>, <a href="/agents.txt">agents.txt</a>, and <a href="/agents.json">agents.json</a> name this page as the suite home. They still say there is no MCP server and no public compute API.</p>
+                <p class="section-sub">Success, returns, inflation, taxes, and Social Security are defined in the long methodology note. <a href="/llms.txt">llms.txt</a>, <a href="/agents.txt">agents.txt</a>, and <a href="/agents.json">agents.json</a> name this page as the suite home. They still say there is no hosted MCP and no public compute API. The local MCP is a program you run yourself.</p>
             </div>
             <ul class="file-links">
                 <li><a href="/llms.txt"><span class="file-name">llms.txt</span><span class="file-desc">Short index for agents</span></a></li>
                 <li><a href="/llms-full.txt"><span class="file-name">llms-full.txt</span><span class="file-desc">Full methodology</span></a></li>
-                <li><a href="/agents.txt"><span class="file-name">agents.txt</span><span class="file-desc">No MCP, no payment</span></a></li>
+                <li><a href="/agents.txt"><span class="file-name">agents.txt</span><span class="file-desc">No hosted agent API, no payment</span></a></li>
                 <li><a href="/agents.json"><span class="file-name">agents.json</span><span class="file-desc">Machine-readable statement</span></a></li>
             </ul>
         </section>

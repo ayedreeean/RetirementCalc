@@ -5,6 +5,6 @@
   "site": {
     "name": "FIREcalc",
     "url": "https://firecalc.ai/",
-    "description": "Public free retirement and financial-independence calculator. No account, no payment, and no MCP or other agent API. Suite home for people and agents: https://firecalc.ai/ai (static page, share links, no server-side calculation). Read https://firecalc.ai/llms.txt for what the tool does and how the model works."
+    "description": "Public free retirement and financial-independence calculator. No account, no payment, and no hosted MCP or other agent API. A local MCP program can run on the user's own computer; it is documented at https://firecalc.ai/ai and it is not served from this site. The site does no server-side calculation. Read https://firecalc.ai/llms.txt for what the tool does and how the model works."
   }
 }
