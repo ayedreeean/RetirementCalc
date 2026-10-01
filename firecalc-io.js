@@ -29,6 +29,13 @@
         'taxMode', 'taxFilingStatus', 'taxPreTaxPct', 'taxRothPct', 'taxTaxablePct',
         'taxOptimizeOrder', 'taxStateRate'
     ];
+    // Stress pack ids are checked against the pack list (stress-packs.js) before use.
+    const PACK_ID_RE = /^[a-z0-9-]{1,32}$/;
+    const PACK_ONLY_KEYS = ['pack', 'tab'];
+
+    function validPackId(id) {
+        return typeof id === 'string' && PACK_ID_RE.test(id) ? id : null;
+    }
 
     function quantileSorted(arr, q) {
         if (!arr.length) return null;
@@ -172,6 +179,7 @@
             append('monthlyOtherIncome', values.monthlyOtherIncome);
             append('otherIncomeDuration', values.otherIncomeDuration);
             append('seed', spec.seed);
+            if (validPackId(spec.pack)) append('pack', spec.pack);
         } else {
             append('tab', 'accumulation');
             SAVINGS_FIELDS.forEach(id => append(id, values[id]));
@@ -189,10 +197,11 @@
     function parseShareParams(input) {
         const params = asParams(input);
         const keys = [...params.keys()];
-        if (!keys.length) return { empty: true, kind: null, values: {}, checks: {}, tax: {}, seed: null };
+        if (!keys.length) return { empty: true, kind: null, values: {}, checks: {}, tax: {}, seed: null, pack: null, packRequested: null };
         let kind = null;
         if (params.get('tab') === 'retirement') kind = 'retirement';
         else if (params.has('tab') || params.has('currentAge')) kind = 'accumulation';
+        else if (params.has('pack')) kind = 'retirement';
         const values = {};
         const fields = kind === 'retirement' ? RETIREMENT_FIELDS : kind === 'accumulation' ? SAVINGS_FIELDS : [];
         fields.forEach(id => { if (params.has(id)) values[id] = params.get(id); });
@@ -203,7 +212,26 @@
         const tax = {};
         TAX_FIELDS.forEach(id => { if (params.has(id)) tax[id] = params.get(id); });
         const seedNum = parseInt(params.get('seed'), 10);
-        return { empty: false, kind, values, checks, tax, seed: seedNum > 0 ? seedNum : null };
+        const packRequested = params.has('pack') ? params.get('pack') : null;
+        return {
+            empty: false, kind, values, checks, tax, seed: seedNum > 0 ? seedNum : null,
+            pack: kind === 'retirement' ? validPackId(packRequested) : null,
+            packRequested: packRequested
+        };
+    }
+
+    // A challenge link names a pack and nothing else, so it carries no one's numbers.
+    function challengeUrl(packId, origin) {
+        const id = validPackId(packId);
+        if (!id) return null;
+        const base = String(origin || 'https://firecalc.ai').replace(/\/$/, '');
+        return `${base}/?pack=${id}`;
+    }
+
+    function isPackOnly(input) {
+        const params = asParams(input);
+        const keys = [...params.keys()];
+        return keys.includes('pack') && keys.every(k => PACK_ONLY_KEYS.includes(k)) && params.get('tab') !== 'accumulation';
     }
 
     function savingsShareUrl(config, origin) {
@@ -244,6 +272,7 @@
             origin: origin,
             tab: 'retirement',
             seed: c.seed,
+            pack: c.pack,
             taxEntries: taxEntries,
             checks: {
                 withdrawalAdjustment: !!c.adjustForInflation,
@@ -279,6 +308,10 @@
         RETIREMENT_FIELDS: RETIREMENT_FIELDS,
         RETIREMENT_CHECKS: RETIREMENT_CHECKS,
         TAX_FIELDS: TAX_FIELDS,
+        PACK_ID_RE: PACK_ID_RE,
+        validPackId: validPackId,
+        challengeUrl: challengeUrl,
+        isPackOnly: isPackOnly,
         quantileSorted: quantileSorted,
         summarizeSavings: summarizeSavings,
         summarizeRetirement: summarizeRetirement,
