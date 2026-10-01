@@ -48,7 +48,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=11">
 </head>
 <body class="hub-page">
     <a href="#main" class="skip-to-content">Skip to content</a>
@@ -222,6 +222,23 @@
             <p class="hub-note">The same keys are what the in-app Share button writes. <code>firecalc-io.js</code> builds and reads them without the page.</p>
         </section>
 
+        <section class="hub-section" id="packs" aria-labelledby="packs-title">
+            <div class="section-head">
+                <p class="eyebrow"><span class="eyebrow-dot"></span>Stress packs</p>
+                <h2 class="section-title" id="packs-title">Named historical stress packs</h2>
+                <p class="section-sub">Six real stretches of the 1975–2024 table. A pack runs a retirement plan through those exact years, in order, in the browser, and says which years it used. Each link below is a challenge link: it names the pack and nothing else.</p>
+            </div>
+            <ul class="file-links pack-links">
+                <li><a href="/?pack=stagflation"><span class="file-name">Stagflation squeeze</span><span class="file-desc">Villain years 1977–1981 · starts 1977</span></a></li>
+                <li><a href="/?pack=rate-wall-81"><span class="file-name">Rate wall of ’81</span><span class="file-desc">Villain year 1981 · starts 1981</span></a></li>
+                <li><a href="/?pack=bond-rout-94"><span class="file-name">Bond rout of ’94</span><span class="file-desc">Villain year 1994 · starts 1994</span></a></li>
+                <li><a href="/?pack=dotcom"><span class="file-name">Dot-com hangover</span><span class="file-desc">Villain years 2000–2002 · starts 2000</span></a></li>
+                <li><a href="/?pack=gfc"><span class="file-name">GFC crash</span><span class="file-desc">Villain year 2008 · starts 2008</span></a></li>
+                <li><a href="/?pack=rate-shock-22"><span class="file-name">2022 rate shock</span><span class="file-desc">Villain year 2022 · starts 2022, 3 years max</span></a></li>
+            </ul>
+            <p class="hub-note">A pack runs for the plan’s length, never past 2024. There is no pack for 1966 or 1973–74, which are before the table. There is also none for Black Monday or the COVID crash, because 1987 and 2020 were up years in annual data. Agents can add <code>pack=&lt;id&gt;</code> to a retirement share link to open that pack with the plan’s numbers.</p>
+        </section>
+
         <section class="hub-section" id="assistants" aria-labelledby="assistants-title">
             <div class="section-head">
                 <p class="eyebrow"><span class="eyebrow-dot"></span>For a chat assistant</p>
@@ -275,7 +292,7 @@
                 <li><span class="status-name">Spending or stock-mix stress</span><span class="badge status status-partial">Chart only</span><span class="status-note">A chart after you run retirement or savings. Not a separate tool.</span></li>
                 <li><span class="status-name">Social Security claiming</span><span class="badge status status-partial">Input only</span><span class="status-note">An input (62–70), off unless you turn it on. No side-by-side 62 vs 70 tool.</span></li>
                 <li><span class="status-name">Coast, barista, sabbatical</span><span class="badge status status-off">Not built</span><span class="status-note">Coast is not “set spending equal to income”; the savings model does not solve for a coast number.</span></li>
-                <li><span class="status-name">Named historical stress packs</span><span class="badge status status-off">Not built</span><span class="status-note">Any pack has to stay inside 1975–2024.</span></li>
+                <li><span class="status-name">Named historical stress packs</span><span class="badge status status-live">Live</span><span class="status-note">On the retirement results. Six named stretches inside 1975–2024, each with its exact years and a share card drawn in the browser. See <a href="#packs">the pack list</a>.</span></li>
                 <li><span class="status-name">Chat plugin, skills, MCP</span><span class="badge status status-off">Not published</span><span class="status-note">See the cards above. They are not install buttons.</span></li>
             </ul>
         </section>
@@ -296,7 +313,7 @@
 
         <aside class="hub-aside" id="later" aria-labelledby="later-title">
             <h2 id="later-title">Nothing on this page is for sale</h2>
-            <p>Scenario packs, if they are ever offered, would be sold on firecalc.ai. They would not be unlocked inside ChatGPT. This page does not take payment.</p>
+            <p>The named stress packs on the calculator are free. A paid scenario pack, if one is ever offered, would be sold on firecalc.ai. It would not be unlocked inside ChatGPT. This page does not take payment.</p>
         </aside>
 
         <footer class="hub-footer">

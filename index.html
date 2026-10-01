@@ -53,7 +53,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=11">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -390,6 +390,10 @@
                     <button type="button" class="chip" data-preset="classic">Classic 4% check</button>
                     <button type="button" class="chip" data-preset="early">Early retiree, 50 yrs</button>
                     <button type="button" class="chip" data-preset="defaults">Defaults</button>
+                    <button type="button" class="chip chip-pack" data-open-packs>
+                        <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M10 2.5l6 2.3v4.6c0 3.8-2.6 6.8-6 8.1-3.4-1.3-6-4.3-6-8.1V4.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7.2 10.2l2 2 3.8-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Historical villains
+                    </button>
                 </div>
 
                 <fieldset class="group">
@@ -689,6 +693,7 @@
                         <li><span class="empty-ico ico-teal"></span>How often the money lasted, and exactly what was assumed</li>
                         <li><span class="empty-ico ico-sun"></span>The range of balances at every age, in today’s or future dollars</li>
                         <li><span class="empty-ico ico-sky"></span>How spending and stock mix change the odds</li>
+                        <li><span class="empty-ico ico-coral"></span>Named stress packs: your plan through real stretches like the dot-com hangover</li>
                     </ul>
                 </div>
 
@@ -727,6 +732,60 @@
                             <ul class="assumption-chips" id="assumptionChips" aria-label="Assumptions in this result"></ul>
                         </div>
                         <p class="hero-note" id="retirementAssumptions"></p>
+                    </article>
+
+                    <article class="card packs-card reveal" id="packsCard" aria-labelledby="packsTitle">
+                        <header class="card-head card-head-split">
+                            <div>
+                                <h2 class="card-title" id="packsTitle">Named stress packs
+                                    <span class="tooltip-container"><span class="tooltip-icon">?</span><span class="tooltip-text">Each pack runs your plan through one real stretch of the 1975–2024 table, in the order the years happened. It uses the same engine as the main result, with your spending, stock mix, taxes, and income settings. One path is a story, not a success rate.</span></span>
+                                </h2>
+                                <p class="card-sub" id="packsSummary">Your plan, run through one real stretch of 1975–2024 at a time.</p>
+                            </div>
+                            <span class="badge packs-score" id="packsScore" hidden></span>
+                        </header>
+                        <div class="pack-grid" id="packGrid" role="radiogroup" aria-label="Stress packs"></div>
+                        <p class="pack-hint" id="packHint">Pick a pack to see its scoreboard and a share card.</p>
+
+                        <div class="pack-detail" id="packDetail" hidden aria-live="polite">
+                            <div class="pack-board">
+                                <div class="pack-board-head">
+                                    <span class="pack-verdict" id="packVerdictTag"></span>
+                                    <p class="pack-headline" id="packHeadline"></p>
+                                    <p class="pack-sub" id="packSub"></p>
+                                </div>
+                                <p class="pack-copy" id="packCopy"></p>
+                                <dl class="pack-facts" id="packFacts"></dl>
+                                <p class="pack-years" id="packYears"></p>
+                            </div>
+                            <figure class="pack-share">
+                                <div class="pack-card-preview" id="packCardPreview"></div>
+                                <figcaption class="pack-share-note">The card shows ratios and rates, not your dollar amounts. Drawn in your browser.</figcaption>
+                                <div class="pack-actions">
+                                    <button type="button" class="btn btn-primary btn-sm" id="packDownload">
+                                        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M10 3v9M6 8.5l4 4 4-4M4 15.5h12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                        Download PNG
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="packChallenge" title="A link with only the pack name. Whoever opens it runs their own plan.">
+                                        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M8 12l4-4M7 9.5L5.5 11a2.5 2.5 0 003.5 3.5l1.5-1.5M13 10.5l1.5-1.5A2.5 2.5 0 0011 5.5L9.5 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                        Copy challenge link
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="packShareFull" title="A link with your inputs and this pack selected">
+                                        Copy link with my numbers
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm" id="packNativeShare" hidden>Share…</button>
+                                </div>
+                                <p class="pack-share-note">The challenge link carries only the pack name. “Link with my numbers” carries your inputs, like the main share link.</p>
+                            </figure>
+                        </div>
+
+                        <details class="disclose pack-foot">
+                            <summary>What is in a pack, and what is not</summary>
+                            <div class="disclose-body">
+                                <p>Every pack uses rows from the embedded table only: S&amp;P 500 total return, the 10-year Treasury total return, and CPI for each year from 1975 through 2024. Nothing is simulated or smoothed. A pack starts in its first villain year and runs for your plan length, but never past 2024. If the villain stretch is longer than your plan, the pack runs the whole stretch anyway.</p>
+                                <p id="packNotOffered"></p>
+                            </div>
+                        </details>
                     </article>
 
                     <article class="card reveal">
@@ -1014,7 +1073,8 @@
 
     <script src="market-data.js?v=10"></script>
     <script src="tax-engine.js?v=10"></script>
-    <script defer src="firecalc-io.js?v=10"></script>
-    <script defer src="app.js?v=10"></script>
+    <script defer src="firecalc-io.js?v=11"></script>
+    <script defer src="stress-packs.js?v=11"></script>
+    <script defer src="app.js?v=11"></script>
 </body>
 </html>
