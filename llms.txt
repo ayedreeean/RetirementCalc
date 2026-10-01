@@ -6,6 +6,8 @@ FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a
 
 Retirement results also include six named stress packs (for example https://firecalc.ai/?pack=dotcom). Each replays one real stretch inside 1975–2024 and states the exact years used.
 
+A local MCP package in the repository (`mcp/server.mjs`) runs that same engine on the user's computer over stdio. It is not hosted on firecalc.ai and it is not a public compute API. Install notes are on the suite page. The ChatGPT directory and a hosted MCP are not published.
+
 ## Pages
 
 - [Calculator](https://firecalc.ai/): The savings and retirement tools
