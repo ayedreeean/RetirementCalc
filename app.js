@@ -756,35 +756,8 @@
         };
     }
 
-    function byYearsToTarget(a, b) {
-        if (a.yearsToTarget == null && b.yearsToTarget == null) return 0;
-        if (a.yearsToTarget == null) return 1;
-        if (b.yearsToTarget == null) return -1;
-        return a.yearsToTarget - b.yearsToTarget;
-    }
-
     function summarizeSavings(sims) {
-        const sorted = [...sims].sort(byYearsToTarget);
-        const n = sorted.length;
-        const medianSim = sorted[Math.floor(n * 0.5)];
-        const p10Sim = sorted[Math.floor(n * 0.1)];
-        const p90Sim = sorted[Math.min(n - 1, Math.floor(n * 0.9))];
-        const counts = new Array(MAX_ACCUMULATION_YEARS + 1).fill(0);
-        let reached = 0;
-        sims.forEach(s => {
-            if (s.yearsToTarget != null) { reached++; counts[Math.min(MAX_ACCUMULATION_YEARS, s.yearsToTarget)]++; }
-        });
-        const cdf = [];
-        let run = 0;
-        for (let y = 0; y <= MAX_ACCUMULATION_YEARS; y++) { run += counts[y]; cdf.push(run / n * 100); }
-        return {
-            sorted, n, medianSim,
-            median: medianSim.yearsToTarget,
-            p10: p10Sim.yearsToTarget,
-            p90: p90Sim.yearsToTarget,
-            reached, reachedPct: reached / n * 100,
-            counts, cdf
-        };
+        return FirecalcIO.summarizeSavings(sims, MAX_ACCUMULATION_YEARS);
     }
 
     function runAccumulationSimulation(opts) {
@@ -1307,77 +1280,7 @@
     }
 
     function summarizeRetirement(sims, inp) {
-        const n = sims.length;
-        const L = inp.lifeExpectancy;
-        const successes = sims.filter(s => !s.ranOutOfMoney).length;
-        const successRate = successes / n * 100;
-
-        const pctl = { real: { p10: [], p25: [], p50: [], p75: [], p90: [] }, nominal: { p10: [], p25: [], p50: [], p75: [], p90: [] } };
-        const survival = [];
-        const nomBuf = new Float64Array(n);
-        const realBuf = new Float64Array(n);
-        for (let k = 0; k <= L; k++) {
-            let alive = 0;
-            for (let s = 0; s < n; s++) {
-                const sim = sims[s];
-                if (k === 0) { nomBuf[s] = inp.retirementSavings; realBuf[s] = inp.retirementSavings; }
-                else {
-                    const yd = sim.yearlyData[k - 1];
-                    nomBuf[s] = yd ? yd.balance : 0;
-                    realBuf[s] = yd ? yd.balance / yd.cpi : 0;
-                }
-                if (!sim.ranOutOfMoney || sim.yearsLasted > k) alive++;
-            }
-            survival.push(alive / n * 100);
-            const ns = Float64Array.from(nomBuf).sort();
-            const rs = Float64Array.from(realBuf).sort();
-            [['p10', .1], ['p25', .25], ['p50', .5], ['p75', .75], ['p90', .9]].forEach(([key, q]) => {
-                pctl.nominal[key].push(quantileSorted(ns, q));
-                pctl.real[key].push(quantileSorted(rs, q));
-            });
-        }
-
-        const endingBalances = sims.map(s => s.finalBalance).sort((a, b) => a - b);
-        const medianEndingBalance = endingBalances[Math.floor(n * 0.5)];
-        const endingReal = sims.map(s => s.finalRealBalance).sort((a, b) => a - b);
-        const medianEndingReal = endingReal[Math.floor(n * 0.5)];
-
-        let totalReturn = 0, returnCount = 0;
-        sims.forEach(sim => sim.yearlyData.forEach(y => { totalReturn += y.return; returnCount++; }));
-        const avgReturn = returnCount > 0 ? totalReturn / returnCount : 0;
-
-        const sortedByWithdrawals = [...sims].sort((a, b) => a.totalWithdrawn - b.totalWithdrawn);
-        const medianWithdrawals = sortedByWithdrawals[Math.floor(n * 0.5)].totalWithdrawn;
-
-        const yearsLasted = sims.filter(s => s.ranOutOfMoney).map(s => s.yearsLasted).sort((a, b) => a - b);
-        const worstCaseYears = yearsLasted.length > 0 ? yearsLasted[Math.floor(yearsLasted.length * 0.1)] : null;
-        const earliestDepletion = yearsLasted.length ? yearsLasted[0] : null;
-
-        const hasIncome = sims.some(s => s.totalIncomeReceived > 0);
-        let coveragePct = null;
-        if (hasIncome) {
-            const medianSim = sortedByWithdrawals[Math.floor(n * 0.5)];
-            const totalExpensesPT = medianSim.yearlyData.reduce((s, y) => s + y.withdrawal + y.totalIncome, 0);
-            coveragePct = totalExpensesPT > 0 ? (medianSim.totalIncomeReceived / totalExpensesPT * 100) : 0;
-        }
-
-        let toughest = null;
-        if (inp.returnMode === 'historical') {
-            toughest = [...sims].sort((a, b) => {
-                if (a.ranOutOfMoney !== b.ranOutOfMoney) return a.ranOutOfMoney ? -1 : 1;
-                if (a.ranOutOfMoney) return a.yearsLasted - b.yearsLasted;
-                return a.finalRealBalance - b.finalRealBalance;
-            })[0];
-        }
-
-        const sortedByBalance = [...sims].sort((a, b) => a.finalBalance - b.finalBalance);
-        const medianSim = sortedByBalance[Math.floor(n / 2)];
-
-        return {
-            n, L, successes, successRate, pctl, survival,
-            medianEndingBalance, medianEndingReal, avgReturn, medianWithdrawals,
-            worstCaseYears, earliestDepletion, hasIncome, coveragePct, toughest, medianSim
-        };
+        return FirecalcIO.summarizeRetirement(sims, inp);
     }
 
     function runRetirementSimulation(opts) {
@@ -2148,48 +2051,57 @@
     // ============================================
     function getShareableUrl() {
         const url = new URL(window.location.href);
-        const params = new URLSearchParams();
         const v = id => $(id).value;
-        if (activeTabKey() === 'retirement') {
-            params.append('tab', 'retirement');
-            params.append('retirementAge', v('retirementAge'));
-            params.append('retirementSavings', v('retirementSavings'));
-            params.append('annualWithdrawal', v('annualWithdrawal'));
-            params.append('retirementStockAllocation', v('retirementStockAllocation'));
-            params.append('withdrawalAdjustment', $('withdrawalAdjustment').checked);
-            params.append('taxRate', v('taxRate'));
-            if (typeof window.getTaxShareParams === 'function') {
-                const taxParams = window.getTaxShareParams();
-                for (const [k, val] of taxParams.entries()) params.append(k, val);
-            }
-            params.append('retirementLifeExpectancy', v('retirementLifeExpectancy'));
-            params.append('simulationCount', v('simulationCount'));
-            params.append('retirementReturnMode', v('retirementReturnMode'));
-            params.append('includeSS', $('includeSS').checked);
-            params.append('ssMonthlyBenefit', v('ssMonthlyBenefit'));
-            params.append('ssClaimingAge', v('ssClaimingAge'));
-            params.append('includeSpouseSS', $('includeSpouseSS').checked);
-            params.append('spouseSSMonthlyBenefit', v('spouseSSMonthlyBenefit'));
-            params.append('spouseSSClaimingAge', v('spouseSSClaimingAge'));
-            params.append('includeOtherIncome', $('includeOtherIncome').checked);
-            params.append('monthlyPension', v('monthlyPension'));
-            params.append('pensionStartAge', v('pensionStartAge'));
-            params.append('monthlyOtherIncome', v('monthlyOtherIncome'));
-            params.append('otherIncomeDuration', v('otherIncomeDuration'));
-            params.append('seed', state.seeds.retirement);
-        } else {
-            params.append('tab', 'accumulation');
-            params.append('currentAge', v('currentAge'));
-            params.append('currentSavings', v('currentSavings'));
-            params.append('income', v('income'));
-            params.append('expenses', v('expenses'));
-            params.append('targetAmount', v('targetAmount'));
-            params.append('stockAllocation', v('stockAllocation'));
-            params.append('incomeGrowth', v('incomeGrowth'));
-            params.append('savingsSimulationCount', v('savingsSimulationCount'));
-            params.append('savingsReturnMode', v('savingsReturnMode'));
-            params.append('seed', state.seeds.savings);
+        const retirement = activeTabKey() === 'retirement';
+        let taxEntries = [];
+        if (retirement && typeof window.getTaxShareParams === 'function') {
+            taxEntries = [...window.getTaxShareParams().entries()];
         }
+        const params = retirement
+            ? FirecalcIO.buildShareParams({
+                tab: 'retirement',
+                seed: state.seeds.retirement,
+                taxEntries: taxEntries,
+                checks: {
+                    withdrawalAdjustment: $('withdrawalAdjustment').checked,
+                    includeSS: $('includeSS').checked,
+                    includeSpouseSS: $('includeSpouseSS').checked,
+                    includeOtherIncome: $('includeOtherIncome').checked
+                },
+                values: {
+                    retirementAge: v('retirementAge'),
+                    retirementSavings: v('retirementSavings'),
+                    annualWithdrawal: v('annualWithdrawal'),
+                    retirementStockAllocation: v('retirementStockAllocation'),
+                    taxRate: v('taxRate'),
+                    retirementLifeExpectancy: v('retirementLifeExpectancy'),
+                    simulationCount: v('simulationCount'),
+                    retirementReturnMode: v('retirementReturnMode'),
+                    ssMonthlyBenefit: v('ssMonthlyBenefit'),
+                    ssClaimingAge: v('ssClaimingAge'),
+                    spouseSSMonthlyBenefit: v('spouseSSMonthlyBenefit'),
+                    spouseSSClaimingAge: v('spouseSSClaimingAge'),
+                    monthlyPension: v('monthlyPension'),
+                    pensionStartAge: v('pensionStartAge'),
+                    monthlyOtherIncome: v('monthlyOtherIncome'),
+                    otherIncomeDuration: v('otherIncomeDuration')
+                }
+            })
+            : FirecalcIO.buildShareParams({
+                tab: 'accumulation',
+                seed: state.seeds.savings,
+                values: {
+                    currentAge: v('currentAge'),
+                    currentSavings: v('currentSavings'),
+                    income: v('income'),
+                    expenses: v('expenses'),
+                    targetAmount: v('targetAmount'),
+                    stockAllocation: v('stockAllocation'),
+                    incomeGrowth: v('incomeGrowth'),
+                    savingsSimulationCount: v('savingsSimulationCount'),
+                    savingsReturnMode: v('savingsReturnMode')
+                }
+            });
         return `${url.origin}${url.pathname}?${params.toString()}`;
     }
 
@@ -2228,25 +2140,24 @@
     }
 
     function applySharedParameters() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.size === 0 || ![...params.keys()].length) return;
-        const setVal = id => { if (params.has(id)) $(id).value = params.get(id); };
-        const setChk = id => { if (params.has(id)) $(id).checked = params.get(id) === 'true'; };
-        const seed = parseInt(params.get('seed'), 10);
-        if (params.get('tab') === 'retirement') {
+        const parsed = FirecalcIO.parseShareParams(window.location.search);
+        if (!parsed || parsed.empty || !parsed.kind) return;
+        const setVal = id => { if (Object.prototype.hasOwnProperty.call(parsed.values, id)) $(id).value = parsed.values[id]; };
+        const setChk = id => { if (Object.prototype.hasOwnProperty.call(parsed.checks, id)) $(id).checked = parsed.checks[id]; };
+        if (parsed.kind === 'retirement') {
             showTab('retirement-tab');
             ['retirementAge', 'retirementSavings', 'annualWithdrawal', 'retirementStockAllocation', 'taxRate',
                 'retirementLifeExpectancy', 'simulationCount', 'retirementReturnMode', 'ssMonthlyBenefit', 'ssClaimingAge',
                 'spouseSSMonthlyBenefit', 'spouseSSClaimingAge', 'monthlyPension', 'pensionStartAge', 'monthlyOtherIncome', 'otherIncomeDuration'].forEach(setVal);
             ['withdrawalAdjustment', 'includeSS', 'includeSpouseSS', 'includeOtherIncome'].forEach(setChk);
-            if (seed > 0) state.seeds.retirement = seed;
+            if (parsed.seed) state.seeds.retirement = parsed.seed;
             ['includeSS', 'includeSpouseSS', 'includeOtherIncome'].forEach(id => $(id).dispatchEvent(new Event('change')));
             finalizeSharedLoad();
             runRetirementSimulation({ scroll: true });
-        } else if (params.has('tab') || params.has('currentAge')) {
+        } else if (parsed.kind === 'accumulation') {
             ['currentAge', 'currentSavings', 'income', 'expenses', 'targetAmount', 'stockAllocation', 'incomeGrowth',
                 'savingsSimulationCount', 'savingsReturnMode'].forEach(setVal);
-            if (seed > 0) state.seeds.savings = seed;
+            if (parsed.seed) state.seeds.savings = parsed.seed;
             finalizeSharedLoad();
             runAccumulationSimulation({ scroll: true });
         }

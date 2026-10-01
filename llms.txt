@@ -7,6 +7,7 @@ FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a
 ## Pages
 
 - [Calculator](https://firecalc.ai/): The savings and retirement tools
+- [Agent and plugins](https://firecalc.ai/ai): Suite home for ChatGPT, MCP, and other AI agents. Static page. No public compute API. Share links open the calculator in the browser.
 - [Privacy policy](https://firecalc.ai/privacy-policy.html): Local calculations, Google Analytics 4, and Cloudflare Web Analytics
 - [Methodology](https://firecalc.ai/llms-full.txt): How success, returns, inflation, taxes, and Social Security are defined
 

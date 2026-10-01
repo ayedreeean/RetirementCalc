@@ -3,3 +3,5 @@
 # JSON: https://firecalc.ai/agents.json
 # Content: https://firecalc.ai/llms.txt
 # FIREcalc is a public free calculator. No account, no payment, and no MCP server.
+# Suite home for people and agents: https://firecalc.ai/ai
+# That page is static. It is not an MCP server and not a public compute API.
