@@ -217,6 +217,18 @@ test('the share card discloses years, stays illustrative, and leaves out dollar 
     }
     const out = Packs.runPack(Packs.getPack('dotcom'), plan({ annualWithdrawal: 75000, stockAllocation: 1, taxRate: 0 }));
     assert.match(Packs.shareCardSvg(out), /Ran out in 20\d\d/);
+
+    // Left-column lines must stay clear of the chart panel at x=640.
+    const unescape = s => s.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/\s+/g, ' ').trim();
+    const income = plan({ annualWithdrawal: 55000, stockAllocation: 0.8, includeSS: true, ssAnnualBase: 24000 });
+    for (const input of [plan(), income, plan({ annualWithdrawal: 75000, stockAllocation: 1, taxRate: 0 })]) {
+        for (const p of Packs.PACKS) {
+            const svg = Packs.shareCardSvg(Packs.runPack(p, input));
+            const lines = [...svg.matchAll(/<text x="64" y="(\d+)"[^>]*>(.*?)<\/text>/g)].filter(m => +m[1] > 240 && +m[1] < 530).map(m => unescape(m[2]));
+            assert.ok(lines.length >= 4, p.id);
+            for (const line of lines) assert.ok(line.length <= 54, `${p.id}: "${line}" is ${line.length} chars`);
+        }
+    }
     const zero = Packs.runPack(Packs.getPack('gfc'), plan({ retirementSavings: 0 }));
     assert.doesNotMatch(Packs.shareCardSvg(zero), /NaN|undefined|Infinity/);
 

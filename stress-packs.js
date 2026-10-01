@@ -201,10 +201,14 @@
         return v[0] === v[1] ? String(v[0]) : `${v[0]}–${v[1]}`;
     }
 
+    // cardTag and cardSub are sized for the 1200×630 share card.
     function verdictText(result) {
-        if (result.verdict === 'out') return { tag: 'Knocked out', headline: `Ran out in ${result.ranOutYear}`, sub: `Lasted ${result.yearsLasted} of ${result.window.years} years, to age ${result.ranOutAge}.` };
-        if (result.verdict === 'ahead') return { tag: 'Survived', headline: 'Survived', sub: 'Ended with more purchasing power than it started with.' };
-        return { tag: 'Survived, smaller', headline: 'Survived', sub: 'Money lasted, but ended with less purchasing power than it started with.' };
+        if (result.verdict === 'out') {
+            const sub = `Lasted ${result.yearsLasted} of ${result.window.years} years, to age ${result.ranOutAge}.`;
+            return { tag: `Ran out in ${result.ranOutYear}`, headline: `Ran out in ${result.ranOutYear}`, sub, cardTag: 'Knocked out', cardSub: sub };
+        }
+        if (result.verdict === 'ahead') return { tag: 'Survived, ended ahead', headline: 'Survived', sub: 'Ended with more purchasing power than it started with.', cardTag: 'Ended ahead', cardSub: 'Ended with more purchasing power than it started.' };
+        return { tag: 'Survived, ended smaller', headline: 'Survived', sub: 'Money lasted, but ended with less purchasing power than it started with.', cardTag: 'Ended smaller', cardSub: 'Lasted, but ended with less purchasing power.' };
     }
 
     // Every pack states the exact years it ran, and why it may be shorter than the plan.
@@ -274,11 +278,12 @@
             `${Math.round(result.stockAllocation * 100)}% stocks`,
             result.otherIncome ? 'SS / other income on' : 'portfolio only'
         ].filter(Boolean).join(' · ');
+        const villain = `stocks ${signedPct(result.villain.stocks)} in ${villainYearsLabel(pack)}`;
         const stats = result.verdict === 'out'
-            ? [['Lasted', `${result.yearsLasted} of ${w.years} years`], ['Ran out at', `age ${result.ranOutAge}`], ['Plan', plan]]
+            ? [['Villain', villain], ['Plan', plan]]
             : [['Ended at', `${fmtMultiple(result.endMultiple)} its start, in today’s dollars`], ['Low point', result.low ? `${fmtMultiple(result.low.multiple)} at the end of ${result.low.year}` : '–'], ['Plan', plan]];
         const statRows = stats.map((s, i) => `<text x="64" y="${440 + i * 32}" font-family="${sans}" font-size="20" fill="#384254"><tspan font-weight="600" fill="#5B6576">${e(s[0])}</tspan><tspan dx="10">${e(s[1])}</tspan></text>`).join('');
-        const tagW = Math.round(e(v.tag).length * 9.6 + 34);
+        const tagW = Math.round(v.cardTag.length * 9.6 + 34);
 
         return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${e(`${pack.name}, ${yearsLabel(w)}: ${v.headline}`)}">
 <defs>
@@ -300,9 +305,9 @@
 <text x="64" y="214" font-family="${sans}" font-size="22" fill="#5B6576">${e(`Villain: ${pack.villainLabel.toLowerCase()} · ${yearsLabel(w)}, ${w.years} ${w.years === 1 ? 'year' : 'years'} of real US returns`)}</text>
 <rect x="64" y="250" width="${tagW}" height="34" rx="17" fill="${col.wash}"/>
 <circle cx="84" cy="267" r="5" fill="${col.line}"/>
-<text x="98" y="273" font-family="${sans}" font-size="16" font-weight="700" fill="${col.ink}">${e(v.tag)}</text>
+<text x="98" y="273" font-family="${sans}" font-size="16" font-weight="700" fill="${col.ink}">${e(v.cardTag)}</text>
 <text x="64" y="350" font-family="${sans}" font-size="56" font-weight="700" letter-spacing="-1.5" fill="#1C2433">${e(v.headline)}</text>
-<text x="64" y="390" font-family="${sans}" font-size="20" fill="#384254">${e(v.sub)}</text>
+<text x="64" y="390" font-family="${sans}" font-size="20" fill="#384254">${e(v.cardSub)}</text>
 ${statRows}
 <rect x="640" y="240" width="496" height="268" rx="22" fill="#FFFFFF" stroke="#EFEBE4"/>
 <text x="662" y="270" font-family="${sans}" font-size="14" font-weight="700" letter-spacing="1.2" fill="#636B7A">BALANCE VS. START, TODAY’S DOLLARS</text>

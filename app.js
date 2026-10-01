@@ -1763,7 +1763,7 @@
 
         const tag = $('packVerdictTag');
         tag.className = `pack-verdict v-${r.verdict}`;
-        tag.textContent = r.verdict === 'out' ? v.headline : v.tag;
+        tag.textContent = v.tag;
         $('packHeadline').textContent = r.pack.name;
         $('packSub').textContent = v.sub;
         $('packCopy').textContent = r.pack.note ? `${r.pack.copy} ${r.pack.note}` : r.pack.copy;
