@@ -7,6 +7,7 @@
     // CONSTANTS
     // ============================================
     const Sim = window.FirecalcSim;
+    const Packs = window.FirecalcPacks;
     const historicalData = window.FIRECALC_HISTORICAL;
     const MAX_ACCUMULATION_YEARS = 50;
     const MAX_INPUT_VALUE = 999999999;
@@ -44,7 +45,8 @@
             retirement: { page: 1, filter: 'all' }
         },
         charts: {},
-        pinSeq: 0
+        pinSeq: 0,
+        packs: { selected: null, gauntlet: null, scrollOnRender: false }
     };
 
     function newSeed() { return Math.floor(Math.random() * 900000) + 100000; }
@@ -1288,7 +1290,7 @@
         const silent = !!opts.silent;
         const inp = readRetirementInputs();
         const body = $('retirement-results');
-        if (!validateRetirement(inp, silent)) { markStale(body, 'retirementRunMeta'); return; }
+        if (!validateRetirement(inp, silent)) { state.packs.scrollOnRender = false; markStale(body, 'retirementRunMeta'); return; }
         const button = $('runRetirementSimulation');
         if (!silent) setButtonLoading(button, true);
         body.classList.add('is-updating');
@@ -1299,6 +1301,7 @@
                 const sequences = Sim.buildSequences(historicalData, inp.returnMode, inp.lifeExpectancy, inp.simulationCount, true, rng);
                 if (sequences.length === 0) {
                     if (!silent) showValidationError('The 1975–2024 sample has no complete window for that retirement length. Shorten the horizon or switch to shuffled years.');
+                    state.packs.scrollOnRender = false;
                     markStale(body, 'retirementRunMeta');
                     return;
                 }
@@ -1318,7 +1321,10 @@
                 body.classList.remove('is-stale');
                 staggerReveal(body);
                 renderRetirement(res);
-                if (opts.scroll || (firstRun && !silent)) scrollToResults('retirementHero', opts.scrollTop);
+                if (state.packs.scrollOnRender) {
+                    state.packs.scrollOnRender = false;
+                    scrollToResults('packsCard', true);
+                } else if (opts.scroll || (firstRun && !silent)) scrollToResults('retirementHero', opts.scrollTop);
                 scheduleIdle(() => renderRetirementSensitivity(res));
             } catch (error) {
                 console.error('Error in retirement simulation:', error);
@@ -1388,6 +1394,7 @@
         try { renderSurvival(res); } catch (e) { console.error('Chart error (survival):', e); }
         try { renderOutcomes(res); } catch (e) { console.error('Chart error (outcomes):', e); }
         renderRetirementStats(res);
+        try { renderPacks(res); } catch (e) { console.error('Stress pack error:', e); }
         renderRetirementCompare();
         renderRetirementTable();
         updatePeek();
@@ -1650,6 +1657,243 @@
         }
         $('retirementSensitivityCaption').textContent = `${text} Same ${fmtInt(sens.paths)} paths for every point. Click a point to try it.`;
         setAria('retirementSensitivityChart', text);
+    }
+
+    // ============================================
+    // NAMED STRESS PACKS
+    // ============================================
+    function renderPacks(res) {
+        const card = $('packsCard');
+        if (!card) return;
+        if (!Packs) { card.hidden = true; return; }
+        const g = Packs.runGauntlet(res.inp, { preTaxFn: res.preTaxFn });
+        state.packs.gauntlet = g;
+        card.hidden = g.total === 0;
+        if (!g.total) return;
+
+        const score = $('packsScore');
+        score.hidden = false;
+        score.textContent = `${g.survived} of ${g.total} survived`;
+        score.classList.toggle('is-mid', g.survived > 0 && g.survived < g.total);
+        score.classList.toggle('is-low', g.survived === 0);
+
+        let summary = `Your plan made it through ${g.survived} of ${g.total} named stretches of real history.`;
+        const t = g.toughest;
+        if (t && res.inp.retirementSavings > 0) {
+            summary += t.survived
+                ? ` Toughest for this plan: ${t.pack.name}, with a low point of ${Packs.fmtMultiple(t.low.multiple)} its start.`
+                : ` Toughest for this plan: ${t.pack.name}, which ran out in ${t.ranOutYear}.`;
+        }
+        $('packsSummary').textContent = summary;
+        $('packNotOffered').textContent = Packs.notOfferedNote();
+
+        if (state.packs.selected && !g.results.some(r => r.pack.id === state.packs.selected)) state.packs.selected = null;
+        renderPackTiles(g);
+        renderPackDetail();
+    }
+
+    function packTileResult(r) {
+        if (r.verdict === 'out') return `Ran out in ${r.ranOutYear}`;
+        return `Survived · ended ${Packs.fmtMultiple(r.endMultiple)}`;
+    }
+
+    function renderPackTiles(g) {
+        const grid = $('packGrid');
+        if (grid.childElementCount !== g.results.length) {
+            grid.textContent = '';
+            g.results.forEach(r => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'pack-tile';
+                b.setAttribute('role', 'radio');
+                b.dataset.pack = r.pack.id;
+                b.innerHTML = '<span class="pack-tile-top"><span class="pack-tile-villain"></span><span class="pack-tile-dot" aria-hidden="true"></span></span><span class="pack-tile-name"></span><span class="pack-tile-years"></span><span class="pack-tile-result"></span>';
+                grid.appendChild(b);
+            });
+        }
+        const selected = state.packs.selected;
+        Array.from(grid.children).forEach((b, i) => {
+            const r = g.results[i];
+            b.dataset.pack = r.pack.id;
+            b.className = `pack-tile v-${r.verdict}`;
+            b.querySelector('.pack-tile-villain').textContent = r.pack.villainLabel;
+            b.querySelector('.pack-tile-name').textContent = r.pack.name;
+            b.querySelector('.pack-tile-years').textContent = `${Packs.yearsLabel(r.window)} · ${plural(r.window.years, 'yr', 'yrs')}`;
+            b.querySelector('.pack-tile-result').textContent = packTileResult(r);
+            const on = r.pack.id === selected;
+            b.setAttribute('aria-checked', on ? 'true' : 'false');
+            b.tabIndex = on || (!selected && i === 0) ? 0 : -1;
+        });
+    }
+
+    function selectedPackResult() {
+        const g = state.packs.gauntlet;
+        const id = state.packs.selected;
+        return g && id ? g.results.find(r => r.pack.id === id) || null : null;
+    }
+
+    function selectPack(id, focus) {
+        state.packs.selected = id;
+        if (state.packs.gauntlet) renderPackTiles(state.packs.gauntlet);
+        renderPackDetail();
+        if (focus) {
+            const tile = document.querySelector(`.pack-tile[data-pack="${id}"]`);
+            if (tile) tile.focus();
+        }
+    }
+
+    function packFact(dl, label, value, desc) {
+        const div = document.createElement('div');
+        const dt = document.createElement('dt');
+        const dd = document.createElement('dd');
+        dt.textContent = label;
+        dd.textContent = value;
+        div.append(dt, dd);
+        if (desc) { const p = document.createElement('p'); p.textContent = desc; div.appendChild(p); }
+        dl.appendChild(div);
+    }
+
+    function renderPackDetail() {
+        const r = selectedPackResult();
+        $('packDetail').hidden = !r;
+        $('packHint').hidden = !!r;
+        if (!r) return;
+        const inp = state.results.retirement.inp;
+        const v = Packs.verdictText(r);
+
+        const tag = $('packVerdictTag');
+        tag.className = `pack-verdict v-${r.verdict}`;
+        tag.textContent = r.verdict === 'out' ? v.headline : v.tag;
+        $('packHeadline').textContent = r.pack.name;
+        $('packSub').textContent = v.sub;
+        $('packCopy').textContent = r.pack.note ? `${r.pack.copy} ${r.pack.note}` : r.pack.copy;
+
+        const dl = $('packFacts');
+        dl.textContent = '';
+        if (r.verdict === 'out') {
+            packFact(dl, 'Lasted', `${r.yearsLasted} of ${r.window.years} yrs`, `Ran out in ${r.ranOutYear}, at age ${r.ranOutAge}`);
+        } else {
+            packFact(dl, 'Ended at', `${Packs.fmtMultiple(r.endMultiple)} start`, `${fmtMoney(r.endReal)} in today’s dollars, end of ${r.window.endYear}`);
+            if (r.low) packFact(dl, 'Low point', `${Packs.fmtMultiple(r.low.multiple)} start`, `${fmtMoney(r.low.real)} in today’s dollars, end of ${r.low.year}`);
+        }
+        const vs = r.villain;
+        packFact(dl, `The villain, ${Packs.villainYearsLabel(r.pack)}`, `Stocks ${Packs.signedPct(vs.stocks)}`, `10-yr Treasuries ${Packs.signedPct(vs.bonds)} · prices ${Packs.signedPct(vs.inflation)}`);
+        if (r.spendRate != null) packFact(dl, 'First-year spending', pct(r.spendRate * 100, 1), `${fmtMoney(inp.annualWithdrawal)} after tax · ${Math.round(inp.stockAllocation * 100)}% stocks${r.otherIncome ? ' · income on' : ''}`);
+
+        $('packYears').textContent = `${Packs.yearsDisclosure(r, inp.retirementAge)} One path, not a success rate.`;
+        $('packCardPreview').innerHTML = Packs.shareCardSvg(r);
+        $('packNativeShare').hidden = typeof navigator.share !== 'function';
+    }
+
+    function packCardPngBlob(svg) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 1200;
+                    canvas.height = 630;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 1200, 630);
+                    canvas.toBlob(b => (b ? resolve(b) : reject(new Error('PNG export failed'))), 'image/png');
+                } catch (e) { reject(e); }
+            };
+            img.onerror = () => reject(new Error('Card image failed to load'));
+            img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        });
+    }
+
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function downloadPackCard() {
+        const r = selectedPackResult();
+        if (!r) return;
+        const svg = Packs.shareCardSvg(r);
+        packCardPngBlob(svg)
+            .then(blob => { downloadBlob(blob, `firecalc-${r.pack.id}.png`); showToast('Card saved. It shows ratios, not your dollar amounts.'); })
+            .catch(() => { downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), `firecalc-${r.pack.id}.svg`); showToast('Saved the card as SVG. This browser could not make a PNG.'); });
+    }
+
+    function packChallengeUrl(id) {
+        return FirecalcIO.challengeUrl(id, window.location.origin);
+    }
+
+    function sharePackNative() {
+        const r = selectedPackResult();
+        if (!r || typeof navigator.share !== 'function') return;
+        const url = packChallengeUrl(r.pack.id);
+        const text = `${r.pack.name} (${Packs.yearsLabel(r.window)}): ${Packs.verdictText(r).headline}. Run your own plan through it.`;
+        packCardPngBlob(Packs.shareCardSvg(r))
+            .then(blob => {
+                const file = new File([blob], `firecalc-${r.pack.id}.png`, { type: 'image/png' });
+                const data = { title: `FIREcalc: ${r.pack.name}`, text, url };
+                if (navigator.canShare && navigator.canShare({ files: [file] })) data.files = [file];
+                return navigator.share(data);
+            })
+            .catch(err => { if (!err || err.name !== 'AbortError') navigator.share({ title: `FIREcalc: ${r.pack.name}`, text, url }).catch(() => {}); });
+    }
+
+    function openPacks() {
+        if (state.hasRun.retirement && state.results.retirement) {
+            scrollToResults('packsCard', true);
+            return;
+        }
+        state.packs.scrollOnRender = true;
+        runRetirementSimulation();
+    }
+
+    function wirePacks() {
+        const grid = $('packGrid');
+        if (!grid) return;
+        grid.addEventListener('click', e => {
+            const tile = e.target.closest('.pack-tile');
+            if (tile) selectPack(tile.dataset.pack);
+        });
+        grid.addEventListener('keydown', e => {
+            const tiles = Array.from(grid.querySelectorAll('.pack-tile'));
+            const i = tiles.indexOf(document.activeElement);
+            if (i < 0) return;
+            let next = null;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = tiles[(i + 1) % tiles.length];
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = tiles[(i - 1 + tiles.length) % tiles.length];
+            if (e.key === 'Home') next = tiles[0];
+            if (e.key === 'End') next = tiles[tiles.length - 1];
+            if (next) { e.preventDefault(); selectPack(next.dataset.pack, true); }
+        });
+        $('packDownload').addEventListener('click', downloadPackCard);
+        $('packNativeShare').addEventListener('click', sharePackNative);
+        $('packChallenge').addEventListener('click', () => {
+            const r = selectedPackResult();
+            if (!r) return;
+            copyText(packChallengeUrl(r.pack.id))
+                .then(() => showToast('Challenge link copied. It names the pack only, not your numbers.'))
+                .catch(() => showToast('Could not copy the link.', true));
+        });
+        $('packShareFull').addEventListener('click', () => {
+            copyText(getShareableUrl())
+                .then(() => showToast('Link copied with your inputs and this pack. Share it with care.'))
+                .catch(() => showToast('Could not copy the link.', true));
+        });
+        document.querySelectorAll('[data-open-packs]').forEach(b => b.addEventListener('click', openPacks));
+    }
+
+    function applyPackFromLink(parsed) {
+        if (parsed.packRequested == null) return;
+        const pack = Packs && parsed.pack ? Packs.getPack(parsed.pack) : null;
+        if (pack) {
+            state.packs.selected = pack.id;
+            state.packs.scrollOnRender = true;
+        } else {
+            showToast(`No stress pack named “${String(parsed.packRequested).slice(0, 32)}”. Packs stay inside the 1975–2024 table.`, true);
+        }
     }
 
     // ============================================
@@ -2061,6 +2305,7 @@
             ? FirecalcIO.buildShareParams({
                 tab: 'retirement',
                 seed: state.seeds.retirement,
+                pack: state.packs.selected,
                 taxEntries: taxEntries,
                 checks: {
                     withdrawalAdjustment: $('withdrawalAdjustment').checked,
@@ -2152,6 +2397,7 @@
             ['withdrawalAdjustment', 'includeSS', 'includeSpouseSS', 'includeOtherIncome'].forEach(setChk);
             if (parsed.seed) state.seeds.retirement = parsed.seed;
             ['includeSS', 'includeSpouseSS', 'includeOtherIncome'].forEach(id => $(id).dispatchEvent(new Event('change')));
+            applyPackFromLink(parsed);
             finalizeSharedLoad();
             runRetirementSimulation({ scroll: true });
         } else if (parsed.kind === 'accumulation') {
@@ -2331,7 +2577,7 @@
     // ============================================
     document.addEventListener('DOMContentLoaded', function () {
         const urlParams = new URLSearchParams(window.location.search);
-        if (![...urlParams.keys()].length) loadInputsFromStorage();
+        if (![...urlParams.keys()].length || FirecalcIO.isPackOnly(urlParams)) loadInputsFromStorage();
 
         document.querySelectorAll('input, select').forEach(el => {
             el.addEventListener('change', saveInputsToStorage);
@@ -2353,6 +2599,7 @@
         wireTables();
         wireShare();
         wireActions();
+        wirePacks();
         wirePeek();
         refreshBadges();
         applySharedParameters();
