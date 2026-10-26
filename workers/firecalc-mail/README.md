@@ -9,7 +9,7 @@ This Worker sends the two opted-in emails. The public site does not run the calc
 `DRY_RUN` defaults to `"true"`. A deploy does not mail the list. Live mail requires both of these, and either one is enough to refuse a send:
 
 - `DRY_RUN` is exactly the string `"false"`. A boolean `false` does not turn sending on.
-- `MAIL_POSTAL_ADDRESS` is a real postal address (at least 8 characters, and not `POSTAL ADDRESS NEEDED`). `POSTAL_ADDRESS` is read only when `MAIL_POSTAL_ADDRESS` is unset.
+- `POSTAL_ADDRESS` is a real postal address (at least 8 characters, and not `POSTAL ADDRESS NEEDED`). `MAIL_POSTAL_ADDRESS` is read only when `POSTAL_ADDRESS` is unset. The value in `wrangler.toml` is `Table Mahjong LLC, 5900 Balcones Drive, Ste 100, Austin, TX 78731`.
 
 While the postal value is unset, the cron records `blocked` / `POSTAL_ADDRESS` and logs `mail-blocked`. `POST /admin/test-send` returns HTTP 409 with `blocked: ["POSTAL_ADDRESS"]` and does not call `EMAIL.send`. `POST /admin/dry-run` still returns HTML.
 
@@ -39,7 +39,7 @@ The production D1 database `firecalc-signups` (`c428a9dc-6ecd-4d6f-96fa-c5af3739
    Add a DMARC TXT at `_dmarc.firecalc.ai`:
 
    ```text
-   v=DMARC1; p=none; rua=mailto:aye.dreee.an@gmail.com
+   v=DMARC1; p=none; rua=mailto:hello@tablemahjong.com
    ```
 
    Start at `p=none`. Cloudflare’s example `p=reject` would fail Namecheap-forwarded mail that is not DKIM-aligned. Tighten the policy after both the forwarder and Email Sending pass DMARC.
@@ -58,7 +58,7 @@ The production D1 database `firecalc-signups` (`c428a9dc-6ecd-4d6f-96fa-c5af3739
 
    Use a long random value (`openssl rand -hex 32`).
 5. Keep `DRY_RUN = "true"`. `POST /admin/dry-run` returns one HTML body and does not send. `GET /health` needs no token and does not run a plan. The workers.dev hostname is printed by `wrangler deploy`.
-6. Replace the postal placeholder with a real street address, then redeploy. Dashboard **Settings → Variables**, or change `MAIL_POSTAL_ADDRESS` in `wrangler.toml` and `npx wrangler deploy`. The value is public in every email footer (CAN-SPAM). It is not a secret. Until it changes, cron and `POST /admin/test-send` both refuse. Test-send returns 409. Dry-run HTML still renders.
+6. `POSTAL_ADDRESS` is already `Table Mahjong LLC, 5900 Balcones Drive, Ste 100, Austin, TX 78731`, and `MAIL_REPLY_TO` is `hello@tablemahjong.com`. Both are public. They are not secrets. Leave `DRY_RUN = "true"`. The footer reads: `FIREcalc is a product of Table Mahjong LLC · 5900 Balcones Drive, Ste 100, Austin, TX 78731 · Questions: hello@tablemahjong.com`. Clearing `POSTAL_ADDRESS` makes cron and `POST /admin/test-send` refuse again (test-send returns 409).
 7. Send yourself one preview. This bypasses dry-run and the calendar, can deliver a held January, and does not mark a real quarter sent:
 
    ```bash

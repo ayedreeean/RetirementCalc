@@ -1,5 +1,5 @@
 import { formatLimit, limitLabel, money, previousYearLimits, yearLimits } from './limits.js';
-import { POSTAL_PLACEHOLDER } from './schedule.js';
+import { LEGAL_NAME, POSTAL_PLACEHOLDER, QUESTIONS_EMAIL } from './schedule.js';
 
 const F = "font-family:Inter,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
 const D = "font-family:Georgia,'Times New Roman',serif;";
@@ -19,9 +19,18 @@ function yearsLabel(years, age) {
     return age == null ? y : `${y} (age ${age})`;
 }
 
-function shell({ kicker, title, preheader, inner, why, postal, token }) {
+export function senderLine(postal, replyTo = QUESTIONS_EMAIL) {
+    const text = String(postal || '').trim();
+    if (!text || text === POSTAL_PLACEHOLDER) return 'POSTAL ADDRESS NEEDED';
+    let street = text;
+    if (street.startsWith(LEGAL_NAME)) street = street.slice(LEGAL_NAME.length).replace(/^[\s,·-]+/, '');
+    const questions = String(replyTo || QUESTIONS_EMAIL).trim() || QUESTIONS_EMAIL;
+    return `FIREcalc is a product of ${LEGAL_NAME} · ${street} · Questions: ${questions}`;
+}
+
+function shell({ kicker, title, preheader, inner, why, postal, token, replyTo }) {
     const unsub = `https://firecalc.ai/unsubscribe?token=${encodeURIComponent(token)}`;
-    const address = postal && postal !== POSTAL_PLACEHOLDER ? esc(postal) : 'POSTAL ADDRESS NEEDED — Adrian fills this in before real mail goes out';
+    const address = esc(senderLine(postal, replyTo));
     return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>${esc(title)}</title>
 <style>@media only screen and (max-width:600px){.stack{display:block!important;width:100%!important;}.px{padding-left:20px!important;padding-right:20px!important;}}</style></head>
 <body style="margin:0;padding:0;background:#FAF8F4;"><div style="display:none;max-height:0;overflow:hidden;">${esc(preheader)}</div>
@@ -111,7 +120,7 @@ export function listHeaders(token) {
     };
 }
 
-export function renderQuarterly({ plan, planUrl, token, postal, prior, period }) {
+export function renderQuarterly({ plan, planUrl, token, postal, prior, period, replyTo }) {
     const progressNow = Math.max(0, plan.progress * 100);
     const progressThen = prior && prior.progress != null ? Math.max(0, prior.progress * 100) : null;
     let inner = sec(`<h1 style="${D}font-size:28px;line-height:1.2;color:#1C2433;margin:0 0 12px;font-weight:600;">Got 30 seconds?</h1>${p('It’s been a quarter. Your balance, pay, or spending may have moved. Open the saved plan, change the one or two numbers that did, and look again.')}`, '30px 36px 4px');
@@ -148,9 +157,10 @@ export function renderQuarterly({ plan, planUrl, token, postal, prior, period })
         inner,
         why: 'You’re getting this quarterly check-in because you asked FIREcalc to email your saved plan.',
         postal,
-        token
+        token,
+        replyTo
     });
-    const text = textQuarterly({ plan, planUrl, token, postal, period });
+    const text = textQuarterly({ plan, planUrl, token, postal, period, replyTo });
     return { subject: 'Got 30 seconds to update your FIREcalc plan?', html, text };
 }
 
@@ -162,7 +172,7 @@ function retirementLead(plan) {
     return `${money(plan.savings)} saved, spending ${money(plan.spending)} a year from age ${plan.age}, for ${plan.horizon} years. ${of} ${window} still had a balance at the end of every year. ${ss}`;
 }
 
-function textQuarterly({ plan, planUrl, token, postal, period }) {
+function textQuarterly({ plan, planUrl, token, postal, period, replyTo }) {
     const lines = [
         `Quarterly check-in (${period})`,
         '',
@@ -178,7 +188,7 @@ function textQuarterly({ plan, planUrl, token, postal, period }) {
     } else {
         lines.push(retirementLead(plan).replace(/<[^>]+>/g, ''));
     }
-    lines.push('', methodNote(plan), '', `Update my numbers: ${planUrl}`, '', footerText(token, postal));
+    lines.push('', methodNote(plan), '', `Update my numbers: ${planUrl}`, '', footerText(token, postal, replyTo));
     return lines.join('\n');
 }
 
@@ -200,7 +210,7 @@ function limitsTable(current, prior) {
     return html + '</table>';
 }
 
-export function renderJanuary({ plan, planUrl, token, postal, year, prior, whatIf, limitsSource }) {
+export function renderJanuary({ plan, planUrl, token, postal, year, prior, whatIf, limitsSource, replyTo }) {
     const current = yearLimits(year, limitsSource);
     const prev = previousYearLimits(year, limitsSource);
     const sendable = current.complete;
@@ -253,7 +263,8 @@ export function renderJanuary({ plan, planUrl, token, postal, year, prior, whatI
         inner,
         why: 'You’re getting this January checkpoint because you asked FIREcalc to email your saved plan. It replaces the January quarterly note.',
         postal,
-        token
+        token,
+        replyTo
     });
     const text = [
         `January checkpoint ${year}`,
@@ -267,7 +278,7 @@ export function renderJanuary({ plan, planUrl, token, postal, year, prior, whatI
         '',
         `Update my plan: ${planUrl}`,
         '',
-        footerText(token, postal)
+        footerText(token, postal, replyTo)
     ].filter(Boolean).join('\n');
     return {
         subject: sendable ? `Your ${year} FIREcalc checkpoint` : `[held] ${year} FIREcalc checkpoint is waiting on official limits`,
@@ -278,8 +289,8 @@ export function renderJanuary({ plan, planUrl, token, postal, year, prior, whatI
     };
 }
 
-function footerText(token, postal) {
-    const address = postal && postal !== POSTAL_PLACEHOLDER ? postal : 'POSTAL ADDRESS NEEDED';
+function footerText(token, postal, replyTo) {
+    const address = senderLine(postal, replyTo);
     return [
         'You’re getting this because you asked FIREcalc to email your saved plan.',
         `Unsubscribe: https://firecalc.ai/unsubscribe?token=${token}`,

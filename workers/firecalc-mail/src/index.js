@@ -1,10 +1,10 @@
 // Scheduled sender for the opt-in plan list. The public site does not import
 // this file. There is no unauthenticated route that runs the calculator.
 
-import { previewOne, runCampaign } from '../../../mail/campaign.js';
+import { outboundMessage, previewOne, runCampaign } from '../../../mail/campaign.js';
 import { applyDeliveryEvent } from '../../../mail/delivery.js';
 import { ensureMailSchema } from '../../../mail/schema.js';
-import { postalAddress, postalReady, sendingEnabled } from '../../../mail/schedule.js';
+import { postalAddress, postalReady, replyAddress, sendingEnabled } from '../../../mail/schedule.js';
 
 const BODY_LIMIT = 8000;
 
@@ -104,6 +104,7 @@ export default {
                 kind: data.kind === 'january' ? 'january' : 'quarterly',
                 year: Number(data.year) || new Date().getUTCFullYear(),
                 postal: data.postal || postalAddress(env),
+                replyTo: replyAddress(env),
                 token: data.token,
                 prior: data.prior || null
             });
@@ -132,6 +133,7 @@ export default {
                 kind,
                 year: Number(data.year) || new Date().getUTCFullYear(),
                 postal: postalAddress(env),
+                replyTo: replyAddress(env),
                 token: data.token
             });
             if (!built.ok) return json(400, { ok: false, error: built.detail || 'That plan could not be read.' });
@@ -139,14 +141,7 @@ export default {
                 return json(503, { ok: false, error: 'Email binding is not configured.' });
             }
             try {
-                await env.EMAIL.send({
-                    from: { email: env.MAIL_FROM || 'updates@firecalc.ai', name: env.MAIL_FROM_NAME || 'FIREcalc' },
-                    to,
-                    subject: built.message.subject,
-                    html: built.message.html,
-                    text: built.message.text,
-                    headers: built.headers
-                });
+                await env.EMAIL.send(outboundMessage(env, built, to));
             } catch (err) {
                 const code = err && err.code ? String(err.code) : 'send failed';
                 console.error(JSON.stringify({ event: 'mail-test-failed', code }));

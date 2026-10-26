@@ -36,13 +36,21 @@ export function mailFor(date, prefs, { force = false } = {}) {
 }
 
 export const POSTAL_PLACEHOLDER = 'POSTAL ADDRESS NEEDED';
+export const LEGAL_NAME = 'Table Mahjong LLC';
+export const QUESTIONS_EMAIL = 'hello@tablemahjong.com';
+export const APPROVED_POSTAL = 'Table Mahjong LLC, 5900 Balcones Drive, Ste 100, Austin, TX 78731';
 
 export function postalAddress(env) {
     if (!env) return '';
-    const value = env.MAIL_POSTAL_ADDRESS != null && env.MAIL_POSTAL_ADDRESS !== ''
-        ? env.MAIL_POSTAL_ADDRESS
-        : env.POSTAL_ADDRESS;
-    return String(value || '').trim();
+    const primary = env.POSTAL_ADDRESS != null && String(env.POSTAL_ADDRESS).trim() !== ''
+        ? env.POSTAL_ADDRESS
+        : env.MAIL_POSTAL_ADDRESS;
+    return String(primary || '').trim();
+}
+
+export function replyAddress(env) {
+    const value = env && env.MAIL_REPLY_TO != null ? String(env.MAIL_REPLY_TO).trim() : '';
+    return value || QUESTIONS_EMAIL;
 }
 
 export function postalReady(value) {

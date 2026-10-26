@@ -33,9 +33,10 @@ name = "EMAIL"
 [vars]
 MAIL_FROM = "updates@firecalc.ai"
 MAIL_FROM_NAME = "FIREcalc"
-# CAN-SPAM footer. Public in every email. Not a secret.
-# Sends stay blocked while this is empty or still the placeholder.
-# POSTAL_ADDRESS is read only when MAIL_POSTAL_ADDRESS is unset.
-MAIL_POSTAL_ADDRESS = "POSTAL ADDRESS NEEDED"
+# Public CAN-SPAM identity. Not a secret. Legal name is exactly "Table Mahjong LLC".
+# Sends stay blocked while POSTAL_ADDRESS is empty or still "POSTAL ADDRESS NEEDED".
+# MAIL_POSTAL_ADDRESS is read only when POSTAL_ADDRESS is unset.
+POSTAL_ADDRESS = "Table Mahjong LLC, 5900 Balcones Drive, Ste 100, Austin, TX 78731"
+MAIL_REPLY_TO = "hello@tablemahjong.com"
 DRY_RUN = "true"
 MAIL_BATCH = "25"

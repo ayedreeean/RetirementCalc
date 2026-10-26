@@ -2,7 +2,7 @@ import { deferralWhatIf, evaluatePlan, snapshotFrom } from './plan.js';
 import { yearLimits } from './limits.js';
 import { renderJanuary, listHeaders } from './render.js';
 import { renderQuarterly } from './render.js';
-import { mailFor, postalAddress, sendBlockers } from './schedule.js';
+import { mailFor, postalAddress, replyAddress, sendBlockers } from './schedule.js';
 import { ensureMailSchema } from './schema.js';
 import { suppressAddress, suppressionReason } from './suppress.js';
 
@@ -10,7 +10,7 @@ export { ensureMailSchema };
 
 const BATCH = 25;
 
-export function compose(row, decision, { postal, prior } = {}) {
+export function compose(row, decision, { postal, prior, replyTo } = {}) {
     const plan = evaluatePlan(row.plan_url);
     if (!plan.ok) return { ok: false, status: 'skipped', detail: plan.reason, plan: null };
     const token = row.unsubscribe_token;
@@ -20,7 +20,7 @@ export function compose(row, decision, { postal, prior } = {}) {
             ? deferralWhatIf(row.plan_url, limits.row.deferral401k)
             : null;
         const message = renderJanuary({
-            plan, planUrl: row.plan_url, token, postal, year: decision.year, prior, whatIf
+            plan, planUrl: row.plan_url, token, postal, replyTo, year: decision.year, prior, whatIf
         });
         return {
             ok: true,
@@ -32,7 +32,7 @@ export function compose(row, decision, { postal, prior } = {}) {
         };
     }
     const message = renderQuarterly({
-        plan, planUrl: row.plan_url, token, postal, prior, period: decision.period
+        plan, planUrl: row.plan_url, token, postal, replyTo, prior, period: decision.period
     });
     return { ok: true, status: 'ready', detail: null, plan, message, headers: listHeaders(token) };
 }
@@ -88,6 +88,7 @@ export async function runCampaign(db, env, options = {}) {
     const force = !!options.force;
     const blockers = sendBlockers(env);
     const postal = postalAddress(env);
+    const replyTo = replyAddress(env);
     const postalBlocked = blockers.includes('POSTAL_ADDRESS');
     const live = options.live != null ? options.live : !blockers.includes('DRY_RUN');
     const batch = options.batch || BATCH;
@@ -126,7 +127,7 @@ export async function runCampaign(db, env, options = {}) {
         }
         summary.considered += 1;
         const prior = await priorSnapshot(db, row.email);
-        const built = compose(row, decision, { postal, prior });
+        const built = compose(row, decision, { postal, prior, replyTo });
         if (!built.ok) {
             summary.skipped += 1;
             await recordSend(db, {
@@ -163,14 +164,7 @@ export async function runCampaign(db, env, options = {}) {
             continue;
         }
         try {
-            await env.EMAIL.send({
-                from: { email: env.MAIL_FROM || 'updates@firecalc.ai', name: env.MAIL_FROM_NAME || 'FIREcalc' },
-                to: row.email,
-                subject: built.message.subject,
-                html: built.message.html,
-                text: built.message.text,
-                headers: built.headers
-            });
+            await env.EMAIL.send(outboundMessage(env, built, row.email));
         } catch (err) {
             summary.blocked += 1;
             const code = err && err.code ? String(err.code) : 'send failed';
@@ -194,7 +188,19 @@ export async function runCampaign(db, env, options = {}) {
     return summary;
 }
 
-export function previewOne({ planUrl, kind, year, postal, token, prior }) {
+export function outboundMessage(env, built, to) {
+    return {
+        from: { email: (env && env.MAIL_FROM) || 'updates@firecalc.ai', name: (env && env.MAIL_FROM_NAME) || 'FIREcalc' },
+        to,
+        replyTo: replyAddress(env),
+        subject: built.message.subject,
+        html: built.message.html,
+        text: built.message.text,
+        headers: built.headers
+    };
+}
+
+export function previewOne({ planUrl, kind, year, postal, token, prior, replyTo }) {
     const row = {
         plan_url: planUrl,
         unsubscribe_token: token || 'a'.repeat(64),
@@ -203,5 +209,5 @@ export function previewOne({ planUrl, kind, year, postal, token, prior }) {
     const decision = kind === 'january'
         ? { kind: 'january', period: String(year), year }
         : { kind: 'quarterly', period: `${year}-Q1`, year };
-    return compose(row, decision, { postal, prior });
+    return compose(row, decision, { postal, prior, replyTo });
 }

@@ -11,7 +11,7 @@ import { applyDeliveryEvent, deliverySuppressionReason } from './delivery.js';
 import { ensureMailSchema } from './schema.js';
 import { yearLimits } from './limits.js';
 import { deferralWhatIf, evaluatePlan } from './plan.js';
-import { firstWeekday, inSendWindow, mailFor, postalReady, sendBlockers, sendingEnabled } from './schedule.js';
+import { APPROVED_POSTAL, LEGAL_NAME, QUESTIONS_EMAIL, firstWeekday, inSendWindow, mailFor, postalReady, sendBlockers, sendingEnabled } from './schedule.js';
 import { emailHash, suppressAddress } from './suppress.js';
 import worker from '../workers/firecalc-mail/src/index.js';
 
@@ -97,6 +97,13 @@ test('the schedule is the first weekday of Jan, Apr, Jul, and Oct', () => {
     assert.deepEqual(sendBlockers({ DRY_RUN: 'false', MAIL_POSTAL_ADDRESS: '' }), ['POSTAL_ADDRESS']);
     assert.deepEqual(sendBlockers({ DRY_RUN: 'false', POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105' }), []);
     assert.deepEqual(sendBlockers({ DRY_RUN: false, MAIL_POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105' }), ['DRY_RUN']);
+    assert.deepEqual(sendBlockers({
+        DRY_RUN: 'false',
+        POSTAL_ADDRESS: APPROVED_POSTAL,
+        MAIL_POSTAL_ADDRESS: 'POSTAL ADDRESS NEEDED'
+    }), []);
+    assert.equal(LEGAL_NAME, 'Table Mahjong LLC');
+    assert.equal(QUESTIONS_EMAIL, 'hello@tablemahjong.com');
 });
 
 test('a sample savings link renders both emails from the engine', () => {
@@ -116,6 +123,15 @@ test('a sample savings link renders both emails from the engine', () => {
     assert.match(quarterly.message.html, new RegExp(plan.median));
     assert.doesNotMatch(quarterly.message.html, /SAMPLE|EXAMPLE DATA/);
     assert.match(quarterly.message.html, /POSTAL ADDRESS NEEDED/);
+    assert.doesNotMatch(quarterly.message.html, /Table Mahjong LLC/);
+
+    const named = previewOne({ planUrl: SAMPLE, kind: 'quarterly', year: 2026, postal: APPROVED_POSTAL });
+    const line = `FIREcalc is a product of ${LEGAL_NAME} · 5900 Balcones Drive, Ste 100, Austin, TX 78731 · Questions: ${QUESTIONS_EMAIL}`;
+    assert.match(named.message.html, /FIREcalc is a product of Table Mahjong LLC · 5900 Balcones Drive, Ste 100, Austin, TX 78731/);
+    assert.match(named.message.html, /hello@tablemahjong\.com/);
+    assert.match(named.message.text, /FIREcalc is a product of Table Mahjong LLC/);
+    assert.equal(named.message.text.includes(line), true);
+    assert.doesNotMatch(named.message.html + named.message.text, /POSTAL ADDRESS NEEDED/);
     assert.equal(quarterly.headers['List-Unsubscribe-Post'], 'List-Unsubscribe=One-Click');
     assert.match(quarterly.headers['List-Unsubscribe'], /^<https:\/\/firecalc\.ai\/api\/unsubscribe\?token=[a-f]{64}>$/);
 
@@ -193,6 +209,7 @@ test('dry-run records a row and does not send; a live send happens once', async 
     assert.equal(live.sent, 1);
     assert.equal(calls.length, 1);
     assert.equal(calls[0].to, 'a@example.com');
+    assert.equal(calls[0].replyTo, 'hello@tablemahjong.com');
     assert.match(calls[0].headers['List-Unsubscribe'], /api\/unsubscribe\?token=/);
     const again = await runCampaign(db, env, { now });
     assert.equal(again.sent, 0);
@@ -302,6 +319,8 @@ test('the worker health check does not simulate, and admin routes require a toke
     assert.equal(sent.status, 200);
     assert.equal(calls.length, 1);
     assert.equal(calls[0].to, 'adrian@example.com');
+    assert.equal(calls[0].replyTo, 'hello@tablemahjong.com');
+    assert.match(calls[0].html, /Table Mahjong LLC/);
     assert.match(calls[0].subject, /\[held\]/);
 });
 

@@ -7,7 +7,7 @@ The server builds `https://firecalc.ai` URLs. It does not run retirement trials,
 ## Identity
 
 - [ ] Complete OpenAI identity verification in the Platform Dashboard. This repository cannot do that step.
-- [ ] Developer name and contact match the site (privacy contact: aye.dreee.an@gmail.com).
+- [ ] Developer name and contact match the site (operator: Table Mahjong LLC; privacy contact: hello@tablemahjong.com).
 - [ ] Do not submit until the connector test in Developer Mode returns links and refuses to calculate.
 
 ## App listing
@@ -26,7 +26,7 @@ Paste this, then edit only if the product changes.
 | Suite page | https://firecalc.ai/ai |
 | Privacy policy | https://firecalc.ai/privacy-policy.html |
 | Terms | No separate terms page. The methodology says it is an illustration, not advice: https://firecalc.ai/llms-full.txt |
-| Support / contact | aye.dreee.an@gmail.com |
+| Support / contact | hello@tablemahjong.com (Table Mahjong LLC) |
 
 ## Privacy policy URL
 
