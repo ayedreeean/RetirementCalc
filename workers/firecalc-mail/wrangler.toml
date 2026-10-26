@@ -1,0 +1,42 @@
+# Scheduled FIREcalc plan mail. Separate from the Pages site and from the
+# link-only MCP worker. Do not set a route on firecalc.ai. Do not set
+# pages_build_output_dir. Do not put ADMIN_TOKEN or any other secret here.
+name = "firecalc-mail"
+main = "src/index.js"
+compatibility_date = "2026-10-26"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+
+[triggers]
+crons = ["0 15 1-7 1,4,7,10 *"]
+
+[[d1_databases]]
+binding = "FIRECALC_SIGNUPS"
+database_name = "firecalc-signups"
+database_id = "c428a9dc-6ecd-4d6f-96fa-c5af3739fe04"
+
+# Unrestricted recipients. Sends to arbitrary addresses work only after
+# firecalc.ai is onboarded for Email Sending. See README.md.
+[[send_email]]
+name = "EMAIL"
+
+[vars]
+MAIL_FROM = "updates@firecalc.ai"
+MAIL_FROM_NAME = "FIREcalc"
+# Public CAN-SPAM identity. Not a secret. Legal name is exactly "Table Mahjong LLC".
+# Sends stay blocked while POSTAL_ADDRESS is empty or still "POSTAL ADDRESS NEEDED".
+# MAIL_POSTAL_ADDRESS is read only when POSTAL_ADDRESS is unset.
+POSTAL_ADDRESS = "Table Mahjong LLC, 5900 Balcones Drive, Ste 100, Austin, TX 78731"
+MAIL_REPLY_TO = "hello@tablemahjong.com"
+DRY_RUN = "true"
+MAIL_BATCH = "25"

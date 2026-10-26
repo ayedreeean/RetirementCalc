@@ -1084,6 +1084,10 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
     flex: 1 1 220px; min-width: 0; border: 1px solid var(--line); background: #fff; color: var(--ink);
     border-radius: var(--radius); padding: 12px 14px; font: inherit;
 }
+.signup-choices { border: 0; margin: 14px 0 0; padding: 0; }
+.signup-choices legend { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 650; margin-bottom: 8px; padding: 0; }
+.signup-choices label { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; font-size: .88rem; color: var(--ink-2); max-width: 68ch; }
+.signup-choices input { margin-top: .25em; flex: none; }
 .signup-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: .88rem; color: var(--ink-2); max-width: 68ch; }
 .signup-consent input { margin-top: .3em; flex: none; }
 .signup-status { margin-top: 12px; min-height: 1.2em; font-size: .92rem; color: var(--teal-strong); }

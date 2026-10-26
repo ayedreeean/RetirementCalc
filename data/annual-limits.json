@@ -1,0 +1,72 @@
+{
+  "reviewed": "2026-10-26",
+  "units": {
+    "deferral401k": "usd",
+    "catchUp50": "usd",
+    "catchUp60": "usd",
+    "ira": "usd",
+    "hsaSelf": "usd",
+    "hsaFamily": "usd",
+    "hsaCatchUp55": "usd",
+    "ssCola": "percent",
+    "ssWageBase": "usd"
+  },
+  "required": [
+    "deferral401k",
+    "catchUp50",
+    "catchUp60",
+    "ira",
+    "hsaSelf",
+    "hsaFamily",
+    "hsaCatchUp55",
+    "ssCola",
+    "ssWageBase"
+  ],
+  "years": {
+    "2026": {
+      "deferral401k": 24500,
+      "catchUp50": 8000,
+      "catchUp60": 11250,
+      "ira": 7500,
+      "hsaSelf": 4400,
+      "hsaFamily": 8750,
+      "hsaCatchUp55": 1000,
+      "ssCola": 2.8,
+      "ssWageBase": 184500,
+      "sources": {
+        "deferral401k": "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500",
+        "catchUp50": "https://www.irs.gov/retirement-plans/cola-increases-for-dollar-limitations-on-benefits-and-contributions",
+        "catchUp60": "https://www.irs.gov/retirement-plans/cola-increases-for-dollar-limitations-on-benefits-and-contributions",
+        "ira": "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500",
+        "hsaSelf": "https://www.irs.gov/irb/2025-21_IRB",
+        "hsaFamily": "https://www.irs.gov/irb/2025-21_IRB",
+        "hsaCatchUp55": "https://www.irs.gov/publications/p969",
+        "ssCola": "https://www.ssa.gov/news/en/cola/factsheets/2026.html",
+        "ssWageBase": "https://www.ssa.gov/oact/COLA/cbb.html"
+      }
+    },
+    "2027": {
+      "deferral401k": null,
+      "catchUp50": null,
+      "catchUp60": null,
+      "ira": null,
+      "hsaSelf": 4500,
+      "hsaFamily": 9000,
+      "hsaCatchUp55": 1000,
+      "ssCola": 3.6,
+      "ssWageBase": 192300,
+      "todo": "TODO: 401(k)/403(b)/457 employee deferral, the age-50 catch-up, the age-60–63 catch-up, and the IRA limit for 2027 were not published on 2026-10-26. Fill them from the IRS newsroom release (usually late October through mid-November) and that year's Notice. Do not guess.",
+      "sources": {
+        "deferral401k": null,
+        "catchUp50": null,
+        "catchUp60": null,
+        "ira": null,
+        "hsaSelf": "https://www.irs.gov/pub/irs-drop/rp-26-24.pdf",
+        "hsaFamily": "https://www.irs.gov/pub/irs-drop/rp-26-24.pdf",
+        "hsaCatchUp55": "https://www.irs.gov/publications/p969",
+        "ssCola": "https://www.ssa.gov/news/en/cola/factsheets/2027.html",
+        "ssWageBase": "https://www.ssa.gov/news/en/cola/factsheets/2027.html"
+      }
+    }
+  }
+}

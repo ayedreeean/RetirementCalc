@@ -178,6 +178,8 @@ test('signup code does not run the simulator, and the privacy policy covers the 
     assert.match(privacy, /Cloudflare Web Analytics/);
     assert.match(privacy, /unsubscribe/);
     assert.match(privacy, /FIRECALC_SIGNUPS/);
+    assert.match(privacy, /2026-10-26\.2/);
+    assert.match(privacy, /suppression/);
     assert.doesNotMatch(privacy, /OpenAI|AI Analysis|openai/i);
     const home = read('index.html');
     assert.ok(home.includes(CONSENT_TEXT));
