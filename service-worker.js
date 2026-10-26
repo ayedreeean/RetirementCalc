@@ -1,4 +1,4 @@
-const CACHE_NAME = 'firecalc-v14';
+const CACHE_NAME = 'firecalc-v15';
 
 function isHtmlRequest(request) {
   if (request.method !== 'GET') return false;

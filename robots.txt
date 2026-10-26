@@ -14,4 +14,7 @@ Allow: /styles.css
 # Developer test page, not a public calculator.
 Disallow: /tests.html
 
+# Signup storage. Not a page to index.
+Disallow: /api/
+
 Sitemap: https://firecalc.ai/sitemap.xml

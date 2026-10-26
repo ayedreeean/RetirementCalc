@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Coast FIRE calculator — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/coast-fire">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Check Coast FIRE by stopping new savings. FIREcalc does not solve for a coast number. It times a portfolio with zero contributions against 1975–2024 returns.">
+    <meta property="og:title" content="Coast FIRE calculator — FIREcalc">
+    <meta property="og:description" content="Check Coast FIRE by stopping new savings. FIREcalc does not solve for a coast number. It times a portfolio with zero contributions against 1975–2024 returns.">
+    <meta property="og:url" content="https://firecalc.ai/guides/coast-fire">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Coast FIRE calculator — FIREcalc">
+    <meta name="twitter:description" content="Check Coast FIRE by stopping new savings. FIREcalc does not solve for a coast number. It times a portfolio with zero contributions against 1975–2024 returns.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/coast-fire","name":"Coast FIRE: if you stop saving, does it still get there?","url":"https://firecalc.ai/guides/coast-fire","description":"Check Coast FIRE by stopping new savings. FIREcalc does not solve for a coast number. It times a portfolio with zero contributions against 1975–2024 returns.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Coast FIRE: if you stop saving, does it still get there?","item":"https://firecalc.ai/guides/coast-fire"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does FIREcalc calculate my Coast FIRE number?","acceptedAnswer":{"@type":"Answer","text":"No. It does not solve for the balance you would need today. Set new savings to zero and change the current portfolio until the slower paths arrive on time."}},{"@type":"Question","name":"Why must real raises be 0%?","acceptedAnswer":{"@type":"Answer","text":"Income grows by your real-raise rate and by inflation. Spending grows only by inflation. If raises stay at 2% while income starts equal to spending, the model starts contributing again after the first year."}},{"@type":"Question","name":"What if I keep saving a little?","acceptedAnswer":{"@type":"Answer","text":"Type that gap as income minus spending. The result is a normal savings timeline, not a coast. The engine has no separate barista or sabbatical mode."}},{"@type":"Question","name":"Which number should I trust, median or slower?","acceptedAnswer":{"@type":"Answer","text":"The slower 10%. On the example, the median is 16 years and the slower 10% take at least 28. A coast plan that only works on the median is a plan that fails on a large minority of these paths."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=14">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <span aria-current="page">Coast FIRE</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Zero contributions</p>
+            <h1 class="display">Coast FIRE: if you stop saving, does it still get there?</h1>
+            <p class="lede">Coast FIRE means the portfolio you already have can grow to your full number by a later age with no new contributions. You still work, but only to pay the bills. This calculator can time that. It does not solve for the balance you would need today.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=accumulation&amp;currentAge=40&amp;currentSavings=450000&amp;income=85000&amp;expenses=85000&amp;targetAmount=1500000&amp;stockAllocation=80&amp;incomeGrowth=0&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">Open the zero-contribution example</a><a class="btn btn-primary" href="/?tab=accumulation&amp;currentAge=40&amp;currentSavings=450000&amp;income=85000&amp;expenses=85000&amp;targetAmount=1500000&amp;stockAllocation=80&amp;incomeGrowth=0&amp;savingsSimulationCount=1000&amp;savingsReturnMode=historical&amp;seed=246813">Replay it on historical cycles</a><a class="btn btn-ghost" href="/">Start from a blank plan</a></div>
+            <p class="hero-hint">Income equals spending, and real raises are 0%. If you leave raises at 2%, pay outgrows spending and the model starts saving again. That is no longer a coast test.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>The savings engine adds <em>max(0, income − spending)</em> each year. Set income equal to spending and set “real raises above inflation” to 0%. Then the contribution stays at zero, because both sides rise only with that year’s CPI. The median years are how long this portfolio takes to reach the goal with market returns alone.</p>
+            <p>There is no coast solver. The page will not tell you “you need $X today.” Change “invested today,” run again, and see whether the slower 10% lands before the age you are willing to wait. That search is the coast test this tool can do.</p>
+            <h2>A worked coast check</h2>
+            <p>Age 40, $450,000 invested, income and spending both $85,000, real raises 0%, goal $1,500,000 in today’s dollars. $1,500,000 is 25× $60,000, a retirement budget that is lower than today’s $85,000 of spending. Stocks are 80%, because a long coast with no withdrawals is usually stock-heavy in this kind of sketch. The other 20% is 10-year Treasuries, not cash.</p>
+            <dl class="plan-facts"><div><dt>Age</dt><dd>40</dd></div><div><dt>Invested</dt><dd>$450,000</dd></div><div><dt>New savings</dt><dd>$0</dd></div><div><dt>Goal, today’s $</dt><dd>$1,500,000</dd></div><div><dt>Stocks</dt><dd>80%</dd></div><div><dt>Real raises</dt><dd>0%</dd></div></dl>
+            <p>On 1,000 shuffled paths, seed 246813, the median path takes 16 years, age 56. The faster 10% are there by 10 years, age 50. The slower 10% take at least 28 years, age 68. 997 of 1,000 paths reached the goal inside 50 years. The spread is the whole point. With nothing added each year, the year you arrive is mostly the market path. A median age of 56 is a poor plan if you need the money at 60 and the slower 10% are at 68.</p>
+            <p>Historical cycles, same inputs: 33 of 50 start years reach the goal before the sample ends. The median of the paths that finish is 20 years, age 60. The slower ones include short windows at the end of 1975–2024. A coast that looks comfortable on the shuffle can look late on the actual sequences.</p>
+            <h2>How to hunt for your own coast number</h2>
+            <ol>
+                <li>Set spending to the pay you need for bills, and set income to the same number.</li>
+                <li>Set real raises to 0%. Confirm the line under income says nothing is added each year.</li>
+                <li>Set the goal to the retirement portfolio in today’s dollars, often 25× the spending you expect <em>after</em> you stop working, which may be lower than today’s bills.</li>
+                <li>Run it. If the slower 10% is past your deadline, raise “invested today” until it is not. That higher balance is your coast sketch. The tool did not solve for it.</li>
+            </ol>
+            <p>A partial save is allowed. If you will still save $10,000 a year, set income $10,000 above spending. That is no longer Coast FIRE. It is an ordinary savings plan, and it is the right model if you are not actually stopping contributions. Barista FIRE, a sabbatical, and a planned drop in pay are the same idea: type the income and spending you will really have. There is no separate barista switch.</p>
+            <p class="callout">Zero contributions do not mean zero risk. The portfolio is still in the 1975–2024 stock and Treasury sample. Fees, a glide path, and the crashes before 1975 are absent. When the coast date arrives, test the withdrawal on the retirement calculator. Coast FIRE is about getting to the number, not about surviving the retirement.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Does FIREcalc calculate my Coast FIRE number?</h3><p>No. It does not solve for the balance you would need today. Set new savings to zero and change the current portfolio until the slower paths arrive on time.</p><h3>Why must real raises be 0%?</h3><p>Income grows by your real-raise rate and by inflation. Spending grows only by inflation. If raises stay at 2% while income starts equal to spending, the model starts contributing again after the first year.</p><h3>What if I keep saving a little?</h3><p>Type that gap as income minus spending. The result is a normal savings timeline, not a coast. The engine has no separate barista or sabbatical mode.</p><h3>Which number should I trust, median or slower?</h3><p>The slower 10%. On the example, the median is 16 years and the slower 10% take at least 28. A coast plan that only works on the median is a plan that fails on a large minority of these paths.</p>
+        </div>
+        <form class="plan-signup" data-signup action="/api/signup" method="post" data-source="coast-fire">
+            <h2 id="signup-title">Email me my FIRE plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-coast-fire">Email</label>
+                <input id="email-coast-fire" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="coast-fire">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=accumulation&amp;currentAge=40&amp;currentSavings=450000&amp;income=85000&amp;expenses=85000&amp;targetAmount=1500000&amp;stockAllocation=80&amp;incomeGrowth=0&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/coast-fire">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Other questions</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/when-can-i-retire"><strong>When can I retire?</strong><span>Years to a goal in today’s dollars.</span></a></li><li><a class="guide-card" href="/guides/retire-on-one-million"><strong>Retire on $1 million</strong><span>The same question at $500,000, $1 million, and $2 million.</span></a></li><li><a class="guide-card" href="/guides/fire-calculator-for-families"><strong>FIRE for families</strong><span>Household spending, kids, and a spouse’s Social Security.</span></a></li><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li></ul></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides/when-can-i-retire">When can I retire?</a><a href="/guides/retire-on-one-million">Retire on $1 million</a><a href="/guides/fire-calculator-for-families">FIRE for families</a><a href="/guides/coast-fire">Coast FIRE</a><a href="/guides/four-percent-rule">The 4% rule</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>

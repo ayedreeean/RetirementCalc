@@ -1,0 +1,20 @@
+# Local `wrangler pages dev` only.
+#
+# This file deliberately does NOT set pages_build_output_dir. Adding that key
+# makes a Git-connected Cloudflare Pages project treat this file as its
+# production configuration and can replace the dashboard settings on the next
+# deploy. Leave it off until database_id below is the real production D1 id
+# and you intend that switch. See functions/README.md.
+#
+# The placeholder ids are for the local simulator. They are not a live database.
+# Do not put secrets in this file. Do not add this binding to the link-only
+# MCP worker in workers/firecalc-link-mcp/.
+
+name = "firecalc"
+compatibility_date = "2026-10-26"
+
+[[d1_databases]]
+binding = "FIRECALC_SIGNUPS"
+database_name = "firecalc-signups"
+database_id = "local-firecalc-signups"
+preview_database_id = "local-firecalc-signups"

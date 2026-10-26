@@ -2607,6 +2607,7 @@
     });
 
     window.FirecalcApp = { state, runAccumulationSimulation, runRetirementSimulation, retirementAssumptionSentences };
+    window.getFirecalcShareUrl = getShareableUrl;
 
     // Service Worker Registration
     if ('serviceWorker' in navigator) {

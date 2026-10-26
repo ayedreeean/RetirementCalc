@@ -4,6 +4,8 @@
 
 FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a goal in today’s purchasing power. Retirement asks what share of paths still have money at the end of every year of a chosen horizon. The embedded sample is US large-cap stocks and 10-year Treasury total returns for 1975–2024, with each year’s inflation kept on the same row. It does not include 1966 or 1973–74.
 
+An optional email form can store an address, the time, a consent sentence, and a share link. It does not run a simulation. Delete a row at https://firecalc.ai/unsubscribe.
+
 Retirement results also include six named stress packs (for example https://firecalc.ai/?pack=dotcom). Each replays one real stretch inside 1975–2024 and states the exact years used.
 
 A local MCP package in the repository (`mcp/server.mjs`) runs that same engine on the user's computer over stdio. It is not a public compute API. Install notes are on the suite page. A separate link-only MCP (`workers/firecalc-link-mcp/`) is a draft for a ChatGPT connector test. It builds share URLs and does not run trials. It is not in the ChatGPT directory.
@@ -12,8 +14,18 @@ A local MCP package in the repository (`mcp/server.mjs`) runs that same engine o
 
 - [Calculator](https://firecalc.ai/): The savings and retirement tools
 - [Agent and plugins](https://firecalc.ai/ai): Suite home for ChatGPT, MCP, and other AI agents. Static page. No public compute API. Share links open the calculator in the browser.
-- [Privacy policy](https://firecalc.ai/privacy-policy.html): Local calculations, Google Analytics 4, and Cloudflare Web Analytics
+- [Privacy policy](https://firecalc.ai/privacy-policy.html): Local calculations, optional email signup, Google Analytics 4, and Cloudflare Web Analytics
 - [Methodology](https://firecalc.ai/llms-full.txt): How success, returns, inflation, taxes, and Social Security are defined
+
+## Guides
+
+Static pages. They open a share link. The browser runs the plan. They are not a compute API.
+
+- [When can I retire?](https://firecalc.ai/guides/when-can-i-retire): Years to a savings goal in today’s purchasing power
+- [How long until $1 million?](https://firecalc.ai/guides/retire-on-one-million): The same savings question at $500,000, $1 million, and $2 million
+- [FIRE calculator for families](https://firecalc.ai/guides/fire-calculator-for-families): Household spending and optional spouse Social Security. No per-child module
+- [Coast FIRE](https://firecalc.ai/guides/coast-fire): Zero contributions. The model does not solve for a coast number
+- [Will the 4% rule work?](https://firecalc.ai/guides/four-percent-rule): Historical cycles inside 1975–2024, plus the named stress packs. Not a full-history Trinity study
 
 ## Optional
 

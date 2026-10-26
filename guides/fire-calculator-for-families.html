@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FIRE calculator for families — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/fire-calculator-for-families">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Model a household FIRE plan: one spending number for kids, a spouse’s Social Security, and a goal in today’s dollars. The sample is 1975–2024. No account.">
+    <meta property="og:title" content="FIRE calculator for families — FIREcalc">
+    <meta property="og:description" content="Model a household FIRE plan: one spending number for kids, a spouse’s Social Security, and a goal in today’s dollars. The sample is 1975–2024. No account.">
+    <meta property="og:url" content="https://firecalc.ai/guides/fire-calculator-for-families">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="FIRE calculator for families — FIREcalc">
+    <meta name="twitter:description" content="Model a household FIRE plan: one spending number for kids, a spouse’s Social Security, and a goal in today’s dollars. The sample is 1975–2024. No account.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/fire-calculator-for-families","name":"A FIRE calculator for a family","url":"https://firecalc.ai/guides/fire-calculator-for-families","description":"Model a household FIRE plan: one spending number for kids, a spouse’s Social Security, and a goal in today’s dollars. The sample is 1975–2024. No account.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"A FIRE calculator for a family","item":"https://firecalc.ai/guides/fire-calculator-for-families"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do I enter kids?","acceptedAnswer":{"@type":"Answer","text":"In annual spending. There is no per-child input, no college module, and no 529. If costs fall later, lower spending yourself. The savings model will not do it on a schedule."}},{"@type":"Question","name":"How do I add a spouse’s Social Security?","acceptedAnswer":{"@type":"Answer","text":"In the retirement calculator, turn on “Include spouse’s Social Security” and type their benefit at age 67 plus a claiming age from 62 to 70. Leave it off if you do not want that income inside the success rate."}},{"@type":"Question","name":"Should the savings goal be 25 times today’s spending?","acceptedAnswer":{"@type":"Answer","text":"Only if retirement spending will look like today’s spending. Childcare and a larger house often end. Size the goal from the spending you expect after that, and keep today’s higher spending in the contribution math."}},{"@type":"Question","name":"Does a family plan run on a server?","acceptedAnswer":{"@type":"Answer","text":"No. The links open the calculator in your browser. The optional email form stores the share link you choose. It does not compute a success rate."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=14">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <span aria-current="page">FIRE for families</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Household plan</p>
+            <h1 class="display">A FIRE calculator for a family</h1>
+            <p class="lede">A family plan is still one portfolio, one spending number, and optional Social Security for two people. Childcare, a bigger home, and a second benefit belong in those fields. There is no separate input for each child.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=accumulation&amp;currentAge=34&amp;currentSavings=180000&amp;income=150000&amp;expenses=110000&amp;targetAmount=1750000&amp;stockAllocation=70&amp;incomeGrowth=1&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">Open the household savings plan</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=60&amp;retirementSavings=1750000&amp;annualWithdrawal=70000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=15&amp;taxMode=simple&amp;retirementLifeExpectancy=35&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=true&amp;ssMonthlyBenefit=2200&amp;ssClaimingAge=67&amp;includeSpouseSS=true&amp;spouseSSMonthlyBenefit=1600&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open the retirement plan with two benefits</a><a class="btn btn-ghost" href="/">Start from a blank plan</a></div>
+            <p class="hero-hint">The savings link uses today’s household spending and a smaller retirement goal, because the model will not drop spending when kids leave. The retirement link turns on two example Social Security benefits. Replace them with the estimates from ssa.gov.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>FIREcalc does not model a 529, a child tax credit, college tuition by year, or a dependent. Kids show up as spending. A spouse shows up as household income, household spending, and, in retirement, a second Social Security benefit you choose to turn on. That is enough to ask the real questions, and it is not a full tax return.</p>
+            <h2>Put the kids in the spending box</h2>
+            <p>While children are home, spending is high: housing, childcare, food, insurance. The savings calculator inflates that whole number with CPI every year. It will not cut spending when childcare ends. If you type today’s $110,000 budget as both the lifestyle and the 25× goal, the goal stays sized for a house that still includes daycare.</p>
+            <p>Split the two ideas. Keep today’s spending, including the kids, in the spending field, so the contribution is honest. Type a retirement portfolio sized for the spending you expect later, not for daycare. In the example, household income is $150,000 after tax, spending is $110,000, and the goal is $1,750,000. That goal is 25× $70,000, a guess at later spending. It is not 25× $110,000.</p>
+            <dl class="plan-facts"><div><dt>Age</dt><dd>34</dd></div><div><dt>Invested</dt><dd>$180,000</dd></div><div><dt>Household income</dt><dd>$150,000</dd></div><div><dt>Spending, with kids</dt><dd>$110,000</dd></div><div><dt>Goal for later spending</dt><dd>$1,750,000</dd></div><div><dt>Real raises</dt><dd>1%</dd></div></dl>
+            <p>The contribution is $40,000 a year. Stocks are 70%. On 1,000 shuffled paths, seed 246813, the median path takes 15 years. The faster 10% are there by 12 years. The slower 10% take at least 19 years. Age 34 plus 15 years is 49. If the kids’ costs end sooner than that and you raise the contribution, the date moves earlier. The model will not do that for you. Lower the spending field yourself and run it again.</p>
+            <h2>Two Social Security benefits</h2>
+            <p>Social Security is off until you open “Social Security &amp; other income” and check the boxes. A spouse has a separate benefit and a separate claiming age, 62 through 70. The amount you type is the benefit at full retirement age, 67. The engine scales it for the claiming age. It gets a cost-of-living adjustment from the second year. It does not start before the claiming age.</p>
+            <p>This retirement example is a household retiring at 60 with $1,750,000, spending $70,000 a year after tax, 60% stocks, a flat 15% tax, inflation-adjusted spending, and a 35-year horizon. Historical cycles only: a 35-year retirement has 16 complete windows in this table, from 1975–2009 through 1990–2024. The example benefits are $2,200 a month and $1,600 a month at age 67, claimed at 67. They are placeholders, not your statement from Social Security.</p>
+            <p>With those benefits on, 16 of 16 windows still had money at the end of every year. With both benefits off, this same $70,000 plan was also 16 of 16. The sample is kind, and 16 windows is a small set that starts in 1975. The benefits start to matter when spending is higher. At $100,000 of inflation-adjusted spending, Social Security off survived 15 of 16 windows and the example benefits survived 16 of 16. At $110,000, Social Security off survived 14 of 16 and the benefits still survived 16 of 16. That gap is the point of typing the real benefit. A success rate with Social Security on is not a portfolio-only test, and the result says so.</p>
+            <p>The flat 15% tax grosses spending up. $70,000 after tax is about $82,350 from the portfolio in the first year, before any benefit. Do not also subtract Social Security from the spending box. That counts it twice.</p>
+            <h2>Taxes, a pension, and what is missing</h2>
+            <ul>
+                <li><strong>Simple tax</strong> is one rate. Detailed tax uses 2025 federal brackets, the standard deduction, and married filing jointly or single. There is no child tax credit, no dependent care credit, and no education credit.</li>
+                <li><strong>Social Security taxability</strong> in detailed mode uses married-filing-jointly thresholds even if you select single.</li>
+                <li><strong>A pension</strong> is a nominal monthly amount. It does not get a cost-of-living adjustment. Part-time work can go in “other income” with a duration.</li>
+                <li><strong>“Optimize withdrawal order”</strong> does not change the result. Separate account balances are not tracked.</li>
+                <li>Early-withdrawal penalties, RMDs, NIIT, IRMAA, and ACA premiums are not in the model. A family retiring before 59½ should not treat the success rate as a penalty-aware plan.</li>
+            </ul>
+            <p class="callout">One spouse’s job, one portfolio, and one spending number is the shape of this tool. If the household has two very different accounts or a business, keep this as a sketch and do the ownership details elsewhere.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Where do I enter kids?</h3><p>In annual spending. There is no per-child input, no college module, and no 529. If costs fall later, lower spending yourself. The savings model will not do it on a schedule.</p><h3>How do I add a spouse’s Social Security?</h3><p>In the retirement calculator, turn on “Include spouse’s Social Security” and type their benefit at age 67 plus a claiming age from 62 to 70. Leave it off if you do not want that income inside the success rate.</p><h3>Should the savings goal be 25 times today’s spending?</h3><p>Only if retirement spending will look like today’s spending. Childcare and a larger house often end. Size the goal from the spending you expect after that, and keep today’s higher spending in the contribution math.</p><h3>Does a family plan run on a server?</h3><p>No. The links open the calculator in your browser. The optional email form stores the share link you choose. It does not compute a success rate.</p>
+        </div>
+        <form class="plan-signup" data-signup action="/api/signup" method="post" data-source="fire-calculator-for-families">
+            <h2 id="signup-title">Email me my FIRE plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-fire-calculator-for-families">Email</label>
+                <input id="email-fire-calculator-for-families" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="fire-calculator-for-families">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=accumulation&amp;currentAge=34&amp;currentSavings=180000&amp;income=150000&amp;expenses=110000&amp;targetAmount=1750000&amp;stockAllocation=70&amp;incomeGrowth=1&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/fire-calculator-for-families">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Other questions</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/when-can-i-retire"><strong>When can I retire?</strong><span>Years to a goal in today’s dollars.</span></a></li><li><a class="guide-card" href="/guides/retire-on-one-million"><strong>Retire on $1 million</strong><span>The same question at $500,000, $1 million, and $2 million.</span></a></li><li><a class="guide-card" href="/guides/coast-fire"><strong>Coast FIRE</strong><span>Stop contributing and see if the portfolio still arrives.</span></a></li><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li></ul></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides/when-can-i-retire">When can I retire?</a><a href="/guides/retire-on-one-million">Retire on $1 million</a><a href="/guides/fire-calculator-for-families">FIRE for families</a><a href="/guides/coast-fire">Coast FIRE</a><a href="/guides/four-percent-rule">The 4% rule</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>
