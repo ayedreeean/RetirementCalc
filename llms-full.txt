@@ -88,6 +88,6 @@ These pages are static. They do not calculate. A share link opens the calculator
 - https://firecalc.ai/guides/coast-fire — set income equal to spending and real raises to 0% so the contribution stays zero. The savings model does not solve for a coast number. If real raises stay above 0%, income outgrows spending and contributions resume.
 - https://firecalc.ai/guides/four-percent-rule — a 4% question only in Historical cycles mode, inside 1975–2024. A 30-year retirement has 21 windows. Shuffled years are a different statistic. The six named stress packs are one path each, not a success rate. This is not a full-history Trinity or Bengen study.
 
-An optional email form on the calculator and on these pages stores an email address, the time, the consent sentence, and the share link the person chose. It does not run a trial. Delete a row at https://firecalc.ai/unsubscribe.
+An optional email form on the calculator and on these pages stores an email address, the time, the consent sentence, which of two emails the person wants, and the share link they chose. The public form does not run a trial. A scheduled worker may email that saved link using the same calculator. That worker is not a public API. Delete a row at https://firecalc.ai/unsubscribe.
 
 There is still no public compute API.

@@ -32,6 +32,12 @@
             setStatus(form, 'Check the box to confirm you want this saved.', true);
             return;
         }
+        const quarterlyBox = form.elements.namedItem('wants_quarterly');
+        const januaryBox = form.elements.namedItem('wants_january');
+        if (mode === 'signup' && quarterlyBox && januaryBox && !quarterlyBox.checked && !januaryBox.checked) {
+            setStatus(form, 'Choose at least one email: the quarterly check-in or the January checkpoint.', true);
+            return;
+        }
         const body = {
             email: email,
             fc_website: field(form, 'fc_website'),
@@ -39,6 +45,9 @@
         };
         if (mode === 'signup') {
             body.consent = true;
+            body.emailChoice = true;
+            body.wantsQuarterly = !quarterlyBox || quarterlyBox.checked;
+            body.wantsJanuary = !januaryBox || januaryBox.checked;
             body.source = form.dataset.source || field(form, 'source');
             body.planUrl = planUrlFor(form);
         } else {

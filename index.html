@@ -53,7 +53,7 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="icon-192x192.png">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="styles.css?v=14">
+    <link rel="stylesheet" href="styles.css?v=15">
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -942,14 +942,20 @@
 
     <form class="plan-signup" data-signup action="/api/signup" method="post" data-source="calculator">
         <h2 id="signup-title">Email me my FIRE plan</h2>
-        <p class="signup-note">Save the share link for the inputs currently on this page. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. The simulation still runs in your browser.</p>
+        <p class="signup-note">Save the share link for the inputs currently on this page. The emails are a quarterly check-in and a January yearly checkpoint. The figures in those emails come from that link. You can turn either email off below. The simulation on this page still runs in your browser.</p>
         <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
         <div class="signup-row">
             <label class="sr-only" for="signup-email">Email</label>
             <input id="signup-email" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
             <button type="submit" class="btn btn-primary">Save my plan link</button>
         </div>
-        <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+        <fieldset class="signup-choices">
+            <legend>Which emails do you want?</legend>
+            <label><input type="checkbox" name="wants_quarterly" value="yes" checked> Quarterly check-in (January, April, July, October)</label>
+            <label><input type="checkbox" name="wants_january" value="yes" checked> January yearly checkpoint (replaces the January check-in)</label>
+        </fieldset>
+        <input type="hidden" name="email_choice" value="1">
+        <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me, send a quarterly check-in, and send a January yearly checkpoint. I can turn either email off here, and I can delete this signup at any time.</span></label>
         <input type="hidden" name="source" value="calculator">
         <input type="hidden" name="return_to" value="/">
         <p class="signup-status" role="status"></p>
@@ -1068,7 +1074,7 @@
                 <h4>What does a share link contain?</h4>
                 <p>Share link copies your inputs, and the random seed, into the page address. Anyone with the link sees those numbers. The link also sits in browser history and in ordinary hosting logs. See the <a href="privacy-policy.html">privacy policy</a>.</p>
                 <h4>Can I email myself the plan?</h4>
-                <p>Email me my FIRE plan stores your email, the time, your consent, and the share link currently on the page. The calculation still runs in the browser. Sending the email is not connected yet. Delete the row from the <a href="/unsubscribe">unsubscribe page</a>.</p>
+                <p>Email me my FIRE plan stores your email, the time, your consent, which of the two emails you want, and the share link currently on the page. The calculation on this page still runs in the browser. A scheduled sender can email a quarterly check-in and a January checkpoint filled from that saved link. That sender is not a public calculator. Delete the row from the <a href="/unsubscribe">unsubscribe page</a>.</p>
             </div>
         </div>
     </dialog>
@@ -1110,6 +1116,6 @@
     <script defer src="firecalc-io.js?v=11"></script>
     <script defer src="stress-packs.js?v=11"></script>
     <script defer src="app.js?v=12"></script>
-    <script defer src="signup.js?v=1"></script>
+    <script defer src="signup.js?v=2"></script>
 </body>
 </html>

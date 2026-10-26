@@ -3,6 +3,9 @@
 -- CREATE statements on first use, so applying this file is optional.
 -- Do not add columns for portfolio, income, or spending. The only plan data
 -- is the share URL the person chose to save.
+-- wants_quarterly and wants_january are 1 or 0. Existing databases already
+-- have this table. CREATE IF NOT EXISTS will not add the new columns there.
+-- The signup function and the mail worker ALTER those columns on first use.
 --
 --   npx wrangler d1 execute firecalc-signups --remote --file=schema/signups.sql
 --
@@ -16,7 +19,9 @@ CREATE TABLE IF NOT EXISTS signups (
     consent_text TEXT NOT NULL,
     plan_url TEXT,
     source TEXT,
-    unsubscribe_token TEXT NOT NULL
+    unsubscribe_token TEXT NOT NULL,
+    wants_quarterly INTEGER NOT NULL DEFAULT 1,
+    wants_january INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS signup_rate (

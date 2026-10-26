@@ -1,8 +1,11 @@
 // Optional "email me my plan" storage. This module does not import the
 // calculator and it does not run a simulation. Dollars stay inside the share
-// URL the person chose to save.
+// URL the person chose to save. The scheduled mail worker is the only place
+// that reads that URL to fill an email.
 
-export const CONSENT_TEXT = 'I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.';
+import { deleteSubscriber, ensureMailSchema } from '../../mail/schema.js';
+
+export const CONSENT_TEXT = 'I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me, send a quarterly check-in, and send a January yearly checkpoint. I can turn either email off here, and I can delete this signup at any time.';
 
 export const HOUR_LIMIT = 8;
 export const DAY_LIMIT = 30;
@@ -44,7 +47,7 @@ const EMAIL_RE = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
 const TOKEN_RE = /^[a-f0-9]{64}$/;
 const VALUE_RE = /^[A-Za-z0-9._,-]*$/;
 
-const SAVED_MESSAGE = 'Saved. Email sending is not connected yet, so nothing will arrive until that is turned on. You can delete this signup anytime.';
+const SAVED_MESSAGE = 'Saved. Quarterly check-ins and the January checkpoint go out on the schedule once sending is turned on. You can delete this signup anytime.';
 const DELETED_MESSAGE = 'If that email was on the list, it has been deleted.';
 const UNAVAILABLE = 'Email signup is not available on this deployment yet. The calculator still runs in your browser.';
 
@@ -169,29 +172,43 @@ function database(env) {
 function ensureSchema(db) {
     let pending = schemaReady.get(db);
     if (!pending) {
-        pending = db.batch([
-            db.prepare(`CREATE TABLE IF NOT EXISTS signups (
-                email TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                consent INTEGER NOT NULL,
-                consent_text TEXT NOT NULL,
-                plan_url TEXT,
-                source TEXT,
-                unsubscribe_token TEXT NOT NULL
-            )`),
-            db.prepare(`CREATE TABLE IF NOT EXISTS signup_rate (
-                bucket TEXT PRIMARY KEY,
-                window_start INTEGER NOT NULL,
-                hits INTEGER NOT NULL
-            )`)
-        ]).catch(err => {
+        pending = ensureMailSchema(db).catch(err => {
             schemaReady.delete(db);
             throw err;
         });
         schemaReady.set(db, pending);
     }
     return pending;
+}
+
+function flagOn(value) {
+    return value === true || value === 1 || value === '1' || value === 'yes' || value === 'on' || value === 'true';
+}
+
+function emailPrefs(data) {
+    const named = data.email_choice != null || data.emailChoice != null
+        || data.wants_quarterly != null || data.wantsQuarterly != null
+        || data.wants_january != null || data.wantsJanuary != null;
+    if (!named) return { quarterly: 1, january: 1, explicit: false };
+    return {
+        quarterly: flagOn(data.wants_quarterly ?? data.wantsQuarterly) ? 1 : 0,
+        january: flagOn(data.wants_january ?? data.wantsJanuary) ? 1 : 0,
+        explicit: true
+    };
+}
+
+function oneClickToken(request, data) {
+    const token = String(new URL(request.url).searchParams.get('token') || '').trim().toLowerCase();
+    if (!TOKEN_RE.test(token)) return null;
+    const type = (request.headers.get('content-type') || '').toLowerCase();
+    if (!type.includes('application/x-www-form-urlencoded')) return null;
+    const flag = data['List-Unsubscribe'] || data['list-unsubscribe'];
+    return flag === 'One-Click' ? token : null;
+}
+
+async function deleteByToken(db, token) {
+    const row = await db.prepare('SELECT email FROM signups WHERE unsubscribe_token = ?').bind(token).first();
+    if (row && row.email) await deleteSubscriber(db, row.email);
 }
 
 async function clientHash(request) {
@@ -252,17 +269,25 @@ export async function handleSignup(request, env) {
         if (!SOURCES.has(source)) return json(request, 400, { ok: false, error: 'This form could not be saved.', back });
         const plan = normalizePlanUrl(data.planUrl || data.plan_url);
         if (plan.error) return json(request, 400, { ok: false, error: plan.error, back });
+        const prefs = emailPrefs(data);
+        if (prefs.explicit && !prefs.quarterly && !prefs.january) {
+            return json(request, 400, { ok: false, error: 'Choose at least one email: the quarterly check-in or the January checkpoint.', back });
+        }
 
         const now = new Date().toISOString();
         await db.prepare(`INSERT INTO signups
-            (email, created_at, updated_at, consent, consent_text, plan_url, source, unsubscribe_token)
-            VALUES (?, ?, ?, 1, ?, ?, ?, ?)
+            (email, created_at, updated_at, consent, consent_text, plan_url, source, unsubscribe_token, wants_quarterly, wants_january)
+            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(email) DO UPDATE SET
                 updated_at = excluded.updated_at,
                 consent = 1,
                 consent_text = excluded.consent_text,
                 plan_url = excluded.plan_url,
-                source = excluded.source`).bind(email, now, now, CONSENT_TEXT, plan.url, source, newToken()).run();
+                source = excluded.source,
+                wants_quarterly = excluded.wants_quarterly,
+                wants_january = excluded.wants_january`).bind(
+            email, now, now, CONSENT_TEXT, plan.url, source, newToken(), prefs.quarterly, prefs.january
+        ).run();
         return json(request, 200, { ok: true, message: SAVED_MESSAGE, back });
     } catch (err) {
         console.error('signup failed');
@@ -272,17 +297,24 @@ export async function handleSignup(request, env) {
 
 export async function handleUnsubscribe(request, env) {
     if (request.method !== 'POST') return json(request, 405, { ok: false, error: 'Method not allowed.', back: '/unsubscribe' });
-    if (!originAllowed(request)) return json(request, 403, { ok: false, error: 'This form only accepts requests from FIREcalc.', back: '/unsubscribe' });
     const db = database(env);
     if (!db) return json(request, 503, { ok: false, error: UNAVAILABLE, back: '/unsubscribe' });
 
     const parsed = await readBody(request);
     if (parsed.error) return json(request, parsed.status, { ok: false, error: parsed.error, back: '/unsubscribe' });
     const data = parsed.data && typeof parsed.data === 'object' ? parsed.data : {};
+    const click = oneClickToken(request, data);
+    if (!click && !originAllowed(request)) {
+        return json(request, 403, { ok: false, error: 'This form only accepts requests from FIREcalc.', back: '/unsubscribe' });
+    }
     const back = backPath(data) === '/' ? '/unsubscribe' : backPath(data);
 
     try {
         await ensureSchema(db);
+        if (click) {
+            await deleteByToken(db, click);
+            return json(request, 200, { ok: true, message: DELETED_MESSAGE, back: '/unsubscribe' });
+        }
         if (await tooMany(db, request)) {
             return json(request, 429, { ok: false, error: 'Too many signup attempts. Try again later.', back });
         }
@@ -293,11 +325,8 @@ export async function handleUnsubscribe(request, env) {
         if (!email && !TOKEN_RE.test(token)) {
             return json(request, 400, { ok: false, error: 'Enter the email address to delete, or use the deletion link.', back });
         }
-        if (TOKEN_RE.test(token)) {
-            await db.prepare('DELETE FROM signups WHERE unsubscribe_token = ?').bind(token).run();
-        } else {
-            await db.prepare('DELETE FROM signups WHERE email = ?').bind(email).run();
-        }
+        if (TOKEN_RE.test(token)) await deleteByToken(db, token);
+        else await deleteSubscriber(db, email);
         return json(request, 200, { ok: true, message: DELETED_MESSAGE, back });
     } catch (err) {
         console.error('unsubscribe failed');

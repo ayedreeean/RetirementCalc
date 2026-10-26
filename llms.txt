@@ -4,7 +4,7 @@
 
 FIREcalc has two calculators. Savings asks how long a portfolio takes to reach a goal in today’s purchasing power. Retirement asks what share of paths still have money at the end of every year of a chosen horizon. The embedded sample is US large-cap stocks and 10-year Treasury total returns for 1975–2024, with each year’s inflation kept on the same row. It does not include 1966 or 1973–74.
 
-An optional email form can store an address, the time, a consent sentence, and a share link. It does not run a simulation. Delete a row at https://firecalc.ai/unsubscribe.
+An optional email form can store an address, the time, a consent sentence, which of two emails you want (a quarterly check-in and a January checkpoint), and a share link. The public form does not run a simulation. A scheduled worker may email that saved link using the same calculator. That worker is not a public API. Delete a row at https://firecalc.ai/unsubscribe.
 
 Retirement results also include six named stress packs (for example https://firecalc.ai/?pack=dotcom). Each replays one real stretch inside 1975–2024 and states the exact years used.
 
