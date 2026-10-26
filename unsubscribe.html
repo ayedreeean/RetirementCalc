@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Delete an email signup — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/unsubscribe">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Delete a FIREcalc email signup. This removes the address, the saved plan link, and the consent record.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css?v=14">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&family=Inter:wght@400..700&display=swap" rel="stylesheet">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site"><a class="tab" href="/">Calculator</a></nav>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <span aria-current="page">Unsubscribe</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Email list</p>
+            <h1 class="display">Delete a saved plan email</h1>
+            <p class="lede">Enter the address you used. FIREcalc deletes that row: the email, the time, the consent, and the share link. The same message appears if the address was not on the list.</p>
+        </div>
+        <form class="plan-signup" data-signup="unsubscribe" action="/api/unsubscribe" method="post">
+            <h2>Unsubscribe</h2>
+            <p class="token-note" data-token-note hidden>This page has a deletion code in the address. Submitting deletes that one signup even if the email box is empty.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-unsub">Email</label>
+                <input id="email-unsub" type="email" name="email" maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Delete this signup</button>
+            </div>
+            <input type="hidden" name="token" value="">
+            <input type="hidden" name="return_to" value="/unsubscribe">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">The calculator does not need this list. <a href="/privacy-policy.html">Privacy policy</a>.</p>
+        </form>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides/when-can-i-retire">When can I retire?</a><a href="/guides/retire-on-one-million">Retire on $1 million</a><a href="/guides/fire-calculator-for-families">FIRE for families</a><a href="/guides/coast-fire">Coast FIRE</a><a href="/guides/four-percent-rule">The 4% rule</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>

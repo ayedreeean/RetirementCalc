@@ -724,7 +724,7 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
 .site-footer { border-top: 1px solid var(--line-2); background: rgba(255,255,255,.5); }
 .footer-inner { max-width: 1320px; margin: 0 auto; padding: 22px 24px 32px; display: flex; gap: 12px 28px; justify-content: space-between; align-items: center; flex-wrap: wrap; font-size: .84rem; color: var(--muted); }
 .footer-inner p:first-child { max-width: 760px; }
-.footer-links { display: inline-flex; gap: 10px; align-items: center; }
+.footer-links { display: inline-flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 /* ------------------------------------------------------------------ Motion */
 .reveal { animation: fadeUp .5s var(--ease) both; animation-delay: calc(var(--i, 0) * 60ms); }
@@ -1027,4 +1027,71 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
 @media (max-width: 420px) {
     .honesty { grid-template-columns: 1fr; }
     .honesty > div { border-right: 0; }
+}
+
+/* ------------------------------------------------------------------ Guides and email signup */
+.guide .display { font-size: clamp(2.05rem, 4.2vw, 3.05rem); }
+.crumbs { font-size: .84rem; color: var(--muted); margin: 0 0 18px; }
+.crumbs a { color: var(--teal-strong); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.guide-prose { max-width: 74ch; margin-top: 8px; }
+.guide-prose p, .guide-prose li { color: var(--ink-2); }
+.guide-prose p { margin-top: 14px; }
+.guide-prose h2 {
+    margin-top: 36px;
+    font-family: var(--font-display); font-weight: 560; font-size: 1.45rem;
+    letter-spacing: -.015em; font-variation-settings: "opsz" 72;
+}
+.guide-prose h3 { margin-top: 22px; font-size: 1.05rem; font-weight: 650; }
+.guide-prose ul, .guide-prose ol { margin: 12px 0 0; padding-left: 1.25em; }
+.guide-prose li { margin: 7px 0; }
+.guide-prose li::marker { color: var(--teal); }
+.guide-prose .callout { color: var(--ink-2); }
+.plan-facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    margin: 16px 0 0; border: 1px solid var(--line-2); border-radius: var(--radius-lg);
+    overflow: hidden; background: var(--surface);
+}
+.plan-facts div { padding: 12px 14px; border-right: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
+.plan-facts dt { font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--faint); }
+.plan-facts dd { margin: 4px 0 0; font-weight: 650; color: var(--ink); }
+.guide-strip { margin-top: 22px; }
+.guide-grid {
+    list-style: none; padding: 0; margin: 14px 0 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;
+}
+.guide-grid li { display: flex; min-width: 0; }
+.guide-card {
+    display: flex; flex-direction: column; gap: 6px; flex: 1; height: 100%;
+    padding: 16px 16px 14px; background: var(--surface); border: 1px solid var(--line-2);
+    border-radius: var(--radius-lg); text-decoration: none; box-shadow: var(--shadow-sm);
+}
+.guide-card:hover { border-color: var(--teal-soft); background: var(--teal-wash); }
+.guide-card strong { color: var(--ink); font-weight: 650; letter-spacing: -.01em; }
+.guide-card span { color: var(--ink-2); font-size: .88rem; }
+.guide-more { margin-top: 36px; }
+.guide-more h2 { font-family: var(--font-display); font-weight: 560; font-size: 1.35rem; letter-spacing: -.015em; }
+
+.plan-signup {
+    margin-top: 28px; padding: 22px 24px; max-width: 720px;
+    border-radius: var(--radius-xl); border: 1px solid var(--line-2); background: var(--surface);
+    box-shadow: var(--shadow-sm);
+}
+.plan-signup h2 { font-family: var(--font-display); font-weight: 560; font-size: 1.35rem; letter-spacing: -.015em; }
+.signup-note, .signup-fine { margin-top: 8px; color: var(--muted); font-size: .88rem; max-width: 68ch; }
+.signup-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; align-items: center; }
+.signup-row input[type="email"] {
+    flex: 1 1 220px; min-width: 0; border: 1px solid var(--line); background: #fff; color: var(--ink);
+    border-radius: var(--radius); padding: 12px 14px; font: inherit;
+}
+.signup-consent { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-size: .88rem; color: var(--ink-2); max-width: 68ch; }
+.signup-consent input { margin-top: .3em; flex: none; }
+.signup-status { margin-top: 12px; min-height: 1.2em; font-size: .92rem; color: var(--teal-strong); }
+.signup-status.is-error { color: var(--coral); }
+.signup-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.token-note { margin-top: 12px; padding: 12px 14px; background: var(--sun-wash); border-radius: var(--radius); color: var(--ink-2); }
+
+@media (max-width: 720px) {
+    .plan-signup { padding: 18px 16px; border-radius: var(--radius-lg); }
+    .signup-row .btn { width: 100%; }
 }
