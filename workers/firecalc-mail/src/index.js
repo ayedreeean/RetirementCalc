@@ -2,7 +2,9 @@
 // this file. There is no unauthenticated route that runs the calculator.
 
 import { previewOne, runCampaign } from '../../../mail/campaign.js';
-import { sendingEnabled } from '../../../mail/schedule.js';
+import { applyDeliveryEvent } from '../../../mail/delivery.js';
+import { ensureMailSchema } from '../../../mail/schema.js';
+import { postalAddress, postalReady, sendingEnabled } from '../../../mail/schedule.js';
 
 const BODY_LIMIT = 8000;
 
@@ -101,7 +103,7 @@ export default {
                 planUrl: data.planUrl || data.plan_url,
                 kind: data.kind === 'january' ? 'january' : 'quarterly',
                 year: Number(data.year) || new Date().getUTCFullYear(),
-                postal: data.postal || env.MAIL_POSTAL_ADDRESS,
+                postal: data.postal || postalAddress(env),
                 token: data.token,
                 prior: data.prior || null
             });
@@ -120,12 +122,16 @@ export default {
             const to = oneAddress(data.to);
             if (!to) return json(400, { ok: false, error: 'Enter one email address.' });
             if (!data.planUrl && !data.plan_url) return json(400, { ok: false, error: 'A plan link is required.' });
+            if (!postalReady(postalAddress(env))) {
+                console.error(JSON.stringify({ event: 'mail-blocked', detail: 'POSTAL_ADDRESS' }));
+                return json(409, { ok: false, error: 'POSTAL_ADDRESS', blocked: ['POSTAL_ADDRESS'] });
+            }
             const kind = data.kind === 'january' ? 'january' : 'quarterly';
             const built = previewOne({
                 planUrl: data.planUrl || data.plan_url,
                 kind,
                 year: Number(data.year) || new Date().getUTCFullYear(),
-                postal: env.MAIL_POSTAL_ADDRESS,
+                postal: postalAddress(env),
                 token: data.token
             });
             if (!built.ok) return json(400, { ok: false, error: built.detail || 'That plan could not be read.' });
@@ -170,5 +176,20 @@ export default {
         }
 
         return json(404, { ok: false, error: 'Not found.' });
+    },
+
+    async queue(batch, env) {
+        if (!env.FIRECALC_SIGNUPS) return;
+        await ensureMailSchema(env.FIRECALC_SIGNUPS);
+        for (const message of batch.messages) {
+            try {
+                const reason = await applyDeliveryEvent(env.FIRECALC_SIGNUPS, message.body);
+                console.log(JSON.stringify({ event: 'mail-delivery', applied: !!reason, reason }));
+                message.ack();
+            } catch (err) {
+                console.error(JSON.stringify({ event: 'mail-delivery', error: 'apply failed' }));
+                message.retry();
+            }
+        }
     }
 };

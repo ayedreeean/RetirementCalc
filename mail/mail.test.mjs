@@ -7,10 +7,12 @@ import test from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { previewOne, runCampaign } from './campaign.js';
+import { applyDeliveryEvent, deliverySuppressionReason } from './delivery.js';
 import { ensureMailSchema } from './schema.js';
 import { yearLimits } from './limits.js';
 import { deferralWhatIf, evaluatePlan } from './plan.js';
-import { firstWeekday, inSendWindow, mailFor, postalReady, sendingEnabled } from './schedule.js';
+import { firstWeekday, inSendWindow, mailFor, postalReady, sendBlockers, sendingEnabled } from './schedule.js';
+import { emailHash, suppressAddress } from './suppress.js';
 import worker from '../workers/firecalc-mail/src/index.js';
 
 const SAMPLE = 'https://firecalc.ai/?tab=accumulation&currentAge=42&currentSavings=350000&income=120000&expenses=60000&targetAmount=1500000&stockAllocation=70&incomeGrowth=2&savingsSimulationCount=1000&savingsReturnMode=shuffled&seed=246813';
@@ -86,10 +88,15 @@ test('the schedule is the first weekday of Jan, Apr, Jul, and Oct', () => {
     assert.equal(april.period, '2026-Q2');
     assert.equal(mailFor(new Date(Date.UTC(2026, 3, 1)), { quarterly: false, january: true }), null);
     assert.equal(postalReady('POSTAL ADDRESS NEEDED'), false);
+    assert.equal(postalReady('   '), false);
     assert.equal(postalReady('1 Market St, San Francisco, CA 94105'), true);
     assert.equal(sendingEnabled({ DRY_RUN: 'true' }), false);
     assert.equal(sendingEnabled({ DRY_RUN: 'false' }), true);
     assert.equal(sendingEnabled({ DRY_RUN: false }), false);
+    assert.deepEqual(sendBlockers({ DRY_RUN: 'true', MAIL_POSTAL_ADDRESS: 'POSTAL ADDRESS NEEDED' }), ['DRY_RUN', 'POSTAL_ADDRESS']);
+    assert.deepEqual(sendBlockers({ DRY_RUN: 'false', MAIL_POSTAL_ADDRESS: '' }), ['POSTAL_ADDRESS']);
+    assert.deepEqual(sendBlockers({ DRY_RUN: 'false', POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105' }), []);
+    assert.deepEqual(sendBlockers({ DRY_RUN: false, MAIL_POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105' }), ['DRY_RUN']);
 });
 
 test('a sample savings link renders both emails from the engine', () => {
@@ -163,8 +170,18 @@ test('dry-run records a row and does not send; a live send happens once', async 
     };
     const now = new Date(Date.UTC(2026, 3, 1, 15));
     const first = await runCampaign(db, env, { now });
-    assert.equal(first.dryRun, 1);
+    assert.equal(first.blocked, 1);
+    assert.equal(first.dryRun, 0);
     assert.equal(first.sent, 0);
+    assert.equal(calls.length, 0);
+    const blockedRow = await db.prepare('SELECT status, detail FROM email_sends WHERE email = ?').bind('a@example.com').first();
+    assert.equal(blockedRow.status, 'blocked');
+    assert.equal(blockedRow.detail, 'POSTAL_ADDRESS');
+
+    env.MAIL_POSTAL_ADDRESS = '1 Market St, San Francisco, CA 94105';
+    const dry = await runCampaign(db, env, { now });
+    assert.equal(dry.dryRun, 1);
+    assert.equal(dry.sent, 0);
     assert.equal(calls.length, 0);
     const row = await db.prepare('SELECT status FROM email_sends WHERE email = ?').bind('a@example.com').first();
     assert.equal(row.status, 'dry_run');
@@ -172,12 +189,6 @@ test('dry-run records a row and does not send; a live send happens once', async 
     assert.equal(snap, null);
 
     env.DRY_RUN = 'false';
-    const held = await runCampaign(db, env, { now });
-    assert.equal(held.sent, 0);
-    assert.equal(held.blocked, 1);
-    assert.equal(calls.length, 0);
-
-    env.MAIL_POSTAL_ADDRESS = '1 Market St, San Francisco, CA 94105';
     const live = await runCampaign(db, env, { now });
     assert.equal(live.sent, 1);
     assert.equal(calls.length, 1);
@@ -189,6 +200,9 @@ test('dry-run records a row and does not send; a live send happens once', async 
     assert.equal(calls.length, 1);
     const saved = await db.prepare('SELECT summary_json FROM plan_snapshots WHERE email = ?').bind('a@example.com').first();
     assert.match(saved.summary_json, /200000/);
+    const campaign = await db.prepare('SELECT campaign, status FROM email_sends WHERE email = ?').bind('a@example.com').first();
+    assert.equal(campaign.status, 'sent');
+    assert.equal(campaign.campaign, 'quarterly:2026-Q2');
 });
 
 test('an incomplete January is blocked and does not call send', async () => {
@@ -264,18 +278,159 @@ test('the worker health check does not simulate, and admin routes require a toke
     assert.equal(previewBody.sendable, true);
 
     const calls = [];
-    const sent = await worker.fetch(new Request('https://mail.example/admin/test-send', {
-        method: 'POST',
-        headers: { authorization: 'Bearer secret-token', 'content-type': 'application/json' },
-        body: JSON.stringify({ to: 'Adrian@Example.com', planUrl: SAMPLE, kind: 'january', year: 2027 })
-    }), {
+    const env = {
         ADMIN_TOKEN: 'secret-token',
         DRY_RUN: 'true',
         MAIL_POSTAL_ADDRESS: 'POSTAL ADDRESS NEEDED',
         EMAIL: { send: async (msg) => { calls.push(msg); return { messageId: 't' }; } }
-    });
+    };
+    const refused = await worker.fetch(new Request('https://mail.example/admin/test-send', {
+        method: 'POST',
+        headers: { authorization: 'Bearer secret-token', 'content-type': 'application/json' },
+        body: JSON.stringify({ to: 'Adrian@Example.com', planUrl: SAMPLE, kind: 'january', year: 2027 })
+    }), env);
+    assert.equal(refused.status, 409);
+    assert.deepEqual((await refused.json()).blocked, ['POSTAL_ADDRESS']);
+    assert.equal(calls.length, 0);
+
+    env.MAIL_POSTAL_ADDRESS = '1 Market St, San Francisco, CA 94105';
+    const sent = await worker.fetch(new Request('https://mail.example/admin/test-send', {
+        method: 'POST',
+        headers: { authorization: 'Bearer secret-token', 'content-type': 'application/json' },
+        body: JSON.stringify({ to: 'Adrian@Example.com', planUrl: SAMPLE, kind: 'january', year: 2027 })
+    }), env);
     assert.equal(sent.status, 200);
     assert.equal(calls.length, 1);
     assert.equal(calls[0].to, 'adrian@example.com');
     assert.match(calls[0].subject, /\[held\]/);
+});
+
+test('a suppressed address is not mailed again, including after the row is put back', async () => {
+    const db = d1();
+    await addSignup(db, { email: 'c@example.com', planUrl: LOW });
+    await suppressAddress(db, 'c@example.com', 'unsubscribe');
+    const calls = [];
+    const env = {
+        DRY_RUN: 'false',
+        MAIL_POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105',
+        EMAIL: { send: async (msg) => { calls.push(msg); return { messageId: 's' }; } }
+    };
+    const now = new Date(Date.UTC(2026, 3, 1, 15));
+    const first = await runCampaign(db, env, { now });
+    assert.equal(first.sent, 0);
+    assert.equal(calls.length, 0);
+    const row = await db.prepare('SELECT status, detail, campaign FROM email_sends WHERE email = ?').bind('c@example.com').first();
+    assert.equal(row.status, 'suppressed');
+    assert.equal(row.detail, 'suppressed');
+    assert.equal(row.campaign, 'quarterly:2026-Q2');
+    const again = await runCampaign(db, env, { now });
+    assert.equal(again.already, 1);
+    assert.equal(again.sent, 0);
+    assert.equal(calls.length, 0);
+});
+
+test('a provider suppression sticks when Email Service rejects the recipient', async () => {
+    const db = d1();
+    await addSignup(db, { email: 'd@example.com', planUrl: LOW });
+    let calls = 0;
+    const env = {
+        DRY_RUN: 'false',
+        MAIL_POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105',
+        EMAIL: {
+            send: async () => {
+                calls += 1;
+                const err = new Error('suppressed');
+                err.code = 'E_RECIPIENT_SUPPRESSED';
+                throw err;
+            }
+        }
+    };
+    const now = new Date(Date.UTC(2026, 3, 1, 15));
+    const first = await runCampaign(db, env, { now });
+    assert.equal(first.sent, 0);
+    assert.equal(first.blocked, 1);
+    assert.equal(calls, 1);
+    const hash = await emailHash('d@example.com');
+    const held = await db.prepare('SELECT reason FROM email_suppressions WHERE email_hash = ?').bind(hash).first();
+    assert.equal(held.reason, 'provider');
+    const second = await runCampaign(db, env, { now });
+    assert.equal(second.already, 1);
+    assert.equal(calls, 1);
+});
+
+test('complaints and hard bounces suppress, and a soft bounce does not', async () => {
+    assert.equal(deliverySuppressionReason({
+        type: 'cf.email.sending.message.complained',
+        payload: { recipient: 'a@example.com' }
+    }), 'complaint');
+    assert.equal(deliverySuppressionReason({
+        type: 'cf.email.sending.message.bounced',
+        payload: { bounce: { type: 'hard' }, recipient: 'a@example.com' }
+    }), 'hard_bounce');
+    assert.equal(deliverySuppressionReason({
+        type: 'cf.email.sending.message.bounced',
+        payload: { bounce: { type: 'soft' }, recipient: 'a@example.com' }
+    }), null);
+    assert.equal(deliverySuppressionReason({
+        type: 'cf.email.sending.message.deferred',
+        payload: { recipient: 'a@example.com' }
+    }), null);
+
+    const db = d1();
+    await addSignup(db, { email: 'e@example.com', planUrl: LOW });
+    const reason = await applyDeliveryEvent(db, {
+        type: 'cf.email.sending.message.complained',
+        payload: { recipient: 'E@Example.com' }
+    });
+    assert.equal(reason, 'complaint');
+    assert.equal(await db.prepare('SELECT email FROM signups WHERE email = ?').bind('e@example.com').first(), null);
+    const hash = await emailHash('e@example.com');
+    assert.equal((await db.prepare('SELECT reason FROM email_suppressions WHERE email_hash = ?').bind(hash).first()).reason, 'complaint');
+
+    await addSignup(db, { email: 'e@example.com', planUrl: LOW });
+    const calls = [];
+    const summary = await runCampaign(db, {
+        DRY_RUN: 'false',
+        MAIL_POSTAL_ADDRESS: '1 Market St, San Francisco, CA 94105',
+        EMAIL: { send: async (msg) => { calls.push(msg); } }
+    }, { now: new Date(Date.UTC(2026, 3, 1, 15)) });
+    assert.equal(summary.sent, 0);
+    assert.equal(calls.length, 0);
+
+    const soft = await applyDeliveryEvent(db, {
+        type: 'cf.email.sending.message.bounced',
+        payload: { bounce: { type: 'soft' }, recipient: 'e@example.com' }
+    });
+    assert.equal(soft, null);
+    assert.equal((await db.prepare('SELECT reason FROM email_suppressions WHERE email_hash = ?').bind(hash).first()).reason, 'complaint');
+});
+
+test('the queue handler records a hard bounce and ignores a soft bounce', async () => {
+    const db = d1();
+    await addSignup(db, { email: 'q@example.com', planUrl: LOW });
+    const acked = [];
+    await worker.queue({
+        messages: [
+            {
+                body: {
+                    type: 'cf.email.sending.message.bounced',
+                    payload: { bounce: { type: 'hard' }, recipient: 'q@example.com' }
+                },
+                ack() { acked.push('hard'); },
+                retry() { acked.push('retry-hard'); }
+            },
+            {
+                body: {
+                    type: 'cf.email.sending.message.bounced',
+                    payload: { bounce: { type: 'soft' }, recipient: 'q@example.com' }
+                },
+                ack() { acked.push('soft'); },
+                retry() { acked.push('retry-soft'); }
+            }
+        ]
+    }, { FIRECALC_SIGNUPS: db });
+    assert.deepEqual(acked, ['hard', 'soft']);
+    assert.equal(await db.prepare('SELECT email FROM signups WHERE email = ?').bind('q@example.com').first(), null);
+    const hash = await emailHash('q@example.com');
+    assert.equal((await db.prepare('SELECT reason FROM email_suppressions WHERE email_hash = ?').bind(hash).first()).reason, 'hard_bounce');
 });

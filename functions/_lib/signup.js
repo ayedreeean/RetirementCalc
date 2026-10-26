@@ -4,7 +4,9 @@
 // that reads that URL to fill an email.
 
 import { deleteSubscriber, ensureMailSchema } from '../../mail/schema.js';
+import { clearUnsubscribe, suppressionReason, suppressAddress } from '../../mail/suppress.js';
 
+export const CONSENT_VERSION = '2026-10-26.2';
 export const CONSENT_TEXT = 'I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me, send a quarterly check-in, and send a January yearly checkpoint. I can turn either email off here, and I can delete this signup at any time.';
 
 export const HOUR_LIMIT = 8;
@@ -208,7 +210,10 @@ function oneClickToken(request, data) {
 
 async function deleteByToken(db, token) {
     const row = await db.prepare('SELECT email FROM signups WHERE unsubscribe_token = ?').bind(token).first();
-    if (row && row.email) await deleteSubscriber(db, row.email);
+    if (row && row.email) {
+        await suppressAddress(db, row.email, 'unsubscribe');
+        await deleteSubscriber(db, row.email);
+    }
 }
 
 async function clientHash(request) {
@@ -273,11 +278,16 @@ export async function handleSignup(request, env) {
         if (prefs.explicit && !prefs.quarterly && !prefs.january) {
             return json(request, 400, { ok: false, error: 'Choose at least one email: the quarterly check-in or the January checkpoint.', back });
         }
+        const held = await suppressionReason(db, email);
+        if (held && held !== 'unsubscribe') {
+            return json(request, 400, { ok: false, error: 'That address is not accepted for these emails.', back });
+        }
+        if (held === 'unsubscribe') await clearUnsubscribe(db, email);
 
         const now = new Date().toISOString();
         await db.prepare(`INSERT INTO signups
-            (email, created_at, updated_at, consent, consent_text, plan_url, source, unsubscribe_token, wants_quarterly, wants_january)
-            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
+            (email, created_at, updated_at, consent, consent_text, plan_url, source, unsubscribe_token, wants_quarterly, wants_january, consent_version)
+            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(email) DO UPDATE SET
                 updated_at = excluded.updated_at,
                 consent = 1,
@@ -285,8 +295,9 @@ export async function handleSignup(request, env) {
                 plan_url = excluded.plan_url,
                 source = excluded.source,
                 wants_quarterly = excluded.wants_quarterly,
-                wants_january = excluded.wants_january`).bind(
-            email, now, now, CONSENT_TEXT, plan.url, source, newToken(), prefs.quarterly, prefs.january
+                wants_january = excluded.wants_january,
+                consent_version = excluded.consent_version`).bind(
+            email, now, now, CONSENT_TEXT, plan.url, source, newToken(), prefs.quarterly, prefs.january, CONSENT_VERSION
         ).run();
         return json(request, 200, { ok: true, message: SAVED_MESSAGE, back });
     } catch (err) {
@@ -295,7 +306,25 @@ export async function handleSignup(request, env) {
     }
 }
 
+function unsubscribePage(request) {
+    const url = new URL(request.url);
+    const token = String(url.searchParams.get('token') || '').trim().toLowerCase();
+    const host = request.headers.get('host') || 'firecalc.ai';
+    const local = host.startsWith('127.0.0.1') || host.startsWith('localhost');
+    const dest = new URL(`${local ? 'http' : 'https'}://${host}/unsubscribe`);
+    if (TOKEN_RE.test(token)) dest.searchParams.set('token', token);
+    return Response.redirect(dest.toString(), 302);
+}
+
+function empty(status) {
+    return new Response(null, {
+        status,
+        headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' }
+    });
+}
+
 export async function handleUnsubscribe(request, env) {
+    if (request.method === 'GET') return unsubscribePage(request);
     if (request.method !== 'POST') return json(request, 405, { ok: false, error: 'Method not allowed.', back: '/unsubscribe' });
     const db = database(env);
     if (!db) return json(request, 503, { ok: false, error: UNAVAILABLE, back: '/unsubscribe' });
@@ -313,7 +342,7 @@ export async function handleUnsubscribe(request, env) {
         await ensureSchema(db);
         if (click) {
             await deleteByToken(db, click);
-            return json(request, 200, { ok: true, message: DELETED_MESSAGE, back: '/unsubscribe' });
+            return empty(204);
         }
         if (await tooMany(db, request)) {
             return json(request, 429, { ok: false, error: 'Too many signup attempts. Try again later.', back });
@@ -326,7 +355,10 @@ export async function handleUnsubscribe(request, env) {
             return json(request, 400, { ok: false, error: 'Enter the email address to delete, or use the deletion link.', back });
         }
         if (TOKEN_RE.test(token)) await deleteByToken(db, token);
-        else await deleteSubscriber(db, email);
+        else {
+            await suppressAddress(db, email, 'unsubscribe');
+            await deleteSubscriber(db, email);
+        }
         return json(request, 200, { ok: true, message: DELETED_MESSAGE, back });
     } catch (err) {
         console.error('unsubscribe failed');

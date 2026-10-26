@@ -4,7 +4,7 @@ The calculator still runs in the browser. `functions/api/signup.js` only stores 
 
 Binding: **D1**, variable name **`FIRECALC_SIGNUPS`**.
 
-Stored columns: `email`, `created_at`, `updated_at`, `consent` (always 1), `consent_text`, `plan_url`, `source`, `unsubscribe_token`, `wants_quarterly`, `wants_january`. Older rows get both flags set to 1 when the columns are added.
+Stored columns: `email`, `created_at`, `updated_at`, `consent` (always 1), `consent_text`, `consent_version`, `plan_url`, `source`, `unsubscribe_token`, `wants_quarterly`, `wants_january`. Older rows get both flags set to 1 when the columns are added. Existing rows get consent version `2026-10-26.1` (the older monthly sentence). A new or refreshed signup stores `2026-10-26.2`.
 
 `plan_url` is a canonical `https://firecalc.ai/?…` share link. Unknown query keys are rejected. Raw IP addresses are not stored. Rate-limit buckets keep a hash of the connection address and are deleted after two days.
 
@@ -34,9 +34,11 @@ Without the flag and without a D1 binding, `POST /api/signup` returns 503.
 
 ## Sending
 
-The sender is `workers/firecalc-mail`. It shares this D1 database. Pages cannot run a cron. Read that README for the domain, the `EMAIL` binding, `ADMIN_TOKEN`, the postal address, and `DRY_RUN`.
+The sender is `workers/firecalc-mail`. It shares this D1 database. Pages cannot run a cron. Read that README for the domain, DNS (one root SPF, DMARC `p=none`), the `EMAIL` binding, `ADMIN_TOKEN`, the postal-address blocker, Workers Paid, and `DRY_RUN`.
 
-The form offers a quarterly check-in and a January checkpoint. Both default on. Older “monthly reminder” signups receive those two emails instead. `POST /api/unsubscribe` with JSON `{ "token": "<64 hex chars>" }` or `{ "email": "person@example.com" }` deletes the signup, the send log, and the snapshot. A mail client can one-click unsubscribe with `POST /api/unsubscribe?token=<64 hex>` and a form body `List-Unsubscribe=One-Click`, including from another site. That token is the capability. An email-only delete from another site is still rejected.
+The form offers a quarterly check-in and a January checkpoint. Both default on. Older “monthly reminder” signups receive those two emails instead. The unsubscribe token is 32 random bytes stored on the row, not an HMAC of the address. `GET /api/unsubscribe?token=` redirects to `/unsubscribe?token=`. `POST /api/unsubscribe` with JSON `{ "token": "<64 hex chars>" }` or `{ "email": "person@example.com" }` deletes the signup, the send log, and the snapshot, and stores a hash of the address with reason `unsubscribe`. A mail client one-click (`POST /api/unsubscribe?token=<64 hex>`, body `List-Unsubscribe=One-Click`, including from another site) does the same and returns **204** with an empty body. An unknown token still returns 204. An email-only delete from another site is still rejected.
+
+A hashed suppression is checked before a new row is saved. Reason `unsubscribe` is removed only when the current consent box is checked. A submit without that box leaves the hash and saves nothing, so the address is not mailed again. Reasons `complaint`, `hard_bounce`, and `provider` are not cleared by the checkbox; the form returns 400. The cron also refuses a signup row whose address is still on that list.
 
 Exporting the list prints addresses in your terminal. Do not paste that output into a ticket:
 

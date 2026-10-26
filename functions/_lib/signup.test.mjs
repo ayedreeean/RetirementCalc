@@ -1,15 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { CONSENT_TEXT, HOUR_LIMIT, handleSignup, handleUnsubscribe, normalizePlanUrl } from './signup.js';
+import { emailHash, suppressAddress, suppressionReason } from '../../mail/suppress.js';
+import { CONSENT_TEXT, CONSENT_VERSION, HOUR_LIMIT, handleSignup, handleUnsubscribe, normalizePlanUrl } from './signup.js';
 
 function memoryDb() {
     const signups = new Map();
     const rates = new Map();
     const sends = new Map();
     const snapshots = new Map();
+    const suppressions = new Map();
     function exec(sql, args) {
         const s = sql.replace(/\s+/g, ' ').trim();
-        if (s.startsWith('CREATE TABLE')) return { meta: { changes: 0 } };
+        if (s.startsWith('CREATE ')) return { meta: { changes: 0 } };
         if (s.startsWith('ALTER TABLE')) return { meta: { changes: 0 } };
         if (s.startsWith('DELETE FROM signup_rate')) {
             let n = 0;
@@ -29,20 +31,36 @@ function memoryDb() {
             return rates.get(args[0]) || null;
         }
         if (s.startsWith('INSERT INTO signups')) {
-            const [email, created_at, updated_at, consent_text, plan_url, source, token, wants_quarterly, wants_january] = args;
+            const [email, created_at, updated_at, consent_text, plan_url, source, token, wants_quarterly, wants_january, consent_version] = args;
             const prev = signups.get(email);
             if (prev) {
                 signups.set(email, {
                     ...prev, updated_at, consent: 1, consent_text, plan_url, source,
-                    wants_quarterly, wants_january
+                    wants_quarterly, wants_january, consent_version
                 });
             } else {
                 signups.set(email, {
                     email, created_at, updated_at, consent: 1, consent_text, plan_url, source,
-                    unsubscribe_token: token, wants_quarterly, wants_january
+                    unsubscribe_token: token, wants_quarterly, wants_january, consent_version
                 });
             }
             return { meta: { changes: 1 } };
+        }
+        if (s.startsWith('INSERT INTO email_suppressions')) {
+            const [email_hash, reason, created_at] = args;
+            suppressions.set(email_hash, { email_hash, reason, created_at });
+            return { meta: { changes: 1 } };
+        }
+        if (s.startsWith('SELECT reason FROM email_suppressions')) {
+            return suppressions.get(args[0]) || null;
+        }
+        if (s.startsWith('DELETE FROM email_suppressions')) {
+            const row = suppressions.get(args[0]);
+            if (row && row.reason === 'unsubscribe') {
+                suppressions.delete(args[0]);
+                return { meta: { changes: 1 } };
+            }
+            return { meta: { changes: 0 } };
         }
         if (s.startsWith('SELECT email FROM signups WHERE unsubscribe_token')) {
             for (const row of signups.values()) {
@@ -65,6 +83,7 @@ function memoryDb() {
         signups,
         sends,
         snapshots,
+        suppressions,
         prepare(sql) {
             return {
                 bind(...args) {
@@ -140,6 +159,7 @@ test('signup stores only email, time, consent, and the canonical plan link', asy
     assert.equal(JSON.stringify(row).includes('999999'), false);
     assert.equal(row.wants_quarterly, 1);
     assert.equal(row.wants_january, 1);
+    assert.equal(row.consent_version, CONSENT_VERSION);
 });
 
 test('a second signup refreshes the link and keeps the original token', async () => {
@@ -294,9 +314,12 @@ test('a one-click unsubscribe from a mail client deletes by token', async () => 
         json: false,
         headers: { 'sec-fetch-site': 'cross-site', origin: 'https://mail.google.com' }
     }), env);
-    assert.equal(click.status, 200);
+    assert.equal(click.status, 204);
+    assert.equal(await click.text(), '');
     assert.equal(db.signups.size, 0);
     assert.equal(db.sends.size, 0);
+    assert.equal(db.suppressions.size, 1);
+    assert.equal(await suppressionReason(db, 'click@example.com'), 'unsubscribe');
 
     const unknown = await handleUnsubscribe(post(`https://firecalc.ai/api/unsubscribe?token=${'c'.repeat(64)}`, {
         'List-Unsubscribe': 'One-Click'
@@ -305,9 +328,67 @@ test('a one-click unsubscribe from a mail client deletes by token', async () => 
         json: false,
         headers: { 'sec-fetch-site': 'cross-site', origin: 'https://mail.google.com' }
     }), env);
-    const unknownBody = await unknown.json();
-    assert.equal(unknown.status, 200);
-    assert.match(unknownBody.message, /If that email was on the list/);
+    assert.equal(unknown.status, 204);
+    assert.equal(await unknown.text(), '');
+    assert.equal(db.suppressions.size, 1);
+});
+
+test('GET /api/unsubscribe redirects to the human page and keeps the token', async () => {
+    const env = { FIRECALC_SIGNUPS: memoryDb() };
+    const token = 'ab'.repeat(32);
+    const res = await handleUnsubscribe(new Request(`https://firecalc.ai/api/unsubscribe?token=${token}`, {
+        headers: { host: 'firecalc.ai' }
+    }), env);
+    assert.equal(res.status, 302);
+    assert.equal(res.headers.get('location'), `https://firecalc.ai/unsubscribe?token=${token}`);
+
+    const local = await handleUnsubscribe(new Request(`http://127.0.0.1:8791/api/unsubscribe?token=${token}`, {
+        headers: { host: '127.0.0.1:8791' }
+    }), env);
+    assert.equal(local.status, 302);
+    assert.equal(local.headers.get('location'), `http://127.0.0.1:8791/unsubscribe?token=${token}`);
+});
+
+test('an unsubscribed address is not stored again without consent, and a complaint is not cleared', async () => {
+    const db = memoryDb();
+    const env = { FIRECALC_SIGNUPS: db };
+    const email = 'again@example.com';
+    await handleSignup(post('https://firecalc.ai/api/signup', {
+        email, consent: true, source: 'calculator', planUrl: PLAN
+    }, { ip: '203.0.113.90' }), env);
+    const token = db.signups.get(email).unsubscribe_token;
+    const removed = await handleUnsubscribe(post('https://firecalc.ai/api/unsubscribe', { token }, { ip: '203.0.113.91' }), env);
+    assert.equal(removed.status, 200);
+    assert.equal(db.signups.size, 0);
+    assert.equal(await suppressionReason(db, email), 'unsubscribe');
+
+    const noConsent = await handleSignup(post('https://firecalc.ai/api/signup', {
+        email, consent: false, source: 'calculator', planUrl: PLAN
+    }, { ip: '203.0.113.92' }), env);
+    assert.equal(noConsent.status, 400);
+    assert.equal(db.signups.size, 0);
+    assert.equal(await suppressionReason(db, email), 'unsubscribe');
+
+    const restored = await handleSignup(post('https://firecalc.ai/api/signup', {
+        email, consent: true, source: 'calculator', planUrl: PLAN
+    }, { ip: '203.0.113.93' }), env);
+    assert.equal(restored.status, 200);
+    assert.equal(db.signups.size, 1);
+    assert.equal(db.signups.get(email).consent_version, CONSENT_VERSION);
+    assert.equal(await suppressionReason(db, email), null);
+
+    for (const reason of ['complaint', 'hard_bounce', 'provider']) {
+        const banned = `${reason}@example.com`;
+        await suppressAddress(db, banned, reason);
+        const refused = await handleSignup(post('https://firecalc.ai/api/signup', {
+            email: banned, consent: true, source: 'calculator', planUrl: PLAN
+        }, { ip: '203.0.113.94' }), env);
+        assert.equal(refused.status, 400);
+        assert.match((await refused.json()).error, /not accepted/);
+        assert.equal(db.signups.has(banned), false);
+        assert.equal(await suppressionReason(db, banned), reason);
+        assert.equal(db.suppressions.get(await emailHash(banned)).reason, reason);
+    }
 });
 
 test('GET is not a compute or signup route', async () => {

@@ -2,8 +2,9 @@ import { deferralWhatIf, evaluatePlan, snapshotFrom } from './plan.js';
 import { yearLimits } from './limits.js';
 import { renderJanuary, listHeaders } from './render.js';
 import { renderQuarterly } from './render.js';
-import { mailFor, postalReady, sendingEnabled } from './schedule.js';
+import { mailFor, postalAddress, sendBlockers } from './schedule.js';
 import { ensureMailSchema } from './schema.js';
+import { suppressAddress, suppressionReason } from './suppress.js';
 
 export { ensureMailSchema };
 
@@ -40,21 +41,23 @@ async function alreadySent(db, email, kind, period) {
     const row = await db.prepare(
         'SELECT status FROM email_sends WHERE email = ? AND kind = ? AND period = ?'
     ).bind(email, kind, period).first();
-    return row && row.status === 'sent';
+    return row && (row.status === 'sent' || row.status === 'suppressed');
 }
 
 export async function recordSend(db, { email, kind, period, status, planUrl, detail }) {
     const now = new Date().toISOString();
     try {
-        await db.prepare(`INSERT INTO email_sends (email, kind, period, status, plan_url, detail, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+        const campaign = `${kind}:${period}`;
+        await db.prepare(`INSERT INTO email_sends (email, kind, period, status, plan_url, detail, created_at, campaign)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(email, kind, period) DO UPDATE SET
                 status = excluded.status,
                 plan_url = excluded.plan_url,
                 detail = excluded.detail,
-                created_at = excluded.created_at
+                created_at = excluded.created_at,
+                campaign = excluded.campaign
             WHERE email_sends.status != 'sent'`).bind(
-            email, kind, period, status, planUrl || null, detail || null, now
+            email, kind, period, status, planUrl || null, detail || null, now, campaign
         ).run();
     } catch (err) {
         if (!/UNIQUE/i.test(String(err && err.message || err))) throw err;
@@ -83,14 +86,18 @@ export async function runCampaign(db, env, options = {}) {
     await ensureMailSchema(db);
     const now = options.now || new Date();
     const force = !!options.force;
-    const postal = env.MAIL_POSTAL_ADDRESS || '';
-    const live = options.live != null ? options.live : sendingEnabled(env);
-    const addressReady = postalReady(postal);
+    const blockers = sendBlockers(env);
+    const postal = postalAddress(env);
+    const postalBlocked = blockers.includes('POSTAL_ADDRESS');
+    const live = options.live != null ? options.live : !blockers.includes('DRY_RUN');
     const batch = options.batch || BATCH;
     const rows = (await db.prepare(
         'SELECT email, plan_url, unsubscribe_token, wants_quarterly, wants_january FROM signups'
     ).all()).results || [];
     const summary = { considered: 0, sent: 0, dryRun: 0, blocked: 0, skipped: 0, already: 0 };
+    if (blockers.length) {
+        console.error(JSON.stringify({ event: 'mail-blocked', blockers }));
+    }
     for (const row of rows) {
         if (summary.considered >= batch) break;
         const decision = mailFor(now, {
@@ -103,6 +110,18 @@ export async function runCampaign(db, env, options = {}) {
         if (!decision) continue;
         if (await alreadySent(db, row.email, decision.kind, decision.period)) {
             summary.already += 1;
+            continue;
+        }
+        const held = await suppressionReason(db, row.email);
+        if (held) {
+            summary.blocked += 1;
+            await recordSend(db, {
+                email: row.email, kind: decision.kind, period: decision.period,
+                status: 'suppressed', planUrl: row.plan_url, detail: 'suppressed'
+            });
+            console.error(JSON.stringify({
+                event: 'mail-blocked', kind: decision.kind, period: decision.period, detail: 'suppressed', reason: held
+            }));
             continue;
         }
         summary.considered += 1;
@@ -125,6 +144,15 @@ export async function runCampaign(db, env, options = {}) {
             console.error(JSON.stringify({ event: 'mail-blocked', kind: decision.kind, period: decision.period, detail: built.detail }));
             continue;
         }
+        if (postalBlocked) {
+            summary.blocked += 1;
+            await recordSend(db, {
+                email: row.email, kind: decision.kind, period: decision.period,
+                status: 'blocked', planUrl: row.plan_url, detail: 'POSTAL_ADDRESS'
+            });
+            console.error(JSON.stringify({ event: 'mail-blocked', kind: decision.kind, period: decision.period, detail: 'POSTAL_ADDRESS' }));
+            continue;
+        }
         if (!live) {
             summary.dryRun += 1;
             await recordSend(db, {
@@ -132,15 +160,6 @@ export async function runCampaign(db, env, options = {}) {
                 status: 'dry_run', planUrl: row.plan_url, detail: 'dry run'
             });
             if (options.capture) options.capture.push({ email: row.email, ...built, decision });
-            continue;
-        }
-        if (!addressReady) {
-            summary.blocked += 1;
-            await recordSend(db, {
-                email: row.email, kind: decision.kind, period: decision.period,
-                status: 'blocked', planUrl: row.plan_url, detail: 'postal address is still the placeholder'
-            });
-            console.error(JSON.stringify({ event: 'mail-blocked', kind: decision.kind, period: decision.period, detail: 'postal address' }));
             continue;
         }
         try {
@@ -155,9 +174,12 @@ export async function runCampaign(db, env, options = {}) {
         } catch (err) {
             summary.blocked += 1;
             const code = err && err.code ? String(err.code) : 'send failed';
+            if (code === 'E_RECIPIENT_SUPPRESSED') await suppressAddress(db, row.email, 'provider');
             await recordSend(db, {
                 email: row.email, kind: decision.kind, period: decision.period,
-                status: 'blocked', planUrl: row.plan_url, detail: code
+                status: code === 'E_RECIPIENT_SUPPRESSED' ? 'suppressed' : 'blocked',
+                planUrl: row.plan_url,
+                detail: code === 'E_RECIPIENT_SUPPRESSED' ? 'suppressed' : code
             });
             console.error(JSON.stringify({ event: 'mail-send-failed', kind: decision.kind, period: decision.period, code }));
             continue;

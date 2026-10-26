@@ -33,6 +33,9 @@ name = "EMAIL"
 [vars]
 MAIL_FROM = "updates@firecalc.ai"
 MAIL_FROM_NAME = "FIREcalc"
+# CAN-SPAM footer. Public in every email. Not a secret.
+# Sends stay blocked while this is empty or still the placeholder.
+# POSTAL_ADDRESS is read only when MAIL_POSTAL_ADDRESS is unset.
 MAIL_POSTAL_ADDRESS = "POSTAL ADDRESS NEEDED"
 DRY_RUN = "true"
 MAIL_BATCH = "25"

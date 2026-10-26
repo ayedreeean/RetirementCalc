@@ -37,6 +37,14 @@ export function mailFor(date, prefs, { force = false } = {}) {
 
 export const POSTAL_PLACEHOLDER = 'POSTAL ADDRESS NEEDED';
 
+export function postalAddress(env) {
+    if (!env) return '';
+    const value = env.MAIL_POSTAL_ADDRESS != null && env.MAIL_POSTAL_ADDRESS !== ''
+        ? env.MAIL_POSTAL_ADDRESS
+        : env.POSTAL_ADDRESS;
+    return String(value || '').trim();
+}
+
 export function postalReady(value) {
     const text = String(value || '').trim();
     return text.length >= 8 && text !== POSTAL_PLACEHOLDER;
@@ -44,4 +52,14 @@ export function postalReady(value) {
 
 export function sendingEnabled(env) {
     return !!(env && env.DRY_RUN === 'false');
+}
+
+// Same idea as cubes-mahjong commercialSendBlockers: a send is refused while
+// the postal address is unset, and while DRY_RUN is not exactly "false".
+// Either blocker is enough. Dry-run rendering does not use this.
+export function sendBlockers(env) {
+    const blockers = [];
+    if (!sendingEnabled(env)) blockers.push('DRY_RUN');
+    if (!postalReady(postalAddress(env))) blockers.push('POSTAL_ADDRESS');
+    return blockers;
 }

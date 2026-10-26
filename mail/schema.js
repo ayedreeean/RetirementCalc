@@ -11,7 +11,8 @@ export async function ensureMailSchema(db) {
             source TEXT,
             unsubscribe_token TEXT NOT NULL,
             wants_quarterly INTEGER NOT NULL DEFAULT 1,
-            wants_january INTEGER NOT NULL DEFAULT 1
+            wants_january INTEGER NOT NULL DEFAULT 1,
+            consent_version TEXT NOT NULL DEFAULT '2026-10-26.1'
         )`),
         db.prepare(`CREATE TABLE IF NOT EXISTS signup_rate (
             bucket TEXT PRIMARY KEY,
@@ -26,6 +27,7 @@ export async function ensureMailSchema(db) {
             plan_url TEXT,
             detail TEXT,
             created_at TEXT NOT NULL,
+            campaign TEXT,
             PRIMARY KEY (email, kind, period)
         )`),
         db.prepare(`CREATE TABLE IF NOT EXISTS plan_snapshots (
@@ -33,17 +35,27 @@ export async function ensureMailSchema(db) {
             plan_url TEXT NOT NULL,
             summary_json TEXT NOT NULL,
             saved_at TEXT NOT NULL
+        )`),
+        db.prepare(`CREATE TABLE IF NOT EXISTS email_suppressions (
+            email_hash TEXT PRIMARY KEY,
+            reason TEXT NOT NULL,
+            created_at TEXT NOT NULL
         )`)
     ]);
     for (const sql of [
         'ALTER TABLE signups ADD COLUMN wants_quarterly INTEGER NOT NULL DEFAULT 1',
-        'ALTER TABLE signups ADD COLUMN wants_january INTEGER NOT NULL DEFAULT 1'
+        'ALTER TABLE signups ADD COLUMN wants_january INTEGER NOT NULL DEFAULT 1',
+        `ALTER TABLE signups ADD COLUMN consent_version TEXT NOT NULL DEFAULT '2026-10-26.1'`,
+        'ALTER TABLE email_sends ADD COLUMN campaign TEXT'
     ]) {
         try { await db.prepare(sql).run(); }
         catch (err) {
             if (!/duplicate column/i.test(String(err && err.message || err))) throw err;
         }
     }
+    await db.prepare(
+        'CREATE UNIQUE INDEX IF NOT EXISTS email_sends_campaign_recipient ON email_sends(campaign, email)'
+    ).run();
 }
 
 export async function deleteSubscriber(db, email) {
