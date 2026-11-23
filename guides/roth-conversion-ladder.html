@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Roth conversion ladder basics for early retirement — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/roth-conversion-ladder">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="How a Roth conversion ladder uses the five-year rule, and what FIREcalc can test. The calculator does not track IRA accounts, clocks, or the 10% additional tax.">
+    <meta property="og:title" content="Roth conversion ladder basics for early retirement — FIREcalc">
+    <meta property="og:description" content="How a Roth conversion ladder uses the five-year rule, and what FIREcalc can test. The calculator does not track IRA accounts, clocks, or the 10% additional tax.">
+    <meta property="og:url" content="https://firecalc.ai/guides/roth-conversion-ladder">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Roth conversion ladder basics for early retirement — FIREcalc">
+    <meta name="twitter:description" content="How a Roth conversion ladder uses the five-year rule, and what FIREcalc can test. The calculator does not track IRA accounts, clocks, or the 10% additional tax.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/roth-conversion-ladder","name":"Roth conversion ladder: the rule, and what this calculator can test","url":"https://firecalc.ai/guides/roth-conversion-ladder","description":"How a Roth conversion ladder uses the five-year rule, and what FIREcalc can test. The calculator does not track IRA accounts, clocks, or the 10% additional tax.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"Article","headline":"Roth conversion ladder: the rule, and what this calculator can test","description":"How a Roth conversion ladder uses the five-year rule, and what FIREcalc can test. The calculator does not track IRA accounts, clocks, or the 10% additional tax.","datePublished":"2026-11-23","dateModified":"2026-11-23","author":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"publisher":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"image":"https://firecalc.ai/og-image.png","mainEntityOfPage":"https://firecalc.ai/guides/roth-conversion-ladder"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://firecalc.ai/guides"},{"@type":"ListItem","position":3,"name":"Roth conversion ladder: the rule, and what this calculator can test","item":"https://firecalc.ai/guides/roth-conversion-ladder"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does FIREcalc run a Roth conversion ladder?","acceptedAnswer":{"@type":"Answer","text":"No. It does not keep a traditional balance and a Roth balance, it does not age a five-year clock, and the early-withdrawal penalty is not in the engine. The counts below are a flat tax on spending."}},{"@type":"Question","name":"What is the five-year rule on a conversion?","acceptedAnswer":{"@type":"Answer","text":"IRS Publication 590-B says a separate five-year period applies to each conversion. Withdrawing the taxable part of that conversion inside the period can bring the 10% additional tax if you are under 59½. That clock is not the same five-year period that decides whether a distribution is qualified."}},{"@type":"Question","name":"What order does a Roth distribution come out in?","acceptedAnswer":{"@type":"Answer","text":"Publication 590-B’s ordering rules for a nonqualified distribution are regular contributions first, then conversions and rollovers first-in first-out (taxable portion of each conversion first), then earnings."}},{"@type":"Question","name":"Why did a 22% rate fail more often?","acceptedAnswer":{"@type":"Answer","text":"Because the portfolio draw rose from $40,000 to $51,282. On the shuffled paths the count moved from 963 of 1,000 to 845 of 1,000. That is the cost of paying tax from the portfolio in this simple model, not a computed ladder."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=15">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/guides">Guides</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <a href="/guides">Guides</a> · <span aria-current="page">Roth conversion ladder</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Accounts and tax</p>
+            <h1 class="display">Roth conversion ladder: the rule, and what this calculator can test</h1>
+            <p class="lede">A Roth conversion ladder is a way some early retirees get at traditional IRA money before age 59½: convert a slice each year, pay income tax on the conversion, and withdraw that slice after its own five-year period. FIREcalc does not track accounts, conversion years, or the 10% additional tax. It can show what happens when the portfolio also pays a simple tax on the spending.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=45&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open $40,000 with 0% tax</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=45&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=12&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Same plan at a 12% simple rate</a><a class="btn btn-ghost" href="/?tab=retirement&amp;retirementAge=45&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=22&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Same plan at 22%</a></div>
+            <p class="hero-hint">A 12% or 22% rate is a typed stress, not the tax a real conversion would owe. Simple mode divides spending by 1 minus the rate. It is not a bracket calculation and not a ladder.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>Money in a traditional IRA is generally taxed when it comes out. A distribution before age 59½ is also generally subject to a 10% additional tax unless an exception applies. A conversion to a Roth IRA moves the money, and the amount you convert is included in income for that year. The planning habit called a ladder is to convert about one year of future spending each year, pay that income tax, and spend the converted dollars after the conversion’s own five-year period, instead of taking a penalized traditional withdrawal.</p>
+            <h2>The two five-year rules</h2>
+            <p><a href="https://www.irs.gov/publications/p590b">IRS Publication 590-B</a> describes both clocks. A distribution is qualified, and earnings can come out tax-free, only after a five-year period that starts with the first Roth contribution and only if you are 59½, disabled, deceased, or using the first-home exception. Separately, each conversion has its own five-year period, starting on the first day of the tax year of that conversion. Take out the taxable portion of a conversion inside that period, while you are under 59½, and the 10% additional tax can apply to that portion even though you already included the conversion in income. Publication 590-B says these two periods are not necessarily the same.</p>
+            <p>The ordering rules in that publication, for a distribution that is not qualified, are: regular contributions, then conversion and rollover contributions oldest first, and within each conversion the taxable portion before the nontaxable portion, then earnings. A ladder spends the conversion layer, not the earnings. This page is a sketch of those public rules, not a tax opinion and not a worksheet for your Form 8606.</p>
+            <h2>What the engine can show: tax paid from the portfolio</h2>
+            <p>If the tax on a conversion is paid by selling from the same portfolio, the portfolio has to fund spending plus tax. Simple tax mode does a blunt version of that. It divides spending by 1 minus the rate. It does not know that a ladder often converts in a low-income year, and it does not know your bracket. The rates below are stresses you can type, not a computed tax.</p>
+            <p>Age 45, $1,000,000, $40,000 of spending, 60% stocks, 40-year horizon, Social Security off. At 0%, the draw is $40,000. 963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. 11 of 11 complete windows kept a balance above zero at the end of every year.</p>
+            <p>At a 12% simple rate the draw is $45,455. 919 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. 11 of 11 complete windows kept a balance above zero at the end of every year. At 22% the draw is $51,282. 845 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. 11 of 11 complete windows kept a balance above zero at the end of every year. The historical windows still all survived. The shuffled paths, which are the wider stress, did not.</p>
+            <dl class="plan-facts"><div><dt>Spending</dt><dd>$40,000</dd></div><div><dt>Draw at 12%</dt><dd>$45,455</dd></div><div><dt>Draw at 22%</dt><dd>$51,282</dd></div><div><dt>Shuffled, 0%</dt><dd>963 of 1,000</dd></div><div><dt>Shuffled, 12%</dt><dd>919 of 1,000</dd></div><div><dt>Shuffled, 22%</dt><dd>845 of 1,000</dd></div></dl>
+            <p class="callout">Detailed tax mode in the calculator uses 2025 federal brackets on a withdrawal. It still does not track a conversion clock, and “optimize withdrawal order” does not change the result, because separate account balances are not tracked. Pay the tax from cash outside the portfolio and this illustration overstates the damage. This is not tax advice.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Does FIREcalc run a Roth conversion ladder?</h3><p>No. It does not keep a traditional balance and a Roth balance, it does not age a five-year clock, and the early-withdrawal penalty is not in the engine. The counts below are a flat tax on spending.</p><h3>What is the five-year rule on a conversion?</h3><p>IRS Publication 590-B says a separate five-year period applies to each conversion. Withdrawing the taxable part of that conversion inside the period can bring the 10% additional tax if you are under 59½. That clock is not the same five-year period that decides whether a distribution is qualified.</p><h3>What order does a Roth distribution come out in?</h3><p>Publication 590-B’s ordering rules for a nonqualified distribution are regular contributions first, then conversions and rollovers first-in first-out (taxable portion of each conversion first), then earnings.</p><h3>Why did a 22% rate fail more often?</h3><p>Because the portfolio draw rose from $40,000 to $51,282. On the shuffled paths the count moved from 963 of 1,000 to 845 of 1,000. That is the cost of paying tax from the portfolio in this simple model, not a computed ladder.</p>
+        </div>
+        <form class="plan-signup" id="email-plan" data-signup action="/api/signup" method="post" data-source="roth-conversion-ladder">
+            <h2 id="signup-title">Email me my plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-roth-conversion-ladder">Email</label>
+                <input id="email-roth-conversion-ladder" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="roth-conversion-ladder">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=retirement&amp;retirementAge=45&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/roth-conversion-ladder">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Related guides</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li><li><a class="guide-card" href="/guides/safe-withdrawal-rate"><strong>Safe withdrawal rate</strong><span>4%, 3.5%, 3.25%, and 3% on one portfolio.</span></a></li><li><a class="guide-card" href="/guides/social-security-early-retirement"><strong>Social Security</strong><span>Claiming at 62, 67, or 70 after years with no check.</span></a></li><li><a class="guide-card" href="/guides/retiring-early-with-kids"><strong>Retiring early with kids</strong><span>College and health premiums live inside the spending number.</span></a></li></ul><p><a href="/guides">All guides</a></p></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides">Guides</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>

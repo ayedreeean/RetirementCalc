@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Safe withdrawal rate vs the 4% rule (3.5% and 3.25%) — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/safe-withdrawal-rate">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Compare 4%, 3.5%, 3.25%, and 3% on the same $1 million portfolio, for 30 and 40 years. This is the 1975–2024 sample, not the full Trinity study.">
+    <meta property="og:title" content="Safe withdrawal rate vs the 4% rule (3.5% and 3.25%) — FIREcalc">
+    <meta property="og:description" content="Compare 4%, 3.5%, 3.25%, and 3% on the same $1 million portfolio, for 30 and 40 years. This is the 1975–2024 sample, not the full Trinity study.">
+    <meta property="og:url" content="https://firecalc.ai/guides/safe-withdrawal-rate">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Safe withdrawal rate vs the 4% rule (3.5% and 3.25%) — FIREcalc">
+    <meta name="twitter:description" content="Compare 4%, 3.5%, 3.25%, and 3% on the same $1 million portfolio, for 30 and 40 years. This is the 1975–2024 sample, not the full Trinity study.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/safe-withdrawal-rate","name":"Safe withdrawal rate: 4%, 3.5%, and 3.25% on one portfolio","url":"https://firecalc.ai/guides/safe-withdrawal-rate","description":"Compare 4%, 3.5%, 3.25%, and 3% on the same $1 million portfolio, for 30 and 40 years. This is the 1975–2024 sample, not the full Trinity study.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"Article","headline":"Safe withdrawal rate: 4%, 3.5%, and 3.25% on one portfolio","description":"Compare 4%, 3.5%, 3.25%, and 3% on the same $1 million portfolio, for 30 and 40 years. This is the 1975–2024 sample, not the full Trinity study.","datePublished":"2026-11-23","dateModified":"2026-11-23","author":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"publisher":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"image":"https://firecalc.ai/og-image.png","mainEntityOfPage":"https://firecalc.ai/guides/safe-withdrawal-rate"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://firecalc.ai/guides"},{"@type":"ListItem","position":3,"name":"Safe withdrawal rate: 4%, 3.5%, and 3.25% on one portfolio","item":"https://firecalc.ai/guides/safe-withdrawal-rate"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is 3.5% safer than 4% here?","acceptedAnswer":{"@type":"Answer","text":"On the shuffled paths, yes for this portfolio. At 40 years, 4% survived on 963 of 1,000 and 3.5% survived on 981 of 1,000. The historical windows survived at both rates, and those windows omit 1966 and 1973–74."}},{"@type":"Question","name":"Why do all the historical windows survive?","acceptedAnswer":{"@type":"Answer","text":"Because every complete window in this file starts in 1975 or later. The published 4% research included worse start years than this table has. A perfect historical score here is not a repeat of that research."}},{"@type":"Question","name":"What is the Trinity study?","acceptedAnswer":{"@type":"Answer","text":"The 1998 paper by Cooley, Hubbard, and Walz, and Bengen’s 1994 paper before it, studied historical US stock and bond cohorts and an inflation-adjusted withdrawal. People summarize that work as the 4% rule for a 30-year retirement. FIREcalc does not rerun their data set."}},{"@type":"Question","name":"Does a 15% tax still count as 3.5%?","acceptedAnswer":{"@type":"Answer","text":"No. Simple tax grosses the withdrawal up. A rate test on this page uses a 0% tax, or you type a smaller spending number so the pre-tax draw is the rate you meant."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=15">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/guides">Guides</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <a href="/guides">Guides</a> · <span aria-current="page">Withdrawal rate</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Spending rate</p>
+            <h1 class="display">Safe withdrawal rate: 4%, 3.5%, and 3.25% on one portfolio</h1>
+            <p class="lede">A safe withdrawal rate is the first-year spending, as a share of the portfolio, that you are willing to test with later years raised for inflation. On $1 million and a 60/40 mix, a 4% spend is $40,000. In this 1975–2024 sample, 21 of 21 thirty-year windows survived, and 985 of 1,000 shuffled 30-year paths survived. Stretch the horizon to 40 years and the shuffled count is 963 of 1,000. This is not a full-history Trinity study.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open 4% for 40 years</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=35000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open 3.5% for 40 years</a><a class="btn btn-ghost" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=32500&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open 3.25%, shuffled</a></div>
+            <p class="hero-hint">Every row is the same $1 million, 60% stocks, 0% tax, inflation on, Social Security off. Only spending and the horizon change. Tax at 0% is what keeps the draw equal to the rate.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>Bengen’s 1994 paper and the Trinity study (Cooley, Hubbard, and Walz, 1998) are why people say “4%.” They looked at historical US retirements, including bad starts in the late 1960s, and an inflation-adjusted withdrawal. A 4% first year, raised with inflation after that, is the figure that work made famous for a 30-year retirement. Early retirees often test 3.5% or 3.25% because their horizon is longer than 30 years and because that older sample is not a forecast.</p>
+            <p>FIREcalc can run the arithmetic. It cannot rerun Trinity. The file starts in 1975.</p>
+            <h2>One million dollars, four rates, two lengths</h2>
+            <p>Stocks 60%, 10-year Treasuries 40%, tax 0%, Social Security off, spending raised with CPI from year two. The 30-year runs use retirement age 65. The 40-year runs use age 50. Age does not change these counts, because no benefit turns on. The horizon does.</p>
+            <table class="year-table"><thead><tr><th>First-year rate</th><th>Spending</th><th>30-year windows</th><th>30-year shuffled</th><th>40-year windows</th><th>40-year shuffled</th></tr></thead><tbody><tr><td>4%</td><td>$40,000</td><td>21 of 21</td><td>985 of 1,000</td><td>11 of 11</td><td>963 of 1,000</td></tr><tr><td>3.5%</td><td>$35,000</td><td>21 of 21</td><td>992 of 1,000</td><td>11 of 11</td><td>981 of 1,000</td></tr><tr><td>3.25%</td><td>$32,500</td><td>21 of 21</td><td>998 of 1,000</td><td>11 of 11</td><td>988 of 1,000</td></tr><tr><td>3%</td><td>$30,000</td><td>21 of 21</td><td>1,000 of 1,000</td><td>11 of 11</td><td>990 of 1,000</td></tr></tbody></table>
+            <p>At 3.25%, spending is $32,500. The 40-year shuffled count is 988 of 1,000, against 963 of 1,000 at 4%. At 3%, spending is $30,000. Read the table across a row before you treat a round number as safe. Then open the button and change the stock share. A different mix is a different result, and the Treasury series is not a total-bond fund. It lost 17.83% in 2022.</p>
+            <dl class="plan-facts"><div><dt>Portfolio</dt><dd>$1,000,000</dd></div><div><dt>4%</dt><dd>$40,000</dd></div><div><dt>3.5%</dt><dd>$35,000</dd></div><div><dt>3.25%</dt><dd>$32,500</dd></div><div><dt>30-year windows</dt><dd>21</dd></div><div><dt>40-year windows</dt><dd>11</dd></div></dl>
+            <p class="callout">The <a href="/guides/four-percent-rule">4% rule page</a> uses a 50/50 mix and walks the six named stress packs. This page uses 60/40 and compares rates. Neither one is the Trinity data set. This is an illustration, not advice.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Is 3.5% safer than 4% here?</h3><p>On the shuffled paths, yes for this portfolio. At 40 years, 4% survived on 963 of 1,000 and 3.5% survived on 981 of 1,000. The historical windows survived at both rates, and those windows omit 1966 and 1973–74.</p><h3>Why do all the historical windows survive?</h3><p>Because every complete window in this file starts in 1975 or later. The published 4% research included worse start years than this table has. A perfect historical score here is not a repeat of that research.</p><h3>What is the Trinity study?</h3><p>The 1998 paper by Cooley, Hubbard, and Walz, and Bengen’s 1994 paper before it, studied historical US stock and bond cohorts and an inflation-adjusted withdrawal. People summarize that work as the 4% rule for a 30-year retirement. FIREcalc does not rerun their data set.</p><h3>Does a 15% tax still count as 3.5%?</h3><p>No. Simple tax grosses the withdrawal up. A rate test on this page uses a 0% tax, or you type a smaller spending number so the pre-tax draw is the rate you meant.</p>
+        </div>
+        <form class="plan-signup" id="email-plan" data-signup action="/api/signup" method="post" data-source="safe-withdrawal-rate">
+            <h2 id="signup-title">Email me my plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-safe-withdrawal-rate">Email</label>
+                <input id="email-safe-withdrawal-rate" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="safe-withdrawal-rate">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/safe-withdrawal-rate">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Related guides</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li><li><a class="guide-card" href="/guides/sequence-of-returns"><strong>Sequence of returns</strong><span>Same plan, eleven start years, very different endings.</span></a></li><li><a class="guide-card" href="/guides/fire-number"><strong>What is my FIRE number?</strong><span>Spending divided by the withdrawal rate you are willing to test.</span></a></li><li><a class="guide-card" href="/guides/retire-at-40"><strong>Retire at 40</strong><span>A 50-year horizon has one complete window in this sample.</span></a></li></ul><p><a href="/guides">All guides</a></p></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides">Guides</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>

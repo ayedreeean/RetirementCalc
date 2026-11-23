@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { engine } from './mcp/engine.mjs';
-import { CONSENT_TEXT } from './functions/_lib/signup.js';
+import { CONSENT_TEXT, SOURCES, ALLOWED_RETURNS } from './functions/_lib/signup.js';
+import { PLANS, runSavings, runRetirement, swrPlan } from './content/scenarios.mjs';
 
 const { FirecalcSim: Sim, FirecalcIO: IO, FirecalcPacks: Packs } = engine;
 const read = (path) => readFileSync(path, 'utf8');
@@ -67,7 +68,7 @@ test('guide pages are indexable, consented, and deep-link real share params', ()
     const robots = read('robots.txt');
     assert.match(robots, /Disallow:\s*\/api\//);
     assert.match(robots, /Allow:\s*\/app\.js/);
-    assert.match(sitemap, /<lastmod>2026-09-25<\/lastmod>/);
+    assert.match(sitemap, /<loc>https:\/\/firecalc\.ai\/<\/loc>\s*<lastmod>2026-11-23<\/lastmod>/);
     for (const file of PAGES) {
         const html = read(file);
         const slug = file.slice('guides/'.length, -'.html'.length);
@@ -183,4 +184,140 @@ test('signup code does not run the simulator, and the privacy policy covers the 
     assert.ok(home.includes(CONSENT_TEXT));
     assert.match(home, /G-57CCGCXNJT/);
     assert.doesNotMatch(read('wrangler.toml'), /^\s*pages_build_output_dir\s*=/m);
+});
+
+const NEW_PAGES = [
+    ['guides/index.html', '/guides', null],
+    ['guides/lean-fire.html', '/guides/lean-fire', 'lean-fire'],
+    ['guides/fat-fire.html', '/guides/fat-fire', 'fat-fire'],
+    ['guides/barista-fire.html', '/guides/barista-fire', 'barista-fire'],
+    ['guides/retire-at-40.html', '/guides/retire-at-40', 'retire-at-40'],
+    ['guides/retire-at-45.html', '/guides/retire-at-45', 'retire-at-45'],
+    ['guides/retire-at-50.html', '/guides/retire-at-50', 'retire-at-50'],
+    ['guides/sequence-of-returns.html', '/guides/sequence-of-returns', 'sequence-of-returns'],
+    ['guides/roth-conversion-ladder.html', '/guides/roth-conversion-ladder', 'roth-conversion-ladder'],
+    ['guides/retiring-early-with-kids.html', '/guides/retiring-early-with-kids', 'retiring-early-with-kids'],
+    ['guides/safe-withdrawal-rate.html', '/guides/safe-withdrawal-rate', 'safe-withdrawal-rate'],
+    ['guides/fire-number.html', '/guides/fire-number', 'fire-number'],
+    ['guides/social-security-early-retirement.html', '/guides/social-security-early-retirement', 'social-security-early-retirement'],
+    ['guides/market-crash-at-retirement.html', '/guides/market-crash-at-retirement', 'market-crash-at-retirement'],
+    ['coast-fire-calculator.html', '/coast-fire-calculator', 'coast-fire-calculator'],
+    ['fire-number-calculator.html', '/fire-number-calculator', 'fire-number-calculator'],
+    ['lean-fire-calculator.html', '/lean-fire-calculator', 'lean-fire-calculator'],
+    ['barista-fire-calculator.html', '/barista-fire-calculator', 'barista-fire-calculator']
+];
+
+test('new guides and calculator pages are static HTML with real engine numbers', () => {
+    const sitemap = read('sitemap.xml');
+    const llms = read('llms.txt');
+    const hub = read('guides/index.html');
+    const home = read('index.html');
+    const robots = read('robots.txt');
+    assert.match(robots, /Allow:\s*\//);
+    assert.match(robots, /Sitemap:\s*https:\/\/firecalc\.ai\/sitemap\.xml/);
+    assert.match(home, /href="\/guides"/);
+    assert.ok(hub.includes('Lean FIRE'));
+    assert.ok(hub.includes('/guides/roth-conversion-ladder'));
+    const { FirecalcIO: IO } = engine;
+
+    for (const [file, path, source] of NEW_PAGES) {
+        const html = read(file);
+        assert.match(html, new RegExp(`<link rel="canonical" href="https://firecalc.ai${path}">`));
+        assert.match(html, new RegExp(`<meta property="og:url" content="https://firecalc.ai${path}">`));
+        assert.match(html, /<meta property="og:image" content="https:\/\/firecalc\.ai\/og-image\.png">/);
+        assert.match(html, /<meta name="description" content="[^"]{40,}"/);
+        assert.match(html, /<h1 class="display">[^<]+<\/h1>/);
+        assert.match(html, /"@type":"FAQPage"/);
+        assert.match(html, /"@type":"Article"/);
+        assert.match(html, /"@type":"BreadcrumbList"/);
+        assert.match(html, /1975/);
+        assert.doesNotMatch(html, /OpenAI|Bloomberg aggregate|1975–2020|1975-2020/i);
+        assert.doesNotMatch(html, /href="\/\?[^"]*&(?!amp;)/);
+        assert.match(sitemap, new RegExp(`<loc>https://firecalc.ai${path}</loc>\\s*<lastmod>2026-11-23</lastmod>`));
+        assert.ok(llms.includes(`https://firecalc.ai${path}`), path);
+        if (path !== '/guides') assert.ok(hub.includes(`href="${path}"`), path);
+        const links = [...html.matchAll(/href="(\/\?[^"]+)"/g)].map(item => item[1].replace(/&amp;/g, '&'));
+        if (path !== '/guides') assert.ok(links.length >= 1, file);
+        for (const link of links) {
+            const parsed = IO.parseShareParams(link.replace(/^\//, ''));
+            assert.equal(parsed.empty, false, link);
+            assert.ok(parsed.kind === 'accumulation' || parsed.kind === 'retirement', link);
+        }
+        if (source) {
+            assert.ok(html.includes(CONSENT_TEXT), file);
+            assert.equal(html.match(/data-source="([^"]+)"/)[1], source);
+            assert.ok(SOURCES.has(source), source);
+            assert.equal(html.match(/name="return_to" value="([^"]+)"/)[1], path);
+            assert.ok(ALLOWED_RETURNS.has(path), path);
+            assert.match(html, /action="\/api\/signup"/);
+        } else {
+            assert.doesNotMatch(html, /data-signup/);
+        }
+        assert.doesNotMatch(html, /runRetirementTrial|runAccumulationTrial/);
+    }
+
+    const lean = read('guides/lean-fire.html');
+    const leanSave = runSavings(PLANS.leanSave);
+    const leanRet = runRetirement(PLANS.leanRetShuf);
+    assert.match(lean, new RegExp(`the median path takes ${leanSave.median} years`));
+    assert.match(lean, new RegExp(`${leanRet.successes} of ${leanRet.n.toLocaleString('en-US')}`));
+
+    const bar = read('guides/barista-fire.html');
+    const barOff = runRetirement(PLANS.barOff);
+    const barOn = runRetirement(PLANS.barOnShuf);
+    assert.match(bar, new RegExp(`${barOff.successes} of ${barOff.n}`));
+    assert.match(bar, new RegExp(`${barOn.successes} of ${barOn.n.toLocaleString('en-US')}`));
+
+    const at40 = read('guides/retire-at-40.html');
+    const save40 = runSavings(PLANS.r40Save);
+    const ret40 = runRetirement(PLANS.r40Ret);
+    assert.match(at40, new RegExp(`the median path takes ${save40.median} years`));
+    assert.match(at40, new RegExp(`${ret40.successes} of ${ret40.n}`));
+    assert.match(at40, /one complete 50-year window|1 complete 50-year window|has 1 complete/);
+
+    const swr = read('guides/safe-withdrawal-rate.html');
+    const four = runRetirement(swrPlan(40000, 40, 'shuffled'));
+    const three = runRetirement(swrPlan(32500, 40, 'shuffled'));
+    assert.match(swr, new RegExp(`${four.successes} of 1,000`));
+    assert.match(swr, new RegExp(`${three.successes} of 1,000`));
+    assert.match(swr, /not a full-history Trinity study/);
+
+    const crash = read('guides/market-crash-at-retirement.html');
+    assert.match(crash, /2000–2024, 25 years/);
+    assert.match(crash, /2008–2024, 17 years/);
+    assert.match(crash, /2022–2024, 3 years/);
+    assert.match(crash, /−14\.16%/);
+    assert.match(crash, /−17\.96%/);
+
+    const ladder = read('guides/roth-conversion-ladder.html');
+    const tax0 = runRetirement(PLANS.tax0);
+    const tax22 = runRetirement(PLANS.tax22);
+    assert.match(ladder, new RegExp(`${tax0.successes} of 1,000`));
+    assert.match(ladder, new RegExp(`${tax22.successes} of 1,000`));
+    assert.match(ladder, /Publication 590-B/);
+    assert.match(ladder, /does not track accounts/);
+
+    const ss = read('guides/social-security-early-retirement.html');
+    const off = runRetirement(PLANS.ssOff);
+    const at67 = runRetirement(PLANS.ss67);
+    assert.match(ss, new RegExp(`${off.successes} of 1,000`));
+    assert.match(ss, new RegExp(`${at67.successes} of 1,000`));
+    assert.match(ss, /ssa\.gov/);
+
+    const kids = read('guides/retiring-early-with-kids.html');
+    const kid95 = runRetirement(PLANS.kids95);
+    assert.match(kids, new RegExp(`${kid95.successes} of ${kid95.n.toLocaleString('en-US')}`));
+    assert.match(kids, /irs\.gov\/taxtopics\/tc313/);
+    assert.match(kids, /no 529/i);
+
+    const seq = read('guides/sequence-of-returns.html');
+    const seqHist = runRetirement(PLANS.seq);
+    const low = seqHist.windows.reduce((a, b) => a.endReal < b.endReal ? a : b);
+    assert.match(seq, new RegExp(String(low.start)));
+    assert.match(seq, /\$3,619,589|\$13,102,244/);
+
+    const coast = read('coast-fire-calculator.html');
+    const coastSave = runSavings(PLANS.coast);
+    assert.match(coast, new RegExp(`the median path takes ${coastSave.median} years`));
+    assert.match(coast, /does not solve for/);
 });

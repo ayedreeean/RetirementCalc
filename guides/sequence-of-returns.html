@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sequence of returns risk in early retirement — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/sequence-of-returns">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="The same $1 million and $40,000 plan finishes in very different places depending on the start year. See every 40-year window from 1975 to 1985.">
+    <meta property="og:title" content="Sequence of returns risk in early retirement — FIREcalc">
+    <meta property="og:description" content="The same $1 million and $40,000 plan finishes in very different places depending on the start year. See every 40-year window from 1975 to 1985.">
+    <meta property="og:url" content="https://firecalc.ai/guides/sequence-of-returns">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Sequence of returns risk in early retirement — FIREcalc">
+    <meta name="twitter:description" content="The same $1 million and $40,000 plan finishes in very different places depending on the start year. See every 40-year window from 1975 to 1985.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/sequence-of-returns","name":"Sequence of returns risk: same plan, different start year","url":"https://firecalc.ai/guides/sequence-of-returns","description":"The same $1 million and $40,000 plan finishes in very different places depending on the start year. See every 40-year window from 1975 to 1985.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"Article","headline":"Sequence of returns risk: same plan, different start year","description":"The same $1 million and $40,000 plan finishes in very different places depending on the start year. See every 40-year window from 1975 to 1985.","datePublished":"2026-11-23","dateModified":"2026-11-23","author":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"publisher":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"image":"https://firecalc.ai/og-image.png","mainEntityOfPage":"https://firecalc.ai/guides/sequence-of-returns"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://firecalc.ai/guides"},{"@type":"ListItem","position":3,"name":"Sequence of returns risk: same plan, different start year","item":"https://firecalc.ai/guides/sequence-of-returns"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Did anyone run out of money?","acceptedAnswer":{"@type":"Answer","text":"Not in these 11 historical windows. 963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. Survival is not the same as an ending balance. The endings on this page differ by millions of today’s dollars."}},{"@type":"Question","name":"Why is the 1977 start the painful one here?","acceptedAnswer":{"@type":"Answer","text":"It is the complete 40-year window with the lowest ending balance in today’s dollars, $3,619,589, and its purchasing power fell to 64% of the start in 1981. The 1982 start never fell below the starting balance."}},{"@type":"Question","name":"Is this the famous 1966 retiree?","acceptedAnswer":{"@type":"Answer","text":"No. The table starts in 1975. A 1966 or 1973–74 retirement is not a window here. The spread you see is inside the years the file actually has."}},{"@type":"Question","name":"What should I do with the gap between endings?","acceptedAnswer":{"@type":"Answer","text":"Treat the worse window as information about order, not as a forecast of your retirement. Spending, the stock share, and a lower withdrawal rate move the whole set. Change one of them in the open calculator."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=15">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/guides">Guides</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <a href="/guides">Guides</a> · <span aria-current="page">Sequence of returns</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Order of returns</p>
+            <h1 class="display">Sequence of returns risk: same plan, different start year</h1>
+            <p class="lede">Sequence of returns risk is the damage from bad returns early, while you are withdrawing, even if the average return over the whole retirement would have been fine. On this $1 million, $40,000, 60/40 plan, all 11 complete 40-year windows survived. The 1977 window finished at $3,619,589 in today’s dollars. The 1982 window finished at $13,102,244.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open the historical windows</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Shuffle the same years</a><a class="btn btn-ghost" href="/guides/market-crash-at-retirement">Replay 2000, 2008, and 2022</a></div>
+            <p class="hero-hint">Historical cycles mode walks each start year in order. Shuffled years pull each year independently, which destroys the sequence on purpose. Use both.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>Two retirees can earn the same average return and end in different places if one of them gets the bad years first. Withdrawals turn a temporary loss into a permanent one, because you sell shares while prices are down and those shares are not there for the recovery. That is the sequence problem. A shuffled-year success rate, which draws each year independently, is a useful stress test and a bad picture of this particular risk.</p>
+            <h2>Eleven real 40-year sequences</h2>
+            <p>Portfolio $1,000,000. First-year spending $40,000, then raised with CPI. Stocks 60%, 10-year Treasuries 40%. Tax 0%. Social Security off. Horizon 40 years. 11 of 11 complete windows kept a balance above zero at the end of every year. The start years that fit are 1975 through 1985.</p>
+            <dl class="plan-facts"><div><dt>Portfolio</dt><dd>$1,000,000</dd></div><div><dt>Spending</dt><dd>$40,000</dd></div><div><dt>Mix</dt><dd>60 / 40</dd></div><div><dt>Lowest ending</dt><dd>$3,619,589</dd></div><div><dt>Highest ending</dt><dd>$13,102,244</dd></div><div><dt>Shuffled</dt><dd>963 of 1,000</dd></div></dl>
+            <p>The 1977 window is the low ending: $3,619,589 in today’s dollars, after a trough of 64% of the starting balance in 1981. The 1982 window finished at $13,102,244, and its lowest point was 100% of the start. Both paid the same $40,000 bills. The order of the years did the rest. Ending balances are purchasing power, portfolio divided by cumulative CPI, not a nominal scoreboard.</p>
+            <table class="year-table"><thead><tr><th>Start</th><th>Low, today’s $</th><th>Low year</th><th>Ending, today’s $</th></tr></thead><tbody><tr><td>1975</td><td>84%</td><td>1981</td><td>$5,884,168</td></tr><tr><td>1976</td><td>72%</td><td>1981</td><td>$4,443,735</td></tr><tr><td>1977</td><td>64%</td><td>1981</td><td>$3,619,589</td></tr><tr><td>1978</td><td>76%</td><td>1981</td><td>$5,905,354</td></tr><tr><td>1979</td><td>84%</td><td>1981</td><td>$6,830,360</td></tr><tr><td>1980</td><td>88%</td><td>1981</td><td>$8,890,275</td></tr><tr><td>1981</td><td>87%</td><td>1981</td><td>$9,810,287</td></tr><tr><td>1982</td><td>100%</td><td>1982</td><td>$13,102,244</td></tr><tr><td>1983</td><td>100%</td><td>1983</td><td>$7,791,710</td></tr><tr><td>1984</td><td>100%</td><td>1984</td><td>$7,869,301</td></tr><tr><td>1985</td><td>100%</td><td>1985</td><td>$8,528,759</td></tr></tbody></table>
+            <p>963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. Those paths are not the rows above. Each shuffled year is an independent draw, so a bad year is not followed by the year that actually followed it.</p>
+            <p class="callout">The named stress packs on the <a href="/guides/market-crash-at-retirement">crash page</a> are one path each, including stretches shorter than 40 years. They answer “what did this specific bad start do,” which is the sequence question in a single window.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Did anyone run out of money?</h3><p>Not in these 11 historical windows. 963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. Survival is not the same as an ending balance. The endings on this page differ by millions of today’s dollars.</p><h3>Why is the 1977 start the painful one here?</h3><p>It is the complete 40-year window with the lowest ending balance in today’s dollars, $3,619,589, and its purchasing power fell to 64% of the start in 1981. The 1982 start never fell below the starting balance.</p><h3>Is this the famous 1966 retiree?</h3><p>No. The table starts in 1975. A 1966 or 1973–74 retirement is not a window here. The spread you see is inside the years the file actually has.</p><h3>What should I do with the gap between endings?</h3><p>Treat the worse window as information about order, not as a forecast of your retirement. Spending, the stock share, and a lower withdrawal rate move the whole set. Change one of them in the open calculator.</p>
+        </div>
+        <form class="plan-signup" id="email-plan" data-signup action="/api/signup" method="post" data-source="sequence-of-returns">
+            <h2 id="signup-title">Email me my plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-sequence-of-returns">Email</label>
+                <input id="email-sequence-of-returns" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="sequence-of-returns">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=1000000&amp;annualWithdrawal=40000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/sequence-of-returns">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Related guides</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/market-crash-at-retirement"><strong>A crash in year one</strong><span>2000, 2008, and 2022 replayed on one plan.</span></a></li><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li><li><a class="guide-card" href="/guides/safe-withdrawal-rate"><strong>Safe withdrawal rate</strong><span>4%, 3.5%, 3.25%, and 3% on one portfolio.</span></a></li><li><a class="guide-card" href="/guides/retire-at-50"><strong>Retire at 50</strong><span>A 40-year retirement and the savings path that reaches it.</span></a></li></ul><p><a href="/guides">All guides</a></p></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides">Guides</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>

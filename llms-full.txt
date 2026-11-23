@@ -87,6 +87,21 @@ These pages are static. They do not calculate. A share link opens the calculator
 - https://firecalc.ai/guides/fire-calculator-for-families — one spending number for the household, and optional Social Security for a spouse. There is no per-child input, no 529, and no college module. A pension stays nominal.
 - https://firecalc.ai/guides/coast-fire — set income equal to spending and real raises to 0% so the contribution stays zero. The savings model does not solve for a coast number. If real raises stay above 0%, income outgrows spending and contributions resume.
 - https://firecalc.ai/guides/four-percent-rule — a 4% question only in Historical cycles mode, inside 1975–2024. A 30-year retirement has 21 windows. Shuffled years are a different statistic. The six named stress packs are one path each, not a success rate. This is not a full-history Trinity or Bengen study.
+- https://firecalc.ai/guides — index of the guides and the calculator landing pages. Static HTML.
+- https://firecalc.ai/guides/lean-fire and https://firecalc.ai/lean-fire-calculator — a small spending number on the same engine. Not a separate calculator.
+- https://firecalc.ai/guides/fat-fire — a high spending number. The percentage test does not change.
+- https://firecalc.ai/guides/barista-fire and https://firecalc.ai/barista-fire-calculator — part-time pay is other income. It stays nominal, and a duration of 0 means it lasts the whole horizon. There is no barista switch.
+- https://firecalc.ai/guides/retire-at-40 — a 50-year retirement has one complete window in this table. Shuffled years are the wider sample.
+- https://firecalc.ai/guides/retire-at-45 — 25× spending, then a 45-year withdrawal test. Six complete windows.
+- https://firecalc.ai/guides/retire-at-50 — a 40-year retirement. Eleven complete windows.
+- https://firecalc.ai/guides/sequence-of-returns — historical cycles of one plan. Survival is not the same as the ending balance.
+- https://firecalc.ai/guides/roth-conversion-ladder — describes IRS Publication 590-B ordering rules and the per-conversion five-year period. The engine does not track accounts, clocks, or the 10% additional tax. A simple tax rate only grosses spending up.
+- https://firecalc.ai/guides/retiring-early-with-kids — no per-child input, no 529 balance, and no ACA premium. Those costs belong in the spending number or in an account this tool does not see.
+- https://firecalc.ai/guides/safe-withdrawal-rate — 4%, 3.5%, 3.25%, and 3% on one portfolio, for 30 and 40 years. Not a full-history Trinity or Bengen study.
+- https://firecalc.ai/guides/fire-number and https://firecalc.ai/fire-number-calculator — spending divided by a withdrawal rate, then a savings path and a withdrawal test.
+- https://firecalc.ai/guides/social-security-early-retirement — the tool uses 0.70 at 62, 1.00 at 67, and 1.24 at 70 for a full retirement age of 67. It does not compute a primary insurance amount. The benefit stays off unless the box is on. Its COLA is the CPI on the market row, not the Social Security COLA.
+- https://firecalc.ai/guides/market-crash-at-retirement — the six named stress packs on one 4% plan. A pack is one path. Several packs are shorter than 30 years.
+- https://firecalc.ai/coast-fire-calculator — the zero-contribution check. The model does not solve for a coast number.
 
 An optional email form on the calculator and on these pages stores an email address, the time, the consent sentence, and the share link the person chose. It does not run a trial. Delete a row at https://firecalc.ai/unsubscribe.
 

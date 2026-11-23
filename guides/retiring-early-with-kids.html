@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Retiring early with kids: spending, 529s, and health coverage — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/retiring-early-with-kids">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Fold kids, a college set-aside, and health premiums into one spending number. FIREcalc has no 529 balance and no ACA premium module.">
+    <meta property="og:title" content="Retiring early with kids: spending, 529s, and health coverage — FIREcalc">
+    <meta property="og:description" content="Fold kids, a college set-aside, and health premiums into one spending number. FIREcalc has no 529 balance and no ACA premium module.">
+    <meta property="og:url" content="https://firecalc.ai/guides/retiring-early-with-kids">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Retiring early with kids: spending, 529s, and health coverage — FIREcalc">
+    <meta name="twitter:description" content="Fold kids, a college set-aside, and health premiums into one spending number. FIREcalc has no 529 balance and no ACA premium module.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/retiring-early-with-kids","name":"Retiring early with kids","url":"https://firecalc.ai/guides/retiring-early-with-kids","description":"Fold kids, a college set-aside, and health premiums into one spending number. FIREcalc has no 529 balance and no ACA premium module.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"Article","headline":"Retiring early with kids","description":"Fold kids, a college set-aside, and health premiums into one spending number. FIREcalc has no 529 balance and no ACA premium module.","datePublished":"2026-11-23","dateModified":"2026-11-23","author":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"publisher":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"image":"https://firecalc.ai/og-image.png","mainEntityOfPage":"https://firecalc.ai/guides/retiring-early-with-kids"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://firecalc.ai/guides"},{"@type":"ListItem","position":3,"name":"Retiring early with kids","item":"https://firecalc.ai/guides/retiring-early-with-kids"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where do the kids go in the form?","acceptedAnswer":{"@type":"Answer","text":"In annual spending. The family guide says the same thing. A 529, a college year, and a child who moves out are not separate inputs."}},{"@type":"Question","name":"What is a 529 in this model?","acceptedAnswer":{"@type":"Answer","text":"Nothing. IRS Topic 313 describes qualified tuition programs: contributions are not federally deductible, and distributions used for qualified education expenses are not taxed federally. The calculator never sees that account. Spending the retirement portfolio on college means the tuition has to be inside the withdrawal you typed."}},{"@type":"Question","name":"How do I handle health insurance before Medicare?","acceptedAnswer":{"@type":"Answer","text":"Add the premium you expect to pay to annual spending. The premium tax credit depends on household income, and a Roth conversion can raise that income. This tool does not compute a credit. Medicare eligibility is generally at 65, which leaves a gap if you retire earlier."}},{"@type":"Question","name":"Did Social Security erase the extra spending?","acceptedAnswer":{"@type":"Answer","text":"Not entirely. With both benefits on at 67, the $95,000 plan survived on 980 of 1,000 shuffled paths, against 939 of 1,000 with the benefits off. The benefits are inputs, not a computed household benefit."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=15">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/guides">Guides</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <a href="/guides">Guides</a> · <span aria-current="page">Retiring with kids</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Household</p>
+            <h1 class="display">Retiring early with kids</h1>
+            <p class="lede">Kids show up in this calculator as spending. There is no per-child field, no 529 balance, and no health-insurance premium. A household that puts a college set-aside and a health premium into the annual number is testing a higher withdrawal. On this example, $70,000 of base spending survived on 989 of 1,000 shuffled paths. $95,000, with $25,000 a year typed on top for those costs, survived on 939 of 1,000.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=2200000&amp;annualWithdrawal=95000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2100&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1400&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open the $95,000 household</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=2200000&amp;annualWithdrawal=70000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2100&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1400&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Base spending only, $70,000</a><a class="btn btn-ghost" href="/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=2200000&amp;annualWithdrawal=95000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=true&amp;ssMonthlyBenefit=2100&amp;ssClaimingAge=67&amp;includeSpouseSS=true&amp;spouseSSMonthlyBenefit=1400&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Add both Social Security benefits</a></div>
+            <p class="hero-hint">The extra $25,000 is an example the household typed, spread across every year of a 40-year retirement. It is not a tuition quote and not an ACA premium. College does not actually last 40 years. This is the conservative way to type a cost the engine cannot turn off later.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>A household retiring while children are still home has a higher bill and a messier one: childcare that ends, a college bill that arrives later, and health coverage that a job used to provide. The engine has one spending number for the whole horizon, raised with inflation every year. It will not drop the college line when the youngest finishes, and it will not price a marketplace plan.</p>
+            <h2>Put the temporary costs in the number, and know that you did</h2>
+            <p>Two honest ways to type a cost that will not last 40 years: raise spending for the whole retirement, which overstates the later years, or leave it out and keep a separate pile of money, which this calculator will not watch. This example does the first, and labels it.</p>
+            <p>The base budget is $70,000. The household then types $12,000 for health premiums and $13,000 as a flat college set-aside. Those two figures are assumptions for the sketch, not published premiums or tuition. The total is $95,000. Portfolio $2,200,000, age 50, 40 years, 60% stocks, tax 0%.</p>
+            <dl class="plan-facts"><div><dt>Base spending</dt><dd>$70,000</dd></div><div><dt>With the set-aside</dt><dd>$95,000</dd></div><div><dt>Portfolio</dt><dd>$2,200,000</dd></div><div><dt>Shuffled, $70k</dt><dd>989 of 1,000</dd></div><div><dt>Shuffled, $95k</dt><dd>939 of 1,000</dd></div><div><dt>$95k plus SS</dt><dd>980 of 1,000</dd></div></dl>
+            <p>989 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. That is the $70,000 run. 939 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. That is $95,000. 11 of 11 complete windows kept a balance above zero at the end of every year. Historical windows in this file are a kinder sample than the shuffle. Do not quote 11 of 11 as the reason the extra $25,000 is fine.</p>
+            <h2>A 529 and the premium tax credit sit outside the engine</h2>
+            <p>A section 529 plan is a separate account. <a href="https://www.irs.gov/taxtopics/tc313">IRS Topic 313</a> is the public description: contributions are not deductible on the federal return, earnings are not taxed while they stay in the program, and a distribution used for qualified education expenses is not taxed federally. If the 529 pays for college, leave the college dollars out of the retirement withdrawal. If it does not, the retirement portfolio is paying, and the spending number has to say so.</p>
+            <p>Health coverage from retirement until Medicare is a bill. The federal premium tax credit depends on household income. A conversion that raises income can shrink that credit in the same year. FIREcalc will not estimate either effect. The Social Security Administration tells people who delay a retirement benefit to sign up for Medicare at 65 anyway. The years before that are the gap you type as spending.</p>
+            <p>The third button turns on two benefits at 67: $2,100 a month and $1,400 a month, before the tool’s claiming-age factor. At 67 the factor is 1, so those are the amounts that enter the model, and they rise with the CPI series afterward. 980 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. Quote that count as a plan with Social Security inside it. The <a href="/guides/fire-calculator-for-families">family guide</a> makes the same point with a different household.</p>
+            <p class="callout">This is a planning sketch, not advice about taxes, insurance, or college savings. Change the $95,000 if your premium or your tuition assumption is different. The result belongs to the number you leave in the form.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Where do the kids go in the form?</h3><p>In annual spending. The family guide says the same thing. A 529, a college year, and a child who moves out are not separate inputs.</p><h3>What is a 529 in this model?</h3><p>Nothing. IRS Topic 313 describes qualified tuition programs: contributions are not federally deductible, and distributions used for qualified education expenses are not taxed federally. The calculator never sees that account. Spending the retirement portfolio on college means the tuition has to be inside the withdrawal you typed.</p><h3>How do I handle health insurance before Medicare?</h3><p>Add the premium you expect to pay to annual spending. The premium tax credit depends on household income, and a Roth conversion can raise that income. This tool does not compute a credit. Medicare eligibility is generally at 65, which leaves a gap if you retire earlier.</p><h3>Did Social Security erase the extra spending?</h3><p>Not entirely. With both benefits on at 67, the $95,000 plan survived on 980 of 1,000 shuffled paths, against 939 of 1,000 with the benefits off. The benefits are inputs, not a computed household benefit.</p>
+        </div>
+        <form class="plan-signup" id="email-plan" data-signup action="/api/signup" method="post" data-source="retiring-early-with-kids">
+            <h2 id="signup-title">Email me my plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-retiring-early-with-kids">Email</label>
+                <input id="email-retiring-early-with-kids" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="retiring-early-with-kids">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=retirement&amp;retirementAge=50&amp;retirementSavings=2200000&amp;annualWithdrawal=95000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2100&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1400&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/retiring-early-with-kids">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Related guides</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/fire-calculator-for-families"><strong>FIRE for families</strong><span>One household spending number, plus a spouse’s benefit.</span></a></li><li><a class="guide-card" href="/guides/social-security-early-retirement"><strong>Social Security</strong><span>Claiming at 62, 67, or 70 after years with no check.</span></a></li><li><a class="guide-card" href="/guides/roth-conversion-ladder"><strong>Roth conversion ladder</strong><span>The five-year rule, and the tax the portfolio has to fund.</span></a></li><li><a class="guide-card" href="/guides/retire-at-50"><strong>Retire at 50</strong><span>A 40-year retirement and the savings path that reaches it.</span></a></li></ul><p><a href="/guides">All guides</a></p></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides">Guides</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>
