@@ -726,7 +726,7 @@
                 test('Sitemap lists the calculator and the privacy policy',
                     'both',
                     (sitemap.includes('https://firecalc.ai/</loc>') || sitemap.includes('https://firecalc.ai/</loc>')) && sitemap.includes('privacy-policy.html') ? 'both' : 'missing',
-                    sitemap.includes('<loc>https://firecalc.ai/</loc>') && sitemap.includes('<loc>https://firecalc.ai/privacy-policy.html</loc>') && sitemap.includes('<lastmod>2026-09-25</lastmod>'));
+                    sitemap.includes('<loc>https://firecalc.ai/</loc>') && sitemap.includes('<loc>https://firecalc.ai/privacy-policy.html</loc>') && sitemap.includes('<loc>https://firecalc.ai/guides</loc>') && sitemap.includes('<lastmod>2026-11-23</lastmod>'));
                 const llms = await (await fetch('llms.txt')).text();
                 test('llms.txt matches the engine and does not mention OpenAI',
                     'present',

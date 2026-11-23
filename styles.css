@@ -1091,6 +1091,14 @@ dialog.sheet::backdrop { background: rgba(28, 36, 51, .32); backdrop-filter: blu
 .signup-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .token-note { margin-top: 12px; padding: 12px 14px; background: var(--sun-wash); border-radius: var(--radius); color: var(--ink-2); }
 
+.year-table { width: 100%; max-width: 74ch; border-collapse: collapse; margin-top: 14px; font-size: .92rem; }
+.year-table th, .year-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line-2); }
+.year-table th { font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+.year-table td:last-child, .year-table th:last-child { text-align: right; }
+.guide-prose-wide { max-width: none; }
+.guide-group { margin-top: 28px; }
+.guide-group h2 { font-family: var(--font-display); font-weight: 560; font-size: 1.45rem; letter-spacing: -.02em; }
+
 @media (max-width: 720px) {
     .plan-signup { padding: 18px 16px; border-radius: var(--radius-lg); }
     .signup-row .btn { width: 100%; }

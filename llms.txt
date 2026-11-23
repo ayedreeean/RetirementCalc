@@ -26,6 +26,21 @@ Static pages. They open a share link. The browser runs the plan. They are not a 
 - [FIRE calculator for families](https://firecalc.ai/guides/fire-calculator-for-families): Household spending and optional spouse Social Security. No per-child module
 - [Coast FIRE](https://firecalc.ai/guides/coast-fire): Zero contributions. The model does not solve for a coast number
 - [Will the 4% rule work?](https://firecalc.ai/guides/four-percent-rule): Historical cycles inside 1975–2024, plus the named stress packs. Not a full-history Trinity study
+- [Guide index](https://firecalc.ai/guides): Every guide and calculator page. Static HTML. Each one opens a share link
+- [Lean FIRE](https://firecalc.ai/guides/lean-fire): A small spending number. Same engine. [Calculator](https://firecalc.ai/lean-fire-calculator)
+- [Fat FIRE](https://firecalc.ai/guides/fat-fire): A high spending number. Same withdrawal test
+- [Barista FIRE](https://firecalc.ai/guides/barista-fire): Part-time income is “other income.” It stays nominal and can expire. [Calculator](https://firecalc.ai/barista-fire-calculator)
+- [Retire at 40](https://firecalc.ai/guides/retire-at-40): A 50-year retirement has one complete window in this table
+- [Retire at 45](https://firecalc.ai/guides/retire-at-45): 25× spending, then a 45-year withdrawal test
+- [Retire at 50](https://firecalc.ai/guides/retire-at-50): A 40-year retirement. Eleven complete windows
+- [Sequence of returns](https://firecalc.ai/guides/sequence-of-returns): Same plan, different start year, different ending balance
+- [Roth conversion ladder](https://firecalc.ai/guides/roth-conversion-ladder): IRS five-year rules. The engine does not track accounts or the 10% additional tax
+- [Retiring early with kids](https://firecalc.ai/guides/retiring-early-with-kids): No 529 and no ACA premium. Both belong inside the spending number, or outside the portfolio
+- [Safe withdrawal rate](https://firecalc.ai/guides/safe-withdrawal-rate): 4%, 3.5%, 3.25%, and 3% on one portfolio. Not a full-history Trinity study
+- [FIRE number](https://firecalc.ai/guides/fire-number): Spending divided by the rate you will test. [Calculator](https://firecalc.ai/fire-number-calculator)
+- [Social Security and early retirement](https://firecalc.ai/guides/social-security-early-retirement): Claiming factors for a full retirement age of 67. The benefit is an input, and it stays off until turned on
+- [A crash in the first year](https://firecalc.ai/guides/market-crash-at-retirement): Named stress packs for 2000, 2008, and 2022. One path each
+- [Coast FIRE calculator](https://firecalc.ai/coast-fire-calculator): Zero contributions. The model does not solve for a coast number
 
 ## Optional
 

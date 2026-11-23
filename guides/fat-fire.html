@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Fat FIRE calculator: a high spending number — FIREcalc</title>
+    <link rel="canonical" href="https://firecalc.ai/guides/fat-fire">
+    <link rel="describedby" href="/llms.txt" type="text/plain">
+    <meta name="description" content="Fat FIRE is the same withdrawal test at a high budget. This example uses $4.5 million and $180,000 a year on the 1975–2024 sample.">
+    <meta property="og:title" content="Fat FIRE calculator: a high spending number — FIREcalc">
+    <meta property="og:description" content="Fat FIRE is the same withdrawal test at a high budget. This example uses $4.5 million and $180,000 a year on the 1975–2024 sample.">
+    <meta property="og:url" content="https://firecalc.ai/guides/fat-fire">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="FIREcalc">
+    <meta property="og:image" content="https://firecalc.ai/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="FIREcalc: a savings path chart rising toward a dashed goal line, on a warm off-white background.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://firecalc.ai/og-image.png">
+    <meta name="twitter:title" content="Fat FIRE calculator: a high spending number — FIREcalc">
+    <meta name="twitter:description" content="Fat FIRE is the same withdrawal test at a high budget. This example uses $4.5 million and $180,000 a year on the 1975–2024 sample.">
+    <meta name="theme-color" content="#FAF8F4">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://firecalc.ai/guides/fat-fire","name":"Fat FIRE: does a high budget change the test?","url":"https://firecalc.ai/guides/fat-fire","description":"Fat FIRE is the same withdrawal test at a high budget. This example uses $4.5 million and $180,000 a year on the 1975–2024 sample.","isPartOf":{"@type":"WebSite","name":"FIREcalc","url":"https://firecalc.ai/"}},{"@type":"Article","headline":"Fat FIRE: does a high budget change the test?","description":"Fat FIRE is the same withdrawal test at a high budget. This example uses $4.5 million and $180,000 a year on the 1975–2024 sample.","datePublished":"2026-11-23","dateModified":"2026-11-23","author":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"publisher":{"@type":"Organization","name":"FIREcalc","url":"https://firecalc.ai/"},"image":"https://firecalc.ai/og-image.png","mainEntityOfPage":"https://firecalc.ai/guides/fat-fire"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"FIREcalc","item":"https://firecalc.ai/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://firecalc.ai/guides"},{"@type":"ListItem","position":3,"name":"Fat FIRE: does a high budget change the test?","item":"https://firecalc.ai/guides/fat-fire"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is fat FIRE a different formula?","acceptedAnswer":{"@type":"Answer","text":"No. It is a higher spending number divided by the withdrawal rate you want to test. Four percent of $4.5 million is $180,000. Four percent of $800,000 is $32,000. The engine treats them the same way."}},{"@type":"Question","name":"Why can a high budget still show a high success count?","acceptedAnswer":{"@type":"Answer","text":"Because the portfolio is scaled to the spending. A 4% withdrawal on a large balance is still 4%. What changes is whether you can save the larger balance, and whether taxes make the draw bigger than 4%."}},{"@type":"Question","name":"Does this include a 15% tax?","acceptedAnswer":{"@type":"Answer","text":"No. The tax rate is 0% so the portfolio draw stays at $180,000. A simple tax rate grosses spending up by dividing by 1 minus the rate. At 15% the draw would be larger than 4%."}},{"@type":"Question","name":"How long did the savings example take?","acceptedAnswer":{"@type":"Answer","text":"On seed 246813, the median path takes 9 years. The faster 10% are there by 7 years. The slower 10% take at least 12 years."}}]}]}
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-57CCGCXNJT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-57CCGCXNJT');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..650&amp;family=Inter:wght@400..700&amp;display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="/styles.css?v=15">
+</head>
+<body class="hub-page">
+    <a href="#main" class="skip-to-content">Skip to content</a>
+    <div class="sky" aria-hidden="true"></div>
+    <header class="app-header" role="banner">
+        <div class="header-inner">
+            <a class="brand" href="/" aria-label="FIREcalc home"><svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><defs><linearGradient id="brandSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBC77A"/><stop offset="1" stop-color="#EE8F3A"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="#0F7B6C"/><circle cx="16" cy="19.5" r="7.5" fill="url(#brandSun)"/><rect x="3" y="19.5" width="26" height="10" fill="#0F7B6C"/><path d="M5.5 24.5l5.5-2.8 4.6 1.8 5.6-5.4 5.3-2.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="brand-name">FIREcalc</span></a>
+            <nav class="tabs" aria-label="Site">
+                <a class="tab" href="/">Calculator</a>
+                <a class="tab" href="/guides">Guides</a>
+                <a class="tab" href="/ai"><span class="lbl-long">Agent &amp; plugins</span><span class="lbl-short">Agents</span></a>
+            </nav>
+            <div class="header-actions"><a class="header-link" href="/llms-full.txt">Methodology</a></div>
+        </div>
+    </header>
+    <main id="main" class="hub guide" tabindex="-1">
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">FIREcalc</a> · <a href="/guides">Guides</a> · <span aria-current="page">Fat FIRE</span></nav>
+        <div class="intro">
+            <p class="eyebrow"><span class="eyebrow-dot"></span>High budget</p>
+            <h1 class="display">Fat FIRE: does a high budget change the test?</h1>
+            <p class="lede">Fat FIRE is a large annual spending number, so the portfolio has to be large too. $180,000 is 4% of $4,500,000. The percentage test is the same one a lean plan uses. On a 40-year horizon, 11 of 11 complete windows kept a balance above zero at the end of every year. Shuffled years, seed 246813: 963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon.</p>
+            <div class="hero-actions"><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=51&amp;retirementSavings=4500000&amp;annualWithdrawal=180000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Open the $180,000 example</a><a class="btn btn-primary" href="/?tab=retirement&amp;retirementAge=51&amp;retirementSavings=4500000&amp;annualWithdrawal=180000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=shuffled&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">Same plan, shuffled years</a><a class="btn btn-ghost" href="/?tab=accumulation&amp;currentAge=42&amp;currentSavings=1500000&amp;income=320000&amp;expenses=180000&amp;targetAmount=4500000&amp;stockAllocation=70&amp;incomeGrowth=1&amp;savingsSimulationCount=1000&amp;savingsReturnMode=shuffled&amp;seed=246813">Years to reach $4.5 million</a></div>
+            <p class="hero-hint">Age 51 on the withdrawal link is the age this savings example’s median path arrives. The success count does not use Social Security, so the age field is a label for the 40-year span.</p>
+        </div>
+        <dl class="honesty" aria-label="Sample and method">
+            <div><dt>Sample</dt><dd>1975–2024, 50 years</dd></div>
+            <div><dt>Assets</dt><dd>S&amp;P 500 and 10-yr Treasuries</dd></div>
+            <div><dt>Not in the sample</dt><dd>1966 and 1973–74</dd></div>
+            <div><dt>Framing</dt><dd>An illustration, not advice</dd></div>
+            <a class="honesty-link" href="/llms-full.txt">Methodology</a>
+        </dl>
+        <div class="guide-prose">
+            
+            <p>Fat FIRE is the community name for retiring on a spending level that is high by ordinary standards: travel, a costly city, help around the house. None of that is a field in the calculator. You type the dollars. If those dollars are 4% of the portfolio, you are running a 4% test, whatever you call it.</p>
+            <h2>Saving toward $4.5 million</h2>
+            <p>Age 42, $1,500,000 already invested, $320,000 of income, $180,000 of spending. The gap is $140,000 a year. Real raises are 1%. The goal is $4,500,000 in today’s dollars, which is 25× the spending. Stocks are 70%.</p>
+            <dl class="plan-facts"><div><dt>Age</dt><dd>42</dd></div><div><dt>Invested</dt><dd>$1,500,000</dd></div><div><dt>Saved each year</dt><dd>$140,000</dd></div><div><dt>Goal</dt><dd>$4,500,000</dd></div><div><dt>Stocks</dt><dd>70%</dd></div><div><dt>Real raises</dt><dd>1%</dd></div></dl>
+            <p>On seed 246813, the median path takes 9 years, age 51. The faster 10% are there by 7 years, age 49. The slower 10% take at least 12 years, age 54. 1,000 of 1,000 shuffled paths reached the goal inside 50 years. 42 of 50 start years reach the goal before the sample ends. The median of all 50 start years is 10 years. The faster 10% are there by 7 years. Starts near 2024 have only a few years of data, so the slower tail includes windows that run out of history. Most of this sketch is the balance that is already there. The contribution still matters, and so does which years the path draws.</p>
+            <h2>Spending $180,000 for 40 years</h2>
+            <p>The withdrawal link starts at age 51, with the $4,500,000 already in hand, and runs 40 years. Stocks 60%, Treasuries 40%, tax 0%, Social Security off, spending raised with inflation. A 40-year retirement has 11 complete windows in the 1975–2024 table. 11 of 11 complete windows kept a balance above zero at the end of every year. 963 of 1,000 shuffled paths kept a balance above zero for every year of the horizon. The earliest shuffled failure lasted 19 years. Eleven historical windows that all begin in 1975–1985 are not the late-1960s retirements in the published 4% studies. The <a href="/guides/four-percent-rule">4% rule page</a> says the same thing about the smaller textbook case.</p>
+            <p class="callout">A fat plan is fragile in the savings phase if the income that funds the $140,000 gap stops. It is fragile in retirement if spending rises above the figure you typed, or if taxes turn a 4% draw into something larger. Change one field on the open calculator and read the new count. This is an illustration, not advice.</p>
+            <h2>Questions people ask next</h2>
+            <h3>Is fat FIRE a different formula?</h3><p>No. It is a higher spending number divided by the withdrawal rate you want to test. Four percent of $4.5 million is $180,000. Four percent of $800,000 is $32,000. The engine treats them the same way.</p><h3>Why can a high budget still show a high success count?</h3><p>Because the portfolio is scaled to the spending. A 4% withdrawal on a large balance is still 4%. What changes is whether you can save the larger balance, and whether taxes make the draw bigger than 4%.</p><h3>Does this include a 15% tax?</h3><p>No. The tax rate is 0% so the portfolio draw stays at $180,000. A simple tax rate grosses spending up by dividing by 1 minus the rate. At 15% the draw would be larger than 4%.</p><h3>How long did the savings example take?</h3><p>On seed 246813, the median path takes 9 years. The faster 10% are there by 7 years. The slower 10% take at least 12 years.</p>
+        </div>
+        <form class="plan-signup" id="email-plan" data-signup action="/api/signup" method="post" data-source="fat-fire">
+            <h2 id="signup-title">Email me my plan</h2>
+            <p class="signup-note">Save the example plan linked above. A monthly re-check is why the list exists. Sending is not connected yet, so this only stores the signup. Open the calculator, change the numbers, and save again from the results if you want your own link instead.</p>
+            <div class="signup-hp" aria-hidden="true"><label>Company website <input type="text" name="fc_website" tabindex="-1" autocomplete="off" value=""></label></div>
+            <div class="signup-row">
+                <label class="sr-only" for="email-fat-fire">Email</label>
+                <input id="email-fat-fire" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com">
+                <button type="submit" class="btn btn-primary">Save my plan link</button>
+            </div>
+            <label class="signup-consent"><input type="checkbox" name="consent" value="yes" required><span>I agree to let FIREcalc store my email address, the time of this request, this consent, and the share link on this page. The share link contains the calculator inputs in the address. I want that link saved so FIREcalc can email it to me and send a monthly reminder to re-check the plan. I can delete this signup at any time.</span></label>
+            <input type="hidden" name="source" value="fat-fire">
+            <input type="hidden" name="plan_url" value="https://firecalc.ai/?tab=retirement&amp;retirementAge=51&amp;retirementSavings=4500000&amp;annualWithdrawal=180000&amp;retirementStockAllocation=60&amp;withdrawalAdjustment=true&amp;taxRate=0&amp;taxMode=simple&amp;retirementLifeExpectancy=40&amp;simulationCount=1000&amp;retirementReturnMode=historical&amp;includeSS=false&amp;ssMonthlyBenefit=2000&amp;ssClaimingAge=67&amp;includeSpouseSS=false&amp;spouseSSMonthlyBenefit=1500&amp;spouseSSClaimingAge=67&amp;includeOtherIncome=false&amp;monthlyPension=0&amp;pensionStartAge=65&amp;monthlyOtherIncome=0&amp;otherIncomeDuration=0&amp;seed=246813">
+            <input type="hidden" name="return_to" value="/guides/fat-fire">
+            <p class="signup-status" role="status"></p>
+            <p class="signup-fine">Delete it anytime on the <a href="/unsubscribe">unsubscribe page</a>. Details are in the <a href="/privacy-policy.html">privacy policy</a>.</p>
+        </form>
+        <nav class="guide-more" aria-label="More guides"><h2>Related guides</h2><ul class="guide-grid"><li><a class="guide-card" href="/guides/lean-fire"><strong>Lean FIRE</strong><span>A small spending number, then a long withdrawal test.</span></a></li><li><a class="guide-card" href="/guides/fire-number"><strong>What is my FIRE number?</strong><span>Spending divided by the withdrawal rate you are willing to test.</span></a></li><li><a class="guide-card" href="/guides/safe-withdrawal-rate"><strong>Safe withdrawal rate</strong><span>4%, 3.5%, 3.25%, and 3% on one portfolio.</span></a></li><li><a class="guide-card" href="/guides/four-percent-rule"><strong>The 4% rule</strong><span>A historical-window test, plus the named stress packs.</span></a></li></ul><p><a href="/guides">All guides</a></p></nav>
+        <footer class="hub-footer"><nav aria-label="Footer"><a href="/">Calculator</a><a href="/guides">Guides</a><a href="/ai">Agent &amp; plugins</a><a href="/llms-full.txt">Methodology</a><a href="/privacy-policy.html">Privacy</a><a href="/unsubscribe">Unsubscribe</a></nav><p>FIREcalc is a planning sketch, not financial advice. Calculations run in your browser. A share link you choose to email is stored only if you opt in.</p></footer>
+    </main>
+    <script defer src="/signup.js?v=1"></script>
+</body>
+</html>
